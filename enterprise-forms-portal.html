@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solutions Portal - Business Forms</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .main-nav {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+        
+        .main-nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        .main-nav a:hover {
+            background: #34495e;
+        }
+        
+        .dropdown {
+            position: relative;
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #34495e;
+            min-width: 200px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            border-radius: 5px;
+            z-index: 1000;
+        }
+        
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        
+        .dropdown-content a {
+            display: block;
+            padding: 10px 15px;
+            border-bottom: 1px solid #2c3e50;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .dashboard {
+            min-height: 80vh;
+        }
+        
+        .main-content {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .form-section {
+            display: none;
+        }
+        
+        .form-section.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+        
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn {
+            background: #3498db;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+        }
+        
+        .btn-success {
+            background: #27ae60;
+        }
+        
+        .btn-success:hover {
+            background: #219a52;
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            background: white;
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .data-table th,
+        .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .data-table th {
+            background: #3498db;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .data-table th:hover {
+            background: #2980b9;
+        }
+        
+        .data-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .search-box {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem;
+            padding-right: 3rem;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 1rem;
+        }
+        
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .search-result-item {
+            padding: 0.75rem;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .search-result-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .calendar-widget {
+            max-width: 300px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .calendar-header {
+            background: #3498db;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+        }
+        
+        .calendar-day {
+            padding: 0.75rem;
+            text-align: center;
+            border: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .calendar-day:hover {
+            background: #f8f9fa;
+        }
+        
+        .calendar-day.selected {
+            background: #3498db;
+            color: white;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+        }
+        
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .modal-header {
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .modal-footer {
+            margin-top: 1rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid #ddd;
+            text-align: right;
+        }
+        
+        .close {
+            float: right;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .drag-drop-area {
+            border: 2px dashed #ddd;
+            border-radius: 5px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .drag-drop-area:hover {
+            border-color: #3498db;
+            background: #f8f9fa;
+        }
+        
+        .file-list {
+            margin-top: 1rem;
+        }
+        
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            background: #f8f9fa;
+            margin-bottom: 0.5rem;
+            border-radius: 5px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #3498db;
+            transition: width 0.3s;
+        }
+        
+        .slider-container {
+            margin: 1rem 0;
+        }
+        
+        .slider {
+            width: 100%;
+            height: 5px;
+            background: #ddd;
+            border-radius: 5px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #3498db;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #ddd;
+            margin-bottom: 1rem;
+        }
+        
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            border-bottom-color: #3498db;
+            color: #3498db;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+
+        .sortable-list {
+            min-height: 200px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 1rem;
+        }
+
+        .sortable-item {
+            background: #f8f9fa;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            border-radius: 5px;
+            cursor: move;
+            border-left: 4px solid #3498db;
+            transition: all 0.3s;
+        }
+
+        .sortable-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .sortable-item.dragging {
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo">Solutions Portal</div>
+            <nav>
+                <ul class="main-nav">
+                    <li><a href="#" onclick="showSection('employee-form')">Employee Onboarding</a></li>
+                    <li><a href="#" onclick="showSection('expense-form')">Expense Report</a></li>
+                    <li><a href="#" onclick="showSection('project-form')">Project Request</a></li>
+                    <li><a href="#" onclick="showSection('vendor-form')">Vendor Registration</a></li>
+                    <li class="dropdown">
+                        <a href="#reports">Reports</a>
+                        <div class="dropdown-content">
+                            <a href="#" onclick="showSection('employee-directory')">Employee Directory</a>
+                            <a href="#" onclick="showSection('project-status')">Project Status</a>
+                            <a href="#" onclick="showSection('financial-summary')">Financial Summary</a>
+                        </div>
+                    </li>
+                    <li><a href="#" onclick="showSection('document-manager')">Documents</a></li>
+                    <li><a href="#" onclick="showSection('calendar-view')">Calendar</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="dashboard">
+            <main class="main-content">
+                <!-- Employee Onboarding Form -->
+                <section id="employee-form" class="form-section active">
+                    <h2>Employee Onboarding Form</h2>
+                    <form id="employeeForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="firstName">First Name *</label>
+                                <input type="text" id="firstName" name="firstName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email Address *</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="department">Department *</label>
+                                <select id="department" name="department" required>
+                                    <option value="">Select Department</option>
+                                    <option value="engineering">Engineering</option>
+                                    <option value="marketing">Marketing</option>
+                                    <option value="sales">Sales</option>
+                                    <option value="hr">Human Resources</option>
+                                    <option value="finance">Finance</option>
+                                    <option value="operations">Operations</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="position">Position Level</label>
+                                <select id="position" name="position">
+                                    <option value="">Select Level</option>
+                                    <option value="intern">Intern</option>
+                                    <option value="junior">Junior</option>
+                                    <option value="mid">Mid-Level</option>
+                                    <option value="senior">Senior</option>
+                                    <option value="lead">Team Lead</option>
+                                    <option value="manager">Manager</option>
+                                    <option value="director">Director</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="startDate">Start Date *</label>
+                            <input type="date" id="startDate" name="startDate" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Employment Type *</label>
+                            <div class="radio-group">
+                                <div class="radio-item">
+                                    <input type="radio" id="fullTime" name="employmentType" value="full-time" required>
+                                    <label for="fullTime">Full-time</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="partTime" name="employmentType" value="part-time">
+                                    <label for="partTime">Part-time</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="contract" name="employmentType" value="contract">
+                                    <label for="contract">Contract</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Required Equipment</label>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="laptop" name="equipment" value="laptop">
+                                    <label for="laptop">Laptop</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="monitor" name="equipment" value="monitor">
+                                    <label for="monitor">External Monitor</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="phone" name="equipment" value="phone">
+                                    <label for="phone">Company Phone</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="accessories" name="equipment" value="accessories">
+                                    <label for="accessories">Keyboard & Mouse</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="notes">Additional Notes</label>
+                            <textarea id="notes" name="notes" rows="4" placeholder="Any special requirements or notes..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-success">Submit Onboarding Form</button>
+                        <button type="button" class="btn" onclick="openModal('preview-modal')">Preview</button>
+                    </form>
+                </section>
+
+                <!-- Expense Report Form -->
+                <section id="expense-form" class="form-section">
+                    <h2>Expense Report</h2>
+                    <form id="expenseForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="expenseEmployee">Employee Name *</label>
+                                <div class="search-box">
+                                    <input type="text" id="expenseEmployee" name="expenseEmployee" placeholder="Start typing employee name..." autocomplete="off">
+                                    <div class="search-results" id="employeeSearchResults">
+                                        <div class="search-result-item" onclick="selectEmployee('John Smith')">John Smith - Engineering</div>
+                                        <div class="search-result-item" onclick="selectEmployee('Sarah Johnson')">Sarah Johnson - Marketing</div>
+                                        <div class="search-result-item" onclick="selectEmployee('Mike Davis')">Mike Davis - Sales</div>
+                                        <div class="search-result-item" onclick="selectEmployee('Lisa Chen')">Lisa Chen - Finance</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="reportPeriod">Report Period *</label>
+                                <select id="reportPeriod" name="reportPeriod" required>
+                                    <option value="">Select Period</option>
+                                    <option value="current-month">Current Month</option>
+                                    <option value="last-month">Last Month</option>
+                                    <option value="q1-2024">Q1 2024</option>
+                                    <option value="q2-2024">Q2 2024</option>
+                                    <option value="custom">Custom Range</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="expenseCategory">Expense Category *</label>
+                            <select id="expenseCategory" name="expenseCategory" required>
+                                <option value="">Select Category</option>
+                                <option value="travel">Travel & Transportation</option>
+                                <option value="meals">Meals & Entertainment</option>
+                                <option value="supplies">Office Supplies</option>
+                                <option value="software">Software & Subscriptions</option>
+                                <option value="training">Training & Education</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="expenseAmount">Total Amount ($) *</label>
+                                <input type="number" id="expenseAmount" name="expenseAmount" step="0.01" min="0" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="expenseDate">Expense Date *</label>
+                                <input type="date" id="expenseDate" name="expenseDate" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="businessPurpose">Business Purpose *</label>
+                            <textarea id="businessPurpose" name="businessPurpose" rows="3" required placeholder="Describe the business purpose of this expense..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Receipt Upload</label>
+                            <div class="drag-drop-area" onclick="document.getElementById('receiptUpload').click()">
+                                <p>Click to upload receipt or drag and drop</p>
+                                <input type="file" id="receiptUpload" name="receipt" accept="image/*,.pdf" style="display: none;">
+                            </div>
+                            <div class="file-list" id="fileList"></div>
+                        </div>
+
+                        <button type="submit" class="btn btn-success">Submit Expense Report</button>
+                    </form>
+                </section>
+
+                <!-- Project Request Form -->
+                <section id="project-form" class="form-section">
+                    <h2>Project Request Form</h2>
+                    <form id="projectForm">
+                        <div class="form-group">
+                            <label for="projectName">Project Name *</label>
+                            <input type="text" id="projectName" name="projectName" required>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="projectType">Project Type *</label>
+                                <select id="projectType" name="projectType" required>
+                                    <option value="">Select Type</option>
+                                    <option value="development">Software Development</option>
+                                    <option value="marketing">Marketing Campaign</option>
+                                    <option value="research">Research & Development</option>
+                                    <option value="infrastructure">Infrastructure</option>
+                                    <option value="process-improvement">Process Improvement</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="priority">Priority Level *</label>
+                                <select id="priority" name="priority" required>
+                                    <option value="">Select Priority</option>
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High</option>
+                                    <option value="critical">Critical</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="budget">Estimated Budget ($)</label>
+                                <div class="slider-container">
+                                    <input type="range" id="budget" name="budget" min="1000" max="100000" value="10000" class="slider">
+                                    <span id="budgetValue">$10,000</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="timeline">Expected Timeline (weeks)</label>
+                                <select id="timeline" name="timeline">
+                                    <option value="">Select Timeline</option>
+                                    <option value="1-2">1-2 weeks</option>
+                                    <option value="3-4">3-4 weeks</option>
+                                    <option value="1-2-months">1-2 months</option>
+                                    <option value="3-6-months">3-6 months</option>
+                                    <option value="6-plus-months">6+ months</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="projectDescription">Project Description *</label>
+                            <textarea id="projectDescription" name="projectDescription" rows="5" required placeholder="Provide detailed description of the project..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Team Members Required</label>
+                            <div class="sortable-list" id="teamMembers">
+                                <div class="sortable-item" draggable="true">Project Manager</div>
+                                <div class="sortable-item" draggable="true">Developer (Frontend)</div>
+                                <div class="sortable-item" draggable="true">Developer (Backend)</div>
+                                <div class="sortable-item" draggable="true">Designer</div>
+                                <div class="sortable-item" draggable="true">QA Tester</div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-success">Submit Project Request</button>
+                    </form>
+                </section>
+
+                <!-- Vendor Registration Form -->
+                <section id="vendor-form" class="form-section">
+                    <h2>Vendor Registration</h2>
+                    <div class="tabs">
+                        <div class="tab active" onclick="switchTab('basic-info')">Basic Information</div>
+                        <div class="tab" onclick="switchTab('business-details')">Business Details</div>
+                        <div class="tab" onclick="switchTab('compliance')">Compliance</div>
+                    </div>
+
+                    <form id="vendorForm">
+                        <div id="basic-info" class="tab-content active">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="vendorName">Company Name *</label>
+                                    <input type="text" id="vendorName" name="vendorName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="vendorType">Vendor Type *</label>
+                                    <select id="vendorType" name="vendorType" required>
+                                        <option value="">Select Type</option>
+                                        <option value="supplier">Supplier</option>
+                                        <option value="service-provider">Service Provider</option>
+                                        <option value="contractor">Contractor</option>
+                                        <option value="consultant">Consultant</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="contactPerson">Primary Contact *</label>
+                                    <input type="text" id="contactPerson" name="contactPerson" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="vendorEmail">Email Address *</label>
+                                    <input type="email" id="vendorEmail" name="vendorEmail" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="vendorAddress">Business Address *</label>
+                                <textarea id="vendorAddress" name="vendorAddress" rows="3" required></textarea>
+                            </div>
+                        </div>
+
+                        <div id="business-details" class="tab-content">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="taxId">Tax ID Number *</label>
+                                    <input type="text" id="taxId" name="taxId" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="businessLicense">Business License #</label>
+                                    <input type="text" id="businessLicense" name="businessLicense">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Services Offered</label>
+                                <div class="checkbox-group">
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="consulting" name="services" value="consulting">
+                                        <label for="consulting">Consulting</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="development" name="services" value="development">
+                                        <label for="development">Development</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="maintenance" name="services" value="maintenance">
+                                        <label for="maintenance">Maintenance</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="support" name="services" value="support">
+                                        <label for="support">Support</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="compliance" class="tab-content">
+                            <div class="form-group">
+                                <label>Certifications</label>
+                                <div class="checkbox-group">
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="iso9001" name="certifications" value="iso9001">
+                                        <label for="iso9001">ISO 9001</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="soc2" name="certifications" value="soc2">
+                                        <label for="soc2">SOC 2</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="gdpr" name="certifications" value="gdpr">
+                                        <label for="gdpr">GDPR Compliant</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Insurance Coverage ($)</label>
+                                <div class="radio-group">
+                                    <div class="radio-item">
+                                        <input type="radio" id="insurance1m" name="insurance" value="1000000">
+                                        <label for="insurance1m">$1 Million</label>
+                                    </div>
+                                    <div class="radio-item">
+                                        <input type="radio" id="insurance5m" name="insurance" value="5000000">
+                                        <label for="insurance5m">$5 Million</label>
+                                    </div>
+                                    <div class="radio-item">
+                                        <input type="radio" id="insurance10m" name="insurance" value="10000000">
+                                        <label for="insurance10m">$10+ Million</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-success">Submit Vendor Registration</button>
+                    </form>
+                </section>
+
+                <!-- Employee Directory -->
+                <section id="employee-directory" class="form-section">
+                    <h2>Employee Directory</h2>
+                    
+                    <div class="search-box">
+                        <input type="text" id="employeeSearch" placeholder="Search employees by name, department, or position..." onkeyup="filterEmployees()">
+                    </div>
+
+                    <table class="data-table" id="employeeTable">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable(0, 'employeeTable')">Name</th>
+                                <th onclick="sortTable(1, 'employeeTable')">Department</th>
+                                <th onclick="sortTable(2, 'employeeTable')">Position</th>
+                                <th onclick="sortTable(3, 'employeeTable')">Email</th>
+                                <th onclick="sortTable(4, 'employeeTable')">Start Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>John Smith</td>
+                                <td>Engineering</td>
+                                <td>Senior Developer</td>
+                                <td>john.smith@company.com</td>
+                                <td>2023-01-15</td>
+                                <td><button class="btn" onclick="openModal('employee-modal')">View</button></td>
+                            </tr>
+                            <tr>
+                                <td>Sarah Johnson</td>
+                                <td>Marketing</td>
+                                <td>Marketing Manager</td>
+                                <td>sarah.johnson@company.com</td>
+                                <td>2022-11-20</td>
+                                <td><button class="btn" onclick="openModal('employee-modal')">View</button></td>
+                            </tr>
+                            <tr>
+                                <td>Mike Davis</td>
+                                <td>Sales</td>
+                                <td>Sales Representative</td>
+                                <td>mike.davis@company.com</td>
+                                <td>2023-03-10</td>
+                                <td><button class="btn" onclick="openModal('employee-modal')">View</button></td>
+                            </tr>
+                            <tr>
+                                <td>Lisa Chen</td>
+                                <td>Finance</td>
+                                <td>Financial Analyst</td>
+                                <td>lisa.chen@company.com</td>
+                                <td>2023-02-01</td>
+                                <td><button class="btn" onclick="openModal('employee-modal')">View</button></td>
+                            </tr>
+                            <tr>
+                                <td>David Wilson</td>
+                                <td>Operations</td>
+                                <td>Operations Manager</td>
+                                <td>david.wilson@company.com</td>
+                                <td>2022-08-15</td>
+                                <td><button class="btn" onclick="openModal('employee-modal')">View</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Document Manager -->
+                <section id="document-manager" class="form-section">
+                    <h2>Document Manager</h2>
+                    
+                    <div class="form-group">
+                        <label for="documentSearch">Search Documents</label>
+                        <div class="search-box">
+                            <input type="text" id="documentSearch" placeholder="Search by filename, type, or content..." autocomplete="off">
+                            <div class="search-results" id="documentSearchResults">
+                                <div class="search-result-item" onclick="selectDocument('Employee Handbook 2024.pdf')">Employee Handbook 2024.pdf</div>
+                                <div class="search-result-item" onclick="selectDocument('Q4 Budget Report.xlsx')">Q4 Budget Report.xlsx</div>
+                                <div class="search-result-item" onclick="selectDocument('Marketing Strategy.docx')">Marketing Strategy.docx</div>
+                                <div class="search-result-item" onclick="selectDocument('Technical Specifications.pdf')">Technical Specifications.pdf</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Upload New Document</label>
+                        <div class="drag-drop-area" onclick="document.getElementById('documentUpload').click()">
+                            <p>Click to upload document or drag and drop files here</p>
+                            <input type="file" id="documentUpload" name="document" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" style="display: none;">
+                        </div>
+                        <div class="file-list" id="documentFileList"></div>
+                    </div>
+
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable(0, this.closest('table'))">Document Name</th>
+                                <th onclick="sortTable(1, this.closest('table'))">Type</th>
+                                <th onclick="sortTable(2, this.closest('table'))">Size</th>
+                                <th onclick="sortTable(3, this.closest('table'))">Modified</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Employee Handbook 2024.pdf</td>
+                                <td>PDF</td>
+                                <td>2.3 MB</td>
+                                <td>2024-01-15</td>
+                                <td>
+                                    <button class="btn">Download</button>
+                                    <button class="btn btn-danger">Delete</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Q4 Budget Report.xlsx</td>
+                                <td>Excel</td>
+                                <td>854 KB</td>
+                                <td>2024-01-10</td>
+                                <td>
+                                    <button class="btn">Download</button>
+                                    <button class="btn btn-danger">Delete</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Marketing Strategy.docx</td>
+                                <td>Word</td>
+                                <td>1.2 MB</td>
+                                <td>2024-01-08</td>
+                                <td>
+                                    <button class="btn">Download</button>
+                                    <button class="btn btn-danger">Delete</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Calendar View -->
+                <section id="calendar-view" class="form-section">
+                    <h2>Calendar & Scheduling</h2>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <div class="calendar-widget">
+                                <div class="calendar-header">
+                                    <button onclick="changeMonth(-1)">&lt;</button>
+                                    <span id="currentMonth">January 2024</span>
+                                    <button onclick="changeMonth(1)">&gt;</button>
+                                </div>
+                                <div class="calendar-grid">
+                                    <div class="calendar-day">Sun</div>
+                                    <div class="calendar-day">Mon</div>
+                                    <div class="calendar-day">Tue</div>
+                                    <div class="calendar-day">Wed</div>
+                                    <div class="calendar-day">Thu</div>
+                                    <div class="calendar-day">Fri</div>
+                                    <div class="calendar-day">Sat</div>
+                                    <!-- Calendar days will be generated by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <h3>Schedule Meeting</h3>
+                            <form id="meetingForm">
+                                <div class="form-group">
+                                    <label for="meetingTitle">Meeting Title</label>
+                                    <input type="text" id="meetingTitle" name="meetingTitle">
+                                </div>
+                                <div class="form-group">
+                                    <label for="meetingDate">Date</label>
+                                    <input type="date" id="meetingDate" name="meetingDate">
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="meetingTime">Time</label>
+                                        <input type="time" id="meetingTime" name="meetingTime">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="duration">Duration</label>
+                                        <select id="duration" name="duration">
+                                            <option value="30">30 minutes</option>
+                                            <option value="60">1 hour</option>
+                                            <option value="90">1.5 hours</option>
+                                            <option value="120">2 hours</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-success">Schedule Meeting</button>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Project Status -->
+                <section id="project-status" class="form-section">
+                    <h2>Project Status Report</h2>
+                    <p>This section will display project status information and reports.</p>
+                    <div style="background: #f8f9fa; padding: 2rem; border-radius: 10px; text-align: center; margin: 2rem 0;">
+                        <h3>Project Status Dashboard</h3>
+                        <p>Coming soon - Track and monitor all active projects</p>
+                    </div>
+                </section>
+
+                <!-- Financial Summary -->
+                <section id="financial-summary" class="form-section">
+                    <h2>Financial Summary Report</h2>
+                    <p>This section will display financial summaries and expense analytics.</p>
+                    <div style="background: #f8f9fa; padding: 2rem; border-radius: 10px; text-align: center; margin: 2rem 0;">
+                        <h3>Financial Analytics Dashboard</h3>
+                        <p>Coming soon - View comprehensive financial reports and expense analytics</p>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="preview-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Form Preview</h3>
+                <span class="close" onclick="closeModal('preview-modal')">&times;</span>
+            </div>
+            <div id="preview-content">
+                <p>Form data will be displayed here...</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('preview-modal')">Close</button>
+                <button class="btn btn-success">Confirm Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="employee-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Employee Details</h3>
+                <span class="close" onclick="closeModal('employee-modal')">&times;</span>
+            </div>
+            <div id="employee-details">
+                <p><strong>Name:</strong> John Smith</p>
+                <p><strong>Department:</strong> Engineering</p>
+                <p><strong>Position:</strong> Senior Developer</p>
+                <p><strong>Email:</strong> john.smith@company.com</p>
+                <p><strong>Start Date:</strong> January 15, 2023</p>
+                <p><strong>Manager:</strong> Sarah Wilson</p>
+                <p><strong>Employee ID:</strong> EMP-001</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('employee-modal')">Close</button>
+                <button class="btn btn-success">Edit Employee</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Navigation and UI Functions
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.form-section');
+            sections.forEach(section => section.classList.remove('active'));
+            
+            // Show selected section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+            
+            // Update active state is now handled by the dropdown navigation
+            
+            // Update URL based on section
+            const sectionUrls = {
+                'employee-form': '/forms/employee-onboarding',
+                'expense-form': '/forms/expense-report',
+                'project-form': '/forms/project-request',
+                'vendor-form': '/forms/vendor-registration',
+                'employee-directory': '/reports/employee-directory',
+                'project-status': '/reports/project-status',
+                'financial-summary': '/reports/financial-summary',
+                'document-manager': '/documents/manager',
+                'calendar-view': '/calendar/schedule'
+            };
+            
+            if (sectionUrls[sectionId]) {
+                // Update URL without page reload
+                history.pushState({ section: sectionId }, '', sectionUrls[sectionId]);
+                
+                // Update page title
+                const sectionTitles = {
+                    'employee-form': 'Employee Onboarding - Solutions Portal',
+                    'expense-form': 'Expense Report - Solutions Portal',
+                    'project-form': 'Project Request - Solutions Portal',
+                    'vendor-form': 'Vendor Registration - Solutions Portal',
+                    'employee-directory': 'Employee Directory - Solutions Portal',
+                    'project-status': 'Project Status - Solutions Portal',
+                    'financial-summary': 'Financial Summary - Solutions Portal',
+                    'document-manager': 'Document Manager - Solutions Portal',
+                    'calendar-view': 'Calendar & Scheduling - Solutions Portal'
+                };
+                
+                if (sectionTitles[sectionId]) {
+                    document.title = sectionTitles[sectionId];
+                }
+            }
+        }
+
+        // Tab switching
+        function switchTab(tabId) {
+            const tabs = document.querySelectorAll('.tab');
+            const contents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            contents.forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // Modal functions
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Search and autocomplete
+        function filterEmployees() {
+            const searchTerm = document.getElementById('employeeSearch').value.toLowerCase();
+            const table = document.getElementById('employeeTable');
+            const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+            
+            for (let row of rows) {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            }
+        }
+
+        // Employee search autocomplete
+        document.getElementById('expenseEmployee').addEventListener('input', function() {
+            const results = document.getElementById('employeeSearchResults');
+            if (this.value.length > 0) {
+                results.style.display = 'block';
+            } else {
+                results.style.display = 'none';
+            }
+        });
+
+        function selectEmployee(name) {
+            document.getElementById('expenseEmployee').value = name;
+            document.getElementById('employeeSearchResults').style.display = 'none';
+        }
+
+        // Document search autocomplete
+        document.getElementById('documentSearch').addEventListener('input', function() {
+            const results = document.getElementById('documentSearchResults');
+            if (this.value.length > 0) {
+                results.style.display = 'block';
+            } else {
+                results.style.display = 'none';
+            }
+        });
+
+        function selectDocument(name) {
+            document.getElementById('documentSearch').value = name;
+            document.getElementById('documentSearchResults').style.display = 'none';
+        }
+
+        // Table sorting
+        function sortTable(columnIndex, tableId) {
+            const table = typeof tableId === 'string' ? document.getElementById(tableId) : tableId;
+            const tbody = table.getElementsByTagName('tbody')[0];
+            const rows = Array.from(tbody.getElementsByTagName('tr'));
+            
+            rows.sort((a, b) => {
+                const aText = a.getElementsByTagName('td')[columnIndex].textContent;
+                const bText = b.getElementsByTagName('td')[columnIndex].textContent;
+                return aText.localeCompare(bText);
+            });
+            
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        // Budget slider
+        document.getElementById('budget').addEventListener('input', function() {
+            const value = parseInt(this.value);
+            document.getElementById('budgetValue').textContent = '$' + value.toLocaleString();
+        });
+
+        // Drag and drop for sortable list
+        const sortableItems = document.querySelectorAll('.sortable-item');
+        sortableItems.forEach(item => {
+            item.addEventListener('dragstart', function() {
+                this.classList.add('dragging');
+            });
+            
+            item.addEventListener('dragend', function() {
+                this.classList.remove('dragging');
+            });
+        });
+
+        // File upload handlers
+        document.getElementById('receiptUpload')?.addEventListener('change', function() {
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
+            
+            for (let file of this.files) {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <span>${file.name}</span>
+                    <button class="btn btn-danger" onclick="this.parentElement.remove()">Remove</button>
+                `;
+                fileList.appendChild(fileItem);
+            }
+        });
+
+        document.getElementById('documentUpload')?.addEventListener('change', function() {
+            const fileList = document.getElementById('documentFileList');
+            fileList.innerHTML = '';
+            
+            for (let file of this.files) {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <span>${file.name}</span>
+                    <button class="btn btn-danger" onclick="this.parentElement.remove()">Remove</button>
+                `;
+                fileList.appendChild(fileItem);
+            }
+        });
+
+        // Calendar functions
+        let currentMonth = new Date();
+        
+        function changeMonth(direction) {
+            currentMonth.setMonth(currentMonth.getMonth() + direction);
+            updateCalendar();
+        }
+        
+        function updateCalendar() {
+            const monthNames = ["January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"];
+            
+            document.getElementById('currentMonth').textContent = 
+                monthNames[currentMonth.getMonth()] + ' ' + currentMonth.getFullYear();
+        }
+
+        // Form submissions
+        document.getElementById('employeeForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Employee onboarding form submitted successfully!');
+        });
+
+        document.getElementById('expenseForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Expense report submitted successfully!');
+        });
+
+        document.getElementById('projectForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Project request submitted successfully!');
+        });
+
+        document.getElementById('vendorForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Vendor registration submitted successfully!');
+        });
+
+        document.getElementById('meetingForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Meeting scheduled successfully!');
+        });
+
+        // Close modals when clicking outside
+        window.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal')) {
+                e.target.style.display = 'none';
+            }
+        });
+
+        // Handle browser back/forward buttons
+        window.addEventListener('popstate', function(e) {
+            if (e.state && e.state.section) {
+                // Show the correct section
+                const sections = document.querySelectorAll('.form-section');
+                sections.forEach(section => section.classList.remove('active'));
+                
+                const targetSection = document.getElementById(e.state.section);
+                if (targetSection) {
+                    targetSection.classList.add('active');
+                }
+            }
+        });
+
+        // Initialize page based on current URL
+        function initializePage() {
+            const currentPath = window.location.pathname;
+            const pathToSection = {
+                '/forms/employee-onboarding': 'employee-form',
+                '/forms/expense-report': 'expense-form',
+                '/forms/project-request': 'project-form',
+                '/forms/vendor-registration': 'vendor-form',
+                '/reports/employee-directory': 'employee-directory',
+                '/reports/project-status': 'project-status',
+                '/reports/financial-summary': 'financial-summary',
+                '/documents/manager': 'document-manager',
+                '/calendar/schedule': 'calendar-view'
+            };
+            
+            const sectionId = pathToSection[currentPath];
+            if (sectionId) {
+                // Remove active from all sections
+                const sections = document.querySelectorAll('.form-section');
+                sections.forEach(section => section.classList.remove('active'));
+                
+                // Show target section
+                const targetSection = document.getElementById(sectionId);
+                if (targetSection) {
+                    targetSection.classList.add('active');
+                }
+                
+                // Navigation state is now handled by the header dropdowns
+                
+                // Update title
+                const sectionTitles = {
+                    'employee-form': 'Employee Onboarding - Solutions Portal',
+                    'expense-form': 'Expense Report - Solutions Portal',
+                    'project-form': 'Project Request - Solutions Portal',
+                    'vendor-form': 'Vendor Registration - Solutions Portal',
+                    'employee-directory': 'Employee Directory - Solutions Portal',
+                    'project-status': 'Project Status - Solutions Portal',
+                    'financial-summary': 'Financial Summary - Solutions Portal',
+                    'document-manager': 'Document Manager - Solutions Portal',
+                    'calendar-view': 'Calendar & Scheduling - Solutions Portal'
+                };
+                
+                if (sectionTitles[sectionId]) {
+                    document.title = sectionTitles[sectionId];
+                }
+            }
+        }
+
+        // Initialize calendar
+        updateCalendar();
+        
+        // Initialize page on load
+        initializePage();
+        
+        // Set default URL if none specified
+        if (window.location.pathname === '/' || window.location.pathname === '/enterprise-forms-portal.html') {
+            history.replaceState({ section: 'employee-form' }, '', '/forms/employee-onboarding');
+            document.title = 'Employee Onboarding - Solutions Portal';
+        }
+    </script>
+</body>
+</html>

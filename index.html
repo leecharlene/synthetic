@@ -1,0 +1,3082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CollabHub - Enterprise Collaboration Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-header {
+            padding: 0 20px 30px;
+            border-bottom: 1px solid #34495e;
+            text-align: center;
+        }
+
+        .sidebar-header h2 {
+            color: #3498db;
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header .version {
+            font-size: 12px;
+            color: #bdc3c7;
+            opacity: 0.8;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            padding: 15px 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(52, 152, 219, 0.2);
+            border-left-color: #3498db;
+            transform: translateX(5px);
+        }
+
+        .nav-item i {
+            margin-right: 15px;
+            width: 20px;
+            font-size: 16px;
+        }
+
+        .nav-badge {
+            position: absolute;
+            right: 15px;
+            background: #e74c3c;
+            color: white;
+            border-radius: 10px;
+            padding: 2px 8px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-bottom: 1px solid #e0e6ed;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .breadcrumb {
+            color: #7f8c8d;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+
+        .breadcrumb i {
+            margin: 0 10px;
+            font-size: 12px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            padding: 10px 40px 10px 15px;
+            border: 2px solid #e0e6ed;
+            border-radius: 25px;
+            width: 300px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .search-box i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+        }
+
+        .notification-bell {
+            position: relative;
+            font-size: 20px;
+            color: #7f8c8d;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .notification-bell:hover {
+            color: #3498db;
+        }
+
+        .notification-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 10px rgba(52, 152, 219, 0.3);
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid #e0e6ed;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            min-width: 250px;
+            display: none;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .user-dropdown.active {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 15px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid #f8f9fa;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .dropdown-item:hover {
+            background: #f8f9fa;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item.danger {
+            color: #e74c3c;
+        }
+
+        .dropdown-item.danger:hover {
+            background: #fdf2f2;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            background: #f8f9fc;
+        }
+
+        .tab-container {
+            margin-bottom: 25px;
+        }
+
+        .tab-header {
+            display: flex;
+            border-bottom: 2px solid #e0e6ed;
+            position: relative;
+            background: white;
+            border-radius: 10px 10px 0 0;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .tab {
+            padding: 18px 30px;
+            background: white;
+            border: none;
+            cursor: pointer;
+            margin-right: 2px;
+            transition: all 0.3s;
+            position: relative;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            background: #3498db;
+            color: white;
+            box-shadow: 0 -2px 10px rgba(52, 152, 219, 0.3);
+        }
+
+        .tab.dragging {
+            opacity: 0.5;
+            z-index: 1000;
+        }
+
+        .tab-close {
+            margin-left: 8px;
+            cursor: pointer;
+            opacity: 0.7;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .tab-close:hover {
+            opacity: 1;
+            background: rgba(0,0,0,0.2);
+        }
+
+        .tab-content {
+            background: white;
+            border-radius: 0 0 10px 10px;
+            padding: 30px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            min-height: 600px;
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-top: 25px;
+        }
+
+        .dashboard-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            border: 1px solid #f1f2f6;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            color: #2c3e50;
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .card-action-btn {
+            padding: 6px 12px;
+            border: 1px solid #e0e6ed;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+            color: #7f8c8d;
+        }
+
+        .card-action-btn:hover {
+            background: #f8f9fa;
+            color: #2c3e50;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2980b9);
+            transition: width 0.3s;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 250px;
+            margin-top: 20px;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .metric-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e9ecef;
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e6ed;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .filter-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+
+        .advanced-select {
+            position: relative;
+            min-width: 200px;
+        }
+
+        .select-trigger {
+            width: 100%;
+            padding: 12px 40px 12px 15px;
+            border: 2px solid #e0e6ed;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: border-color 0.3s;
+        }
+
+        .select-trigger:hover {
+            border-color: #3498db;
+        }
+
+        .select-trigger.active {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .select-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            z-index: 1000;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .select-dropdown.active {
+            display: block;
+        }
+
+        .select-search {
+            padding: 12px;
+            border: none;
+            border-bottom: 1px solid #e0e6ed;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        .select-search:focus {
+            outline: none;
+        }
+
+        .select-options {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .select-option {
+            padding: 12px 15px;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .select-option:hover {
+            background: #f8f9fa;
+        }
+
+        .select-option.selected {
+            background: #e3f2fd;
+            color: #1976d2;
+            font-weight: 500;
+        }
+
+        .select-option .checkbox {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ddd;
+            border-radius: 3px;
+            position: relative;
+        }
+
+        .select-option.selected .checkbox {
+            background: #1976d2;
+            border-color: #1976d2;
+        }
+
+        .select-option.selected .checkbox::after {
+            content: '✓';
+            position: absolute;
+            top: -1px;
+            left: 1px;
+            color: white;
+            font-size: 12px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e6ed;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-right: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            box-shadow: 0 2px 10px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: white;
+            color: #3498db;
+            border: 2px solid #3498db;
+        }
+
+        .btn-outline:hover {
+            background: #3498db;
+            color: white;
+        }
+
+        .activity-feed {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: start;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #3498db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-text {
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+
+        .activity-time {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+
+        .quick-actions {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .quick-btn {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quick-btn:hover {
+            transform: scale(1.1) translateY(-2px);
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.5);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 10000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f8f9fa;
+        }
+
+        .modal-close {
+            cursor: pointer;
+            font-size: 24px;
+            color: #7f8c8d;
+            transition: color 0.3s;
+        }
+
+        .modal-close:hover {
+            color: #e74c3c;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        .alert-success {
+            background: #d1edff;
+            border-color: #0084ff;
+            color: #004085;
+        }
+
+        .notification-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border: 1px solid #e0e6ed;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            padding: 20px;
+            z-index: 10001;
+            transform: translateX(400px);
+            transition: transform 0.3s;
+            max-width: 350px;
+        }
+
+        .notification-toast.show {
+            transform: translateX(0);
+        }
+
+        .teams-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .team-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+        }
+
+        .team-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+
+        .team-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .team-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .team-members {
+            display: flex;
+            margin-top: 15px;
+        }
+
+        .member-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-left: -8px;
+            border: 2px solid white;
+            background: #3498db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        .performance-chart {
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                padding: 15px 0;
+            }
+            
+            .nav-menu {
+                display: flex;
+                overflow-x: auto;
+                padding: 10px;
+            }
+            
+            .nav-item {
+                white-space: nowrap;
+                margin-right: 10px;
+                min-width: 120px;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .search-box input {
+                width: 200px;
+            }
+
+            .header {
+                padding: 15px 20px;
+            }
+
+            .content-area {
+                padding: 15px;
+            }
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .data-export-panel {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border: 1px solid #e9ecef;
+        }
+
+        .export-options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .url-display {
+            font-family: 'Courier New', monospace;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #e0e6ed;
+            color: #2c3e50;
+            font-size: 12px;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-cube"></i> CollabHub</h2>
+                <div class="version">Enterprise v2.1</div>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item active" data-section="dashboard">
+                    <i class="fas fa-chart-pie"></i> Analytics Dashboard
+                    <span class="nav-badge">Live</span>
+                </li>
+                <li class="nav-item" data-section="performance">
+                    <i class="fas fa-chart-line"></i> Performance Metrics
+                    <span class="nav-badge">24</span>
+                </li>
+                <li class="nav-item" data-section="teams">
+                    <i class="fas fa-users"></i> Team Management
+                </li>
+                <li class="nav-item" data-section="projects">
+                    <i class="fas fa-project-diagram"></i> Project Portfolio
+                    <span class="nav-badge">12</span>
+                </li>
+                <li class="nav-item" data-section="resources">
+                    <i class="fas fa-server"></i> Resource Monitor
+                </li>
+                <li class="nav-item" data-section="reports">
+                    <i class="fas fa-file-alt"></i> Executive Reports
+                </li>
+                <li class="nav-item" data-section="calendar">
+                    <i class="fas fa-calendar-alt"></i> Calendar & Events
+                </li>
+                <li class="nav-item" data-section="documents">
+                    <i class="fas fa-folder-open"></i> Document Center
+                </li>
+                <li class="nav-item" data-section="messages">
+                    <i class="fas fa-comments"></i> Communications
+                    <span class="nav-badge">7</span>
+                </li>
+                <li class="nav-item" data-section="settings">
+                    <i class="fas fa-cog"></i> System Settings
+                </li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <header class="header">
+                <div class="breadcrumb">
+                    <i class="fas fa-home"></i>
+                    <span id="breadcrumb-text">Analytics Dashboard</span>
+                    <i class="fas fa-chevron-right"></i>
+                    <span id="current-url">https://leecharlene.github.io/collabhub-enterprise/dashboard</span>
+                </div>
+                <div class="header-actions">
+                    <div class="search-box">
+                        <input type="text" placeholder="Search across all modules..." id="globalSearch">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <div class="notification-bell" id="notificationBell">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-count">3</span>
+                    </div>
+                </div>
+                <div class="user-info">
+                    <span>John Doe - Senior Manager</span>
+                    <div class="user-avatar" id="userAvatar">JD</div>
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="dropdown-item" id="viewProfile">
+                            <i class="fas fa-user"></i> View Profile
+                        </div>
+                        <div class="dropdown-item" id="accountSettings">
+                            <i class="fas fa-cog"></i> Account Settings
+                        </div>
+                        <div class="dropdown-item" id="notifications">
+                            <i class="fas fa-bell"></i> Notifications
+                        </div>
+                        <div class="dropdown-item" id="help">
+                            <i class="fas fa-question-circle"></i> Help & Support
+                        </div>
+                        <div class="dropdown-item danger" id="logout">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div class="tab-container">
+                    <div class="tab-header" id="tabHeader">
+                        <div class="tab active" data-tab="dashboard" data-url="/dashboard" draggable="true">
+                            <i class="fas fa-chart-pie"></i>
+                            <span>Analytics</span>
+                            <span class="tab-close">×</span>
+                        </div>
+                        <div class="tab" data-tab="performance" data-url="/performance" draggable="true">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Performance</span>
+                            <span class="tab-close">×</span>
+                        </div>
+                        <div class="tab" data-tab="teams" data-url="/teams" draggable="true">
+                            <i class="fas fa-users"></i>
+                            <span>Teams</span>
+                            <span class="tab-close">×</span>
+                        </div>
+                        <div class="tab" data-tab="projects" data-url="/projects" draggable="true">
+                            <i class="fas fa-project-diagram"></i>
+                            <span>Projects</span>
+                            <span class="tab-close">×</span>
+                        </div>
+                        <div class="tab" data-tab="resources" data-url="/resources" draggable="true">
+                            <i class="fas fa-server"></i>
+                            <span>Resources</span>
+                            <span class="tab-close">×</span>
+                        </div>
+                        <div class="tab" data-tab="reports" data-url="/reports" draggable="true">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Reports</span>
+                            <span class="tab-close">×</span>
+                        </div>
+                    </div>
+
+                    <div class="tab-content">
+                        <!-- Analytics Dashboard -->
+                        <div class="tab-panel active" id="dashboard">
+                            <div class="filter-panel">
+                                <h3 style="margin-bottom: 15px;"><i class="fas fa-filter"></i> Advanced Analytics Filters</h3>
+                                <div class="filter-row">
+                                    <div class="filter-group">
+                                        <label>Date Range</label>
+                                        <div class="advanced-select" data-filter="dateRange">
+                                            <div class="select-trigger">
+                                                <span>Last 30 Days</span>
+                                                <i class="fas fa-chevron-down"></i>
+                                            </div>
+                                            <div class="select-dropdown">
+                                                <input type="text" class="select-search" placeholder="Search date ranges...">
+                                                <div class="select-options">
+                                                    <div class="select-option" data-value="today">Today</div>
+                                                    <div class="select-option" data-value="yesterday">Yesterday</div>
+                                                    <div class="select-option selected" data-value="last7">Last 7 Days</div>
+                                                    <div class="select-option" data-value="last30">Last 30 Days</div>
+                                                    <div class="select-option" data-value="last90">Last 90 Days</div>
+                                                    <div class="select-option" data-value="thismonth">This Month</div>
+                                                    <div class="select-option" data-value="lastmonth">Last Month</div>
+                                                    <div class="select-option" data-value="thisquarter">This Quarter</div>
+                                                    <div class="select-option" data-value="lastquarter">Last Quarter</div>
+                                                    <div class="select-option" data-value="thisyear">This Year</div>
+                                                    <div class="select-option" data-value="custom">Custom Range</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="filter-group">
+                                        <label>Departments</label>
+                                        <div class="advanced-select multi-select" data-filter="departments">
+                                            <div class="select-trigger">
+                                                <span>All Departments</span>
+                                                <i class="fas fa-chevron-down"></i>
+                                            </div>
+                                            <div class="select-dropdown">
+                                                <input type="text" class="select-search" placeholder="Search departments...">
+                                                <div class="select-options">
+                                                    <div class="select-option" data-value="engineering">
+                                                        <div class="checkbox"></div>
+                                                        <span>Engineering (45)</span>
+                                                    </div>
+                                                    <div class="select-option" data-value="marketing">
+                                                        <div class="checkbox"></div>
+                                                        <span>Marketing (23)</span>
+                                                    </div>
+                                                    <div class="select-option" data-value="sales">
+                                                        <div class="checkbox"></div>
+                                                        <span>Sales (31)</span>
+                                                    </div>
+                                                    <div class="select-option" data-value="hr">
+                                                        <div class="checkbox"></div>
+                                                        <span>Human Resources (12)</span>
+                                                    </div>
+                                                    <div class="select-option" data-value="finance">
+                                                        <div class="checkbox"></div>
+                                                        <span>Finance (18)</span>
+                                                    </div>
+                                                    <div class="select-option" data-value="operations">
+                                                        <div class="checkbox"></div>
+                                                        <span>Operations (27)</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="filter-group">
+                                        <label>Project Status</label>
+                                        <div class="advanced-select multi-select" data-filter="projectStatus">
+                                            <div class="select-trigger">
+                                                <span>All Statuses</span>
+                                                <i class="fas fa-chevron-down"></i>
+                                            </div>
+                                            <div class="select-dropdown">
+                                                <input type="text" class="select-search" placeholder="Search statuses...">
+                                                <div class="select-options">
+                                                    <div class="select-option" data-value="active">
+                                                        <div class="checkbox"></div>
+                                                        <span>Active Projects</span>
+                                                    </div>
+                                                    <div class="select-option" data-value="pending">
+                                                        <div class="checkbox"></div>
+                                                        <span>Pending Approval</span>
+                                                    </div>
+                                                    <div class="select-option" data-value="completed">
+                                                        <div class="checkbox"></div>
+                                                        <span>Completed</span>
+                                                    </div>
+                                                    <div class="select-option" data-value="delayed">
+                                                        <div class="checkbox"></div>
+                                                        <span>Delayed</span>
+                                                    </div>
+                                                    <div class="select-option" data-value="cancelled">
+                                                        <div class="checkbox"></div>
+                                                        <span>Cancelled</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="filter-group">
+                                        <button class="btn btn-primary">
+                                            <i class="fas fa-search"></i> Apply Filters
+                                        </button>
+                                        <button class="btn btn-outline">
+                                            <i class="fas fa-undo"></i> Reset
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="dashboard-grid">
+                                <div class="dashboard-card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">
+                                            <i class="fas fa-chart-bar"></i>
+                                            Revenue Analytics
+                                        </h3>
+                                        <div class="card-actions">
+                                            <button class="card-action-btn"><i class="fas fa-expand-arrows-alt"></i></button>
+                                            <button class="card-action-btn"><i class="fas fa-download"></i></button>
+                                            <button class="card-action-btn"><i class="fas fa-ellipsis-v"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="metric-grid">
+                                        <div class="metric-card">
+                                            <div class="metric-value" style="color: #27ae60;">$2.4M</div>
+                                            <div class="metric-label">Total Revenue</div>
+                                        </div>
+                                        <div class="metric-card">
+                                            <div class="metric-value" style="color: #3498db;">18.5%</div>
+                                            <div class="metric-label">Growth Rate</div>
+                                        </div>
+                                        <div class="metric-card">
+                                            <div class="metric-value" style="color: #e67e22;">$1.8M</div>
+                                            <div class="metric-label">Recurring Revenue</div>
+                                        </div>
+                                        <div class="metric-card">
+                                            <div class="metric-value" style="color: #9b59b6;">342</div>
+                                            <div class="metric-label">New Customers</div>
+                                        </div>
+                                    </div>
+                                    <div class="chart-container">
+                                        <canvas id="revenueChart"></canvas>
+                                    </div>
+                                </div>
+
+                                <div class="dashboard-card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">
+                                            <i class="fas fa-tasks"></i>
+                                            Project Performance
+                                        </h3>
+                                        <div class="card-actions">
+                                            <button class="card-action-btn"><i class="fas fa-filter"></i></button>
+                                            <button class="card-action-btn"><i class="fas fa-sync-alt"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-label">
+                                            <i class="fas fa-check-circle" style="color: #27ae60;"></i>
+                                            Completed Projects
+                                        </div>
+                                        <div class="stat-value" style="color: #27ae60;">127</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-label">
+                                            <i class="fas fa-clock" style="color: #f39c12;"></i>
+                                            In Progress
+                                        </div>
+                                        <div class="stat-value" style="color: #f39c12;">34</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-label">
+                                            <i class="fas fa-exclamation-triangle" style="color: #e74c3c;"></i>
+                                            Overdue
+                                        </div>
+                                        <div class="stat-value" style="color: #e74c3c;">8</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-label">Success Rate</div>
+                                        <div class="stat-value" style="color: #27ae60;">94.2%</div>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 94.2%;"></div>
+                                    </div>
+                                </div>
+
+                                <div class="dashboard-card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">
+                                            <i class="fas fa-users"></i>
+                                            Team Productivity
+                                        </h3>
+                                        <div class="card-actions">
+                                            <button class="card-action-btn"><i class="fas fa-user-plus"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="chart-container">
+                                        <canvas id="productivityChart"></canvas>
+                                    </div>
+                                    <div style="margin-top: 15px;">
+                                        <div class="stat-item">
+                                            <span>Average Tasks/Day</span>
+                                            <strong style="color: #3498db;">12.4</strong>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span>Team Utilization</span>
+                                            <strong style="color: #27ae60;">87%</strong>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="dashboard-card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">
+                                            <i class="fas fa-bell"></i>
+                                            Recent Activity
+                                        </h3>
+                                        <div class="card-actions">
+                                            <button class="card-action-btn"><i class="fas fa-eye"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="activity-feed">
+                                        <div class="activity-item">
+                                            <div class="activity-avatar" style="background: #e74c3c;">SJ</div>
+                                            <div class="activity-content">
+                                                <div class="activity-text">
+                                                    <strong>Sarah Johnson</strong> completed project milestone "Q4 Marketing Campaign"
+                                                </div>
+                                                <div class="activity-time">2 minutes ago</div>
+                                            </div>
+                                        </div>
+                                        <div class="activity-item">
+                                            <div class="activity-avatar" style="background: #27ae60;">MC</div>
+                                            <div class="activity-content">
+                                                <div class="activity-text">
+                                                    <strong>Mike Chen</strong> uploaded 3 documents to "Sales Analytics" folder
+                                                </div>
+                                                <div class="activity-time">15 minutes ago</div>
+                                            </div>
+                                        </div>
+                                        <div class="activity-item">
+                                            <div class="activity-avatar" style="background: #3498db;">LW</div>
+                                            <div class="activity-content">
+                                                <div class="activity-text">
+                                                    <strong>Lisa Wang</strong> scheduled meeting "Product Strategy Review"
+                                                </div>
+                                                <div class="activity-time">1 hour ago</div>
+                                            </div>
+                                        </div>
+                                        <div class="activity-item">
+                                            <div class="activity-avatar" style="background: #9b59b6;">DS</div>
+                                            <div class="activity-content">
+                                                <div class="activity-text">
+                                                    <strong>David Smith</strong> approved budget request for "Infrastructure Upgrade"
+                                                </div>
+                                                <div class="activity-time">2 hours ago</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="dashboard-card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">
+                                            <i class="fas fa-chart-pie"></i>
+                                            Resource Allocation
+                                        </h3>
+                                        <div class="card-actions">
+                                            <button class="card-action-btn"><i class="fas fa-cog"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="chart-container">
+                                        <canvas id="resourceChart"></canvas>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span>Total Budget Utilization</span>
+                                        <strong style="color: #f39c12;">73.2%</strong>
+                                    </div>
+                                </div>
+
+                                <div class="dashboard-card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">
+                                            <i class="fas fa-trophy"></i>
+                                            Key Performance Indicators
+                                        </h3>
+                                        <div class="card-actions">
+                                            <button class="card-action-btn"><i class="fas fa-plus"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-label">Customer Satisfaction</div>
+                                        <div class="stat-value" style="color: #27ae60;">4.8/5.0</div>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 96%;"></div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-label">Employee Engagement</div>
+                                        <div class="stat-value" style="color: #3498db;">8.2/10</div>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 82%;"></div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-label">Market Share Growth</div>
+                                        <div class="stat-value" style="color: #f39c12;">+12.4%</div>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 62%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="data-export-panel">
+                                <h4><i class="fas fa-download"></i> Data Export Options</h4>
+                                <div class="export-options">
+                                    <button class="btn btn-outline"><i class="fas fa-file-excel"></i> Export to Excel</button>
+                                    <button class="btn btn-outline"><i class="fas fa-file-pdf"></i> Generate PDF Report</button>
+                                    <button class="btn btn-outline"><i class="fas fa-file-csv"></i> Download CSV</button>
+                                    <button class="btn btn-outline"><i class="fas fa-share-alt"></i> Share Dashboard</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Performance Metrics Tab -->
+                        <div class="tab-panel" id="performance">
+                            <div class="filter-panel">
+                                <h3 style="margin-bottom: 15px;"><i class="fas fa-tachometer-alt"></i> Performance Filters</h3>
+                                <div class="filter-row">
+                                    <div class="filter-group">
+                                        <label>Metric Type</label>
+                                        <div class="advanced-select multi-select" data-filter="metricType">
+                                            <div class="select-trigger">
+                                                <span>All Metrics</span>
+                                                <i class="fas fa-chevron-down"></i>
+                                            </div>
+                                            <div class="select-dropdown">
+                                                <input type="text" class="select-search" placeholder="Search metrics...">
+                                                <div class="select-options">
+                                                    <div class="select-option" data-value="response">
+                                                        <div class="checkbox"></div>
+                                                        <span>Response Time</span>
+                                                    </div>
+                                                    <div class="select-option" data-value="throughput">
+                                                        <div class="checkbox"></div>
+                                                        <span>Throughput</span>
+                                                    </div>
+                                                    <div class="select-option" data-value="errors">
+                                                        <div class="checkbox"></div>
+                                                        <span>Error Rate</span>
+                                                    </div>
+                                                    <div class="select-option" data-value="uptime">
+                                                        <div class="checkbox"></div>
+                                                        <span>System Uptime</span>
+                                                    </div>
+                                                    <div class="select-option" data-value="users">
+                                                        <div class="checkbox"></div>
+                                                        <span>Active Users</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="filter-group">
+                                        <label>Service Level</label>
+                                        <div class="advanced-select" data-filter="serviceLevel">
+                                            <div class="select-trigger">
+                                                <span>Production</span>
+                                                <i class="fas fa-chevron-down"></i>
+                                            </div>
+                                            <div class="select-dropdown">
+                                                <div class="select-options">
+                                                    <div class="select-option selected" data-value="production">Production</div>
+                                                    <div class="select-option" data-value="staging">Staging</div>
+                                                    <div class="select-option" data-value="development">Development</div>
+                                                    <div class="select-option" data-value="testing">Testing</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="filter-group">
+                                        <button class="btn btn-primary">
+                                            <i class="fas fa-sync-alt"></i> Refresh Data
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="url-display">
+                                    Current URL: https://leecharlene.github.io/collabhub-enterprise/performance?metrics=all&env=production&timeframe=24h
+                                </div>
+                            </div>
+
+                            <div class="dashboard-grid">
+                                <div class="dashboard-card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">
+                                            <i class="fas fa-heartbeat"></i>
+                                            System Health
+                                        </h3>
+                                        <div class="card-actions">
+                                            <button class="card-action-btn"><i class="fas fa-bell"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="metric-grid">
+                                        <div class="metric-card">
+                                            <div class="metric-value" style="color: #27ae60;">99.9%</div>
+                                            <div class="metric-label">Uptime</div>
+                                        </div>
+                                        <div class="metric-card">
+                                            <div class="metric-value" style="color: #3498db;">1.2ms</div>
+                                            <div class="metric-label">Avg Response</div>
+                                        </div>
+                                        <div class="metric-card">
+                                            <div class="metric-value" style="color: #f39c12;">2.4K</div>
+                                            <div class="metric-label">Requests/min</div>
+                                        </div>
+                                        <div class="metric-card">
+                                            <div class="metric-value" style="color: #e74c3c;">0.01%</div>
+                                            <div class="metric-label">Error Rate</div>
+                                        </div>
+                                    </div>
+                                    <div class="chart-container">
+                                        <canvas id="healthChart"></canvas>
+                                    </div>
+                                </div>
+
+                                <div class="dashboard-card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">
+                                            <i class="fas fa-server"></i>
+                                            Server Performance
+                                        </h3>
+                                    </div>
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Server</th>
+                                                <th>CPU</th>
+                                                <th>Memory</th>
+                                                <th>Disk</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>WEB-01</td>
+                                                <td>23%</td>
+                                                <td>67%</td>
+                                                <td>45%</td>
+                                                <td><span style="color: #27ae60;">●</span> Healthy</td>
+                                            </tr>
+                                            <tr>
+                                                <td>WEB-02</td>
+                                                <td>18%</td>
+                                                <td>52%</td>
+                                                <td>38%</td>
+                                                <td><span style="color: #27ae60;">●</span> Healthy</td>
+                                            </tr>
+                                            <tr>
+                                                <td>DB-01</td>
+                                                <td>45%</td>
+                                                <td>78%</td>
+                                                <td>67%</td>
+                                                <td><span style="color: #f39c12;">●</span> Warning</td>
+                                            </tr>
+                                            <tr>
+                                                <td>API-01</td>
+                                                <td>31%</td>
+                                                <td>55%</td>
+                                                <td>42%</td>
+                                                <td><span style="color: #27ae60;">●</span> Healthy</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Teams Management Tab -->
+                        <div class="tab-panel" id="teams">
+                            <div class="filter-panel">
+                                <h3 style="margin-bottom: 15px;"><i class="fas fa-users-cog"></i> Team Management Filters</h3>
+                                <div class="filter-row">
+                                    <div class="filter-group">
+                                        <label>Team Size</label>
+                                        <div class="advanced-select" data-filter="teamSize">
+                                            <div class="select-trigger">
+                                                <span>All Sizes</span>
+                                                <i class="fas fa-chevron-down"></i>
+                                            </div>
+                                            <div class="select-dropdown">
+                                                <div class="select-options">
+                                                    <div class="select-option selected" data-value="all">All Sizes</div>
+                                                    <div class="select-option" data-value="small">Small (1-5)</div>
+                                                    <div class="select-option" data-value="medium">Medium (6-15)</div>
+                                                    <div class="select-option" data-value="large">Large (16+)</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="filter-group">
+                                        <label>Performance Rating</label>
+                                        <div class="advanced-select multi-select" data-filter="performance">
+                                            <div class="select-trigger">
+                                                <span>All Ratings</span>
+                                                <i class="fas fa-chevron-down"></i>
+                                            </div>
+                                            <div class="select-dropdown">
+                                                <div class="select-options">
+                                                    <div class="select-option" data-value="excellent">
+                                                        <div class="checkbox"></div>
+                                                        <span>Excellent (4.5-5.0)</span>
+                                                    </div>
+                                                    <div class="select-option" data-value="good">
+                                                        <div class="checkbox"></div>
+                                                        <span>Good (3.5-4.4)</span>
+                                                    </div>
+                                                    <div class="select-option" data-value="average">
+                                                        <div class="checkbox"></div>
+                                                        <span>Average (2.5-3.4)</span>
+                                                    </div>
+                                                    <div class="select-option" data-value="needs-improvement">
+                                                        <div class="checkbox"></div>
+                                                        <span>Needs Improvement (<2.5)</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="filter-group">
+                                        <button class="btn btn-primary">
+                                            <i class="fas fa-plus"></i> Create Team
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="url-display">
+                                    Current URL: https://leecharlene.github.io/collabhub-enterprise/teams?size=all&rating=all&sort=performance
+                                </div>
+                            </div>
+
+                            <div class="teams-grid">
+                                <div class="team-card">
+                                    <div class="team-header">
+                                        <div class="team-avatar">ENG</div>
+                                        <div>
+                                            <h4>Engineering Team</h4>
+                                            <p style="color: #7f8c8d; font-size: 14px;">Product Development</p>
+                                        </div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span>Team Lead</span>
+                                        <strong>Sarah Johnson</strong>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span>Members</span>
+                                        <strong>12 people</strong>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span>Active Projects</span>
+                                        <strong>8 projects</strong>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span>Performance</span>
+                                        <strong style="color: #27ae60;">4.8/5.0</strong>
+                                    </div>
+                                    <div class="team-members">
+                                        <div class="member-avatar" style="background: #e74c3c;">SJ</div>
+                                        <div class="member-avatar" style="background: #3498db;">MC</div>
+                                        <div class="member-avatar" style="background: #27ae60;">LW</div>
+                                        <div class="member-avatar" style="background: #f39c12;">DS</div>
+                                        <div class="member-avatar" style="background: #9b59b6;">+8</div>
+                                    </div>
+                                </div>
+
+                                <div class="team-card">
+                                    <div class="team-header">
+                                        <div class="team-avatar" style="background: linear-gradient(135deg, #ff7675, #fd79a8);">MKT</div>
+                                        <div>
+                                            <h4>Marketing Team</h4>
+                                            <p style="color: #7f8c8d; font-size: 14px;">Brand & Growth</p>
+                                        </div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span>Team Lead</span>
+                                        <strong>Mike Chen</strong>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span>Members</span>
+                                        <strong>8 people</strong>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span>Active Campaigns</span>
+                                        <strong>5 campaigns</strong>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span>Performance</span>
+                                        <strong style="color: #27ae60;">4.6/5.0</strong>
+                                    </div>
+                                    <div class="team-members">
+                                        <div class="member-avatar" style="background: #27ae60;">MC</div>
+                                        <div class="member-avatar" style="background: #e74c3c;">AB</div>
+                                        <div class="member-avatar" style="background: #3498db;">CD</div>
+                                        <div class="member-avatar" style="background: #f39c12;">EF</div>
+                                        <div class="member-avatar" style="background: #9b59b6;">+4</div>
+                                    </div>
+                                </div>
+
+                                <div class="team-card">
+                                    <div class="team-header">
+                                        <div class="team-avatar" style="background: linear-gradient(135deg, #00b894, #00cec9);">SLS</div>
+                                        <div>
+                                            <h4>Sales Team</h4>
+                                            <p style="color: #7f8c8d; font-size: 14px;">Revenue Generation</p>
+                                        </div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span>Team Lead</span>
+                                        <strong>Lisa Wang</strong>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span>Members</span>
+                                        <strong>15 people</strong>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span>Monthly Target</span>
+                                        <strong>$2.1M</strong>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span>Achievement</span>
+                                        <strong style="color: #27ae60;">112%</strong>
+                                    </div>
+                                    <div class="team-members">
+                                        <div class="member-avatar" style="background: #3498db;">LW</div>
+                                        <div class="member-avatar" style="background: #e74c3c;">GH</div>
+                                        <div class="member-avatar" style="background: #27ae60;">IJ</div>
+                                        <div class="member-avatar" style="background: #f39c12;">KL</div>
+                                        <div class="member-avatar" style="background: #9b59b6;">+11</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Projects Tab -->
+                        <div class="tab-panel" id="projects">
+                            <div class="filter-panel">
+                                <h3 style="margin-bottom: 15px;"><i class="fas fa-project-diagram"></i> Project Portfolio Filters</h3>
+                                <div class="filter-row">
+                                    <div class="filter-group">
+                                        <label>Priority Level</label>
+                                        <div class="advanced-select multi-select" data-filter="priority">
+                                            <div class="select-trigger">
+                                                <span>All Priorities</span>
+                                                <i class="fas fa-chevron-down"></i>
+                                            </div>
+                                            <div class="select-dropdown">
+                                                <input type="text" class="select-search" placeholder="Search priorities...">
+                                                <div class="select-options">
+                                                    <div class="select-option" data-value="critical">
+                                                        <div class="checkbox"></div>
+                                                        <span><i class="fas fa-exclamation-triangle" style="color: #e74c3c;"></i> Critical</span>
+                                                    </div>
+                                                    <div class="select-option" data-value="high">
+                                                        <div class="checkbox"></div>
+                                                        <span><i class="fas fa-arrow-up" style="color: #f39c12;"></i> High</span>
+                                                    </div>
+                                                    <div class="select-option" data-value="medium">
+                                                        <div class="checkbox"></div>
+                                                        <span><i class="fas fa-minus" style="color: #3498db;"></i> Medium</span>
+                                                    </div>
+                                                    <div class="select-option" data-value="low">
+                                                        <div class="checkbox"></div>
+                                                        <span><i class="fas fa-arrow-down" style="color: #95a5a6;"></i> Low</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="filter-group">
+                                        <label>Budget Range</label>
+                                        <div class="advanced-select" data-filter="budget">
+                                            <div class="select-trigger">
+                                                <span>All Budgets</span>
+                                                <i class="fas fa-chevron-down"></i>
+                                            </div>
+                                            <div class="select-dropdown">
+                                                <div class="select-options">
+                                                    <div class="select-option selected" data-value="all">All Budgets</div>
+                                                    <div class="select-option" data-value="under-50k">Under $50K</div>
+                                                    <div class="select-option" data-value="50k-200k">$50K - $200K</div>
+                                                    <div class="select-option" data-value="200k-500k">$200K - $500K</div>
+                                                    <div class="select-option" data-value="over-500k">Over $500K</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="filter-group">
+                                        <label>Timeline</label>
+                                        <div class="advanced-select" data-filter="timeline">
+                                            <div class="select-trigger">
+                                                <span>All Timelines</span>
+                                                <i class="fas fa-chevron-down"></i>
+                                            </div>
+                                            <div class="select-dropdown">
+                                                <div class="select-options">
+                                                    <div class="select-option selected" data-value="all">All Timelines</div>
+                                                    <div class="select-option" data-value="overdue">Overdue</div>
+                                                    <div class="select-option" data-value="due-this-week">Due This Week</div>
+                                                    <div class="select-option" data-value="due-this-month">Due This Month</div>
+                                                    <div class="select-option" data-value="due-next-quarter">Due Next Quarter</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="url-display">
+                                    Current URL: https://leecharlene.github.io/collabhub-enterprise/projects?priority=all&budget=all&timeline=all&view=portfolio
+                                </div>
+                            </div>
+
+                            <div class="dashboard-grid">
+                                <div class="dashboard-card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">
+                                            <i class="fas fa-chart-gantt"></i>
+                                            Project Timeline Overview
+                                        </h3>
+                                    </div>
+                                    <div class="chart-container">
+                                        <canvas id="timelineChart"></canvas>
+                                    </div>
+                                </div>
+
+                                <div class="dashboard-card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">
+                                            <i class="fas fa-clipboard-list"></i>
+                                            Active Projects
+                                        </h3>
+                                    </div>
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Project Name</th>
+                                                <th>Status</th>
+                                                <th>Progress</th>
+                                                <th>Budget</th>
+                                                <th>Due Date</th>
+                                                <th>Priority</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><strong>Mobile App Redesign</strong></td>
+                                                <td><span style="color: #27ae60;">●</span> On Track</td>
+                                                <td>
+                                                    <div class="progress-bar" style="width: 100px;">
+                                                        <div class="progress-fill" style="width: 78%;"></div>
+                                                    </div>
+                                                    78%
+                                                </td>
+                                                <td>$125K</td>
+                                                <td>Dec 15, 2024</td>
+                                                <td><span style="color: #e74c3c;">High</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>API Integration</strong></td>
+                                                <td><span style="color: #f39c12;">●</span> At Risk</td>
+                                                <td>
+                                                    <div class="progress-bar" style="width: 100px;">
+                                                        <div class="progress-fill" style="width: 45%;"></div>
+                                                    </div>
+                                                    45%
+                                                </td>
+                                                <td>$89K</td>
+                                                <td>Nov 30, 2024</td>
+                                                <td><span style="color: #f39c12;">Medium</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Security Audit</strong></td>
+                                                <td><span style="color: #e74c3c;">●</span> Delayed</td>
+                                                <td>
+                                                    <div class="progress-bar" style="width: 100px;">
+                                                        <div class="progress-fill" style="width: 23%;"></div>
+                                                    </div>
+                                                    23%
+                                                </td>
+                                                <td>$67K</td>
+                                                <td>Dec 1, 2024</td>
+                                                <td><span style="color: #e74c3c;">Critical</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Resources Tab -->
+                        <div class="tab-panel" id="resources">
+                            <div class="filter-panel">
+                                <h3 style="margin-bottom: 15px;"><i class="fas fa-server"></i> Resource Monitor Filters</h3>
+                                <div class="filter-row">
+                                    <div class="filter-group">
+                                        <label>Resource Type</label>
+                                        <div class="advanced-select multi-select" data-filter="resourceType">
+                                            <div class="select-trigger">
+                                                <span>All Resources</span>
+                                                <i class="fas fa-chevron-down"></i>
+                                            </div>
+                                            <div class="select-dropdown">
+                                                <input type="text" class="select-search" placeholder="Search resources...">
+                                                <div class="select-options">
+                                                    <div class="select-option" data-value="compute">
+                                                        <div class="checkbox"></div>
+                                                        <span><i class="fas fa-microchip"></i> Compute</span>
+                                                    </div>
+                                                    <div class="select-option" data-value="storage">
+                                                        <div class="checkbox"></div>
+                                                        <span><i class="fas fa-hdd"></i> Storage</span>
+                                                    </div>
+                                                    <div class="select-option" data-value="network">
+                                                        <div class="checkbox"></div>
+                                                        <span><i class="fas fa-network-wired"></i> Network</span>
+                                                    </div>
+                                                    <div class="select-option" data-value="database">
+                                                        <div class="checkbox"></div>
+                                                        <span><i class="fas fa-database"></i> Database</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="filter-group">
+                                        <label>Alert Level</label>
+                                        <div class="advanced-select" data-filter="alertLevel">
+                                            <div class="select-trigger">
+                                                <span>All Alerts</span>
+                                                <i class="fas fa-chevron-down"></i>
+                                            </div>
+                                            <div class="select-dropdown">
+                                                <div class="select-options">
+                                                    <div class="select-option selected" data-value="all">All Alerts</div>
+                                                    <div class="select-option" data-value="critical">Critical Only</div>
+                                                    <div class="select-option" data-value="warning">Warning & Above</div>
+                                                    <div class="select-option" data-value="info">Info & Above</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="url-display">
+                                    Current URL: https://leecharlene.github.io/collabhub-enterprise/resources?type=all&alerts=all&region=us-east-1
+                                </div>
+                            </div>
+
+                            <div class="dashboard-grid">
+                                <div class="dashboard-card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">
+                                            <i class="fas fa-chart-area"></i>
+                                            Resource Utilization
+                                        </h3>
+                                    </div>
+                                    <div class="chart-container">
+                                        <canvas id="utilizationChart"></canvas>
+                                    </div>
+                                    <div class="metric-grid">
+                                        <div class="metric-card">
+                                            <div class="metric-value" style="color: #3498db;">67%</div>
+                                            <div class="metric-label">CPU Average</div>
+                                        </div>
+                                        <div class="metric-card">
+                                            <div class="metric-value" style="color: #27ae60;">82%</div>
+                                            <div class="metric-label">Memory Usage</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="dashboard-card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                            System Alerts
+                                        </h3>
+                                    </div>
+                                    <div class="activity-feed">
+                                        <div class="activity-item">
+                                            <div class="activity-avatar" style="background: #e74c3c;"><i class="fas fa-exclamation"></i></div>
+                                            <div class="activity-content">
+                                                <div class="activity-text">
+                                                    <strong>Critical:</strong> Database connection pool exhausted on DB-01
+                                                </div>
+                                                <div class="activity-time">2 minutes ago</div>
+                                            </div>
+                                        </div>
+                                        <div class="activity-item">
+                                            <div class="activity-avatar" style="background: #f39c12;"><i class="fas fa-exclamation-triangle"></i></div>
+                                            <div class="activity-content">
+                                                <div class="activity-text">
+                                                    <strong>Warning:</strong> High memory usage detected on WEB-02
+                                                </div>
+                                                <div class="activity-time">15 minutes ago</div>
+                                            </div>
+                                        </div>
+                                        <div class="activity-item">
+                                            <div class="activity-avatar" style="background: #3498db;"><i class="fas fa-info"></i></div>
+                                            <div class="activity-content">
+                                                <div class="activity-text">
+                                                    <strong>Info:</strong> Scheduled maintenance completed on API-01
+                                                </div>
+                                                <div class="activity-time">1 hour ago</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Reports Tab -->
+                        <div class="tab-panel" id="reports">
+                            <div class="filter-panel">
+                                <h3 style="margin-bottom: 15px;"><i class="fas fa-file-alt"></i> Executive Reports</h3>
+                                <div class="filter-row">
+                                    <div class="filter-group">
+                                        <label>Report Type</label>
+                                        <div class="advanced-select" data-filter="reportType">
+                                            <div class="select-trigger">
+                                                <span>All Reports</span>
+                                                <i class="fas fa-chevron-down"></i>
+                                            </div>
+                                            <div class="select-dropdown">
+                                                <input type="text" class="select-search" placeholder="Search report types...">
+                                                <div class="select-options">
+                                                    <div class="select-option selected" data-value="all">All Reports</div>
+                                                    <div class="select-option" data-value="financial">Financial Reports</div>
+                                                    <div class="select-option" data-value="performance">Performance Reports</div>
+                                                    <div class="select-option" data-value="compliance">Compliance Reports</div>
+                                                    <div class="select-option" data-value="security">Security Reports</div>
+                                                    <div class="select-option" data-value="operational">Operational Reports</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="filter-group">
+                                        <button class="btn btn-primary">
+                                            <i class="fas fa-plus"></i> Generate New Report
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="url-display">
+                                    Current URL: https://leecharlene.github.io/collabhub-enterprise/reports?type=all&status=published&access=executive
+                                </div>
+                            </div>
+
+                            <div class="dashboard-grid">
+                                <div class="dashboard-card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">
+                                            <i class="fas fa-file-pdf"></i>
+                                            Latest Executive Reports
+                                        </h3>
+                                    </div>
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Report Name</th>
+                                                <th>Type</th>
+                                                <th>Generated</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><strong>Q4 Financial Summary</strong></td>
+                                                <td>Financial</td>
+                                                <td>2 hours ago</td>
+                                                <td><span style="color: #27ae60;">Published</span></td>
+                                                <td>
+                                                    <button class="card-action-btn"><i class="fas fa-eye"></i></button>
+                                                    <button class="card-action-btn"><i class="fas fa-download"></i></button>
+                                                    <button class="card-action-btn"><i class="fas fa-share"></i></button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Security Compliance Audit</strong></td>
+                                                <td>Compliance</td>
+                                                <td>1 day ago</td>
+                                                <td><span style="color: #27ae60;">Published</span></td>
+                                                <td>
+                                                    <button class="card-action-btn"><i class="fas fa-eye"></i></button>
+                                                    <button class="card-action-btn"><i class="fas fa-download"></i></button>
+                                                    <button class="card-action-btn"><i class="fas fa-share"></i></button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Team Performance Review</strong></td>
+                                                <td>Performance</td>
+                                                <td>3 days ago</td>
+                                                <td><span style="color: #f39c12;">In Review</span></td>
+                                                <td>
+                                                    <button class="card-action-btn"><i class="fas fa-edit"></i></button>
+                                                    <button class="card-action-btn"><i class="fas fa-clock"></i></button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <button class="quick-btn" id="quickAdd" title="Quick Add">
+            <i class="fas fa-plus"></i>
+        </button>
+        <button class="quick-btn" id="quickSearch" title="Global Search">
+            <i class="fas fa-search"></i>
+        </button>
+        <button class="quick-btn" id="quickNotifications" title="Notifications">
+            <i class="fas fa-bell"></i>
+        </button>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal" id="alertModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-exclamation-triangle"></i> System Alert</h3>
+                <span class="modal-close">&times;</span>
+            </div>
+            <div class="alert alert-warning">
+                <p><strong>High Resource Usage Detected:</strong></p>
+                <p>Database server DB-01 is experiencing high memory usage (89%). Consider scaling resources or optimizing queries.</p>
+            </div>
+            <div>
+                <button class="btn btn-primary">View Details</button>
+                <button class="btn btn-secondary modal-close">Dismiss</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Single Page Apps for GitHub Pages redirect handling
+        (function(l) {
+            if (l.search[1] === '/' ) {
+                var decoded = l.search.slice(1).split('&').map(function(s) { 
+                    return s.replace(/~and~/g, '&')
+                }).join('?');
+                window.history.replaceState(null, null,
+                    l.pathname.slice(0, -1) + decoded + l.hash
+                );
+            }
+        }(window.location))
+
+        // Global application state
+        let currentSection = 'dashboard';
+        let activeTab = 'dashboard';
+        let charts = {};
+        let filters = {};
+
+        // URL mapping for tabs
+        const tabUrls = {
+            'dashboard': 'https://leecharlene.github.io/collabhub-enterprise/dashboard',
+            'performance': 'https://leecharlene.github.io/collabhub-enterprise/performance',
+            'teams': 'https://leecharlene.github.io/collabhub-enterprise/teams',
+            'projects': 'https://leecharlene.github.io/collabhub-enterprise/projects',
+            'resources': 'https://leecharlene.github.io/collabhub-enterprise/resources',
+            'reports': 'https://leecharlene.github.io/collabhub-enterprise/reports'
+        };
+
+        // Function to update browser URL
+        function updateBrowserUrl(url) {
+            // Only update if not already on this URL
+            if (window.location.href !== url) {
+                window.history.pushState({}, '', url);
+            }
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEventListeners();
+            initializeCharts();
+            initializeFilters();
+            loadDashboardData();
+            
+            // Check current URL and set appropriate tab
+            initializeFromUrl();
+            
+            // Handle browser back/forward navigation
+            window.addEventListener('popstate', function(event) {
+                console.log('Popstate event triggered');
+                initializeFromUrl();
+            });
+            
+            // Show loading for initial data
+            showLoading();
+            setTimeout(hideLoading, 1500);
+        });
+
+        function initializeFromUrl() {
+            const path = window.location.pathname;
+            const hash = window.location.hash.substring(1); // Remove the #
+            const searchParams = new URLSearchParams(window.location.search);
+            
+            console.log('Initializing from URL:', path, 'Hash:', hash, 'Search:', window.location.search);
+            
+            // Handle GitHub Pages routing - check both path segments and hash
+            const segments = path.split('/').filter(s => s); // Remove empty segments
+            let lastSegment = segments[segments.length - 1];
+            
+            // If we have a hash, use that as the tab (for client-side routing)
+            if (hash) {
+                lastSegment = hash;
+            }
+            
+            console.log('Path segments:', segments, 'Last segment:', lastSegment);
+            
+            // Map URL segments to tab names
+            const urlToTab = {
+                'dashboard': 'dashboard',
+                'performance': 'performance', 
+                'teams': 'teams',
+                'projects': 'projects',
+                'resources': 'resources',
+                'reports': 'reports'
+            };
+            
+            let targetTab = 'dashboard'; // default
+            
+            // Check if the last segment matches a tab
+            if (urlToTab[lastSegment]) {
+                targetTab = urlToTab[lastSegment];
+            } else if (segments.includes('collabhub-enterprise')) {
+                // Handle GitHub Pages structure: /collabhub-enterprise/performance
+                const tabIndex = segments.indexOf('collabhub-enterprise') + 1;
+                if (tabIndex < segments.length && urlToTab[segments[tabIndex]]) {
+                    targetTab = segments[tabIndex];
+                }
+            }
+            
+            // Set the active tab and current section
+            activeTab = targetTab;
+            currentSection = targetTab;
+            
+            console.log('Target tab:', targetTab);
+            
+            // Update the UI elements immediately (no setTimeout needed)
+            updateUIForTab(targetTab);
+        }
+        
+        function updateUIForTab(targetTab) {
+            // Update navigation
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.section === targetTab) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Update tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.tab === targetTab) {
+                    tab.classList.add('active');
+                }
+            });
+            
+            // Update tab panels
+            document.querySelectorAll('.tab-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            const targetPanel = document.getElementById(targetTab);
+            if (targetPanel) {
+                targetPanel.classList.add('active');
+            }
+            
+            // Update URL display
+            const currentUrl = document.getElementById('current-url');
+            if (currentUrl && tabUrls[targetTab]) {
+                currentUrl.textContent = tabUrls[targetTab];
+            }
+            
+            // Update breadcrumb
+            const breadcrumb = document.getElementById('breadcrumb-text');
+            if (breadcrumb) {
+                breadcrumb.textContent = targetTab.charAt(0).toUpperCase() + targetTab.slice(1);
+            }
+            
+            // Update charts if needed
+            setTimeout(() => {
+                updateChartsForTab(targetTab);
+                applyFilters();
+            }, 100);
+        }
+
+        function initializeEventListeners() {
+            // Navigation clicks
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const section = this.dataset.section;
+                    navigateToSection(section);
+                });
+            });
+
+            // Tab functionality
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('tab-close')) {
+                        closeTab(this.dataset.tab);
+                        return;
+                    }
+                    switchTab(this.dataset.tab);
+                });
+            });
+
+            // User dropdown
+            document.getElementById('userAvatar').addEventListener('click', function(e) {
+                e.stopPropagation();
+                document.getElementById('userDropdown').classList.toggle('active');
+            });
+
+            document.addEventListener('click', function() {
+                document.getElementById('userDropdown').classList.remove('active');
+            });
+
+            // Modal controls
+            document.querySelectorAll('.modal-close').forEach(btn => {
+                btn.addEventListener('click', closeModal);
+            });
+
+            // Quick actions
+            document.getElementById('quickAdd').addEventListener('click', () => {
+                showNotification('Quick add menu opened', 'info');
+            });
+
+            document.getElementById('quickSearch').addEventListener('click', () => {
+                document.getElementById('globalSearch').focus();
+            });
+
+            document.getElementById('quickNotifications').addEventListener('click', () => {
+                showModal('alertModal');
+            });
+
+            // Global search
+            document.getElementById('globalSearch').addEventListener('input', function() {
+                performGlobalSearch(this.value);
+            });
+
+            // Filter system
+            initializeAdvancedSelects();
+        }
+
+        function initializeAdvancedSelects() {
+            document.querySelectorAll('.advanced-select').forEach(select => {
+                const trigger = select.querySelector('.select-trigger');
+                const dropdown = select.querySelector('.select-dropdown');
+                const search = select.querySelector('.select-search');
+                const options = select.querySelectorAll('.select-option');
+
+                trigger.addEventListener('click', function() {
+                    // Close other dropdowns
+                    document.querySelectorAll('.select-dropdown.active').forEach(dd => {
+                        if (dd !== dropdown) dd.classList.remove('active');
+                    });
+                    
+                    dropdown.classList.toggle('active');
+                    trigger.classList.toggle('active');
+                    
+                    if (dropdown.classList.contains('active') && search) {
+                        search.focus();
+                    }
+                });
+
+                if (search) {
+                    search.addEventListener('input', function() {
+                        const searchTerm = this.value.toLowerCase();
+                        options.forEach(option => {
+                            const text = option.textContent.toLowerCase();
+                            option.style.display = text.includes(searchTerm) ? 'flex' : 'none';
+                        });
+                    });
+                }
+
+                options.forEach(option => {
+                    option.addEventListener('click', function() {
+                        const isMultiSelect = select.classList.contains('multi-select');
+                        
+                        if (isMultiSelect) {
+                            this.classList.toggle('selected');
+                            updateMultiSelectDisplay(select);
+                        } else {
+                            // Single select
+                            options.forEach(opt => opt.classList.remove('selected'));
+                            this.classList.add('selected');
+                            trigger.querySelector('span').textContent = this.textContent.trim();
+                            dropdown.classList.remove('active');
+                            trigger.classList.remove('active');
+                        }
+                        
+                        // Trigger filter update
+                        applyFilters();
+                    });
+                });
+            });
+
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.advanced-select')) {
+                    document.querySelectorAll('.select-dropdown.active').forEach(dropdown => {
+                        dropdown.classList.remove('active');
+                        dropdown.parentElement.querySelector('.select-trigger').classList.remove('active');
+                    });
+                }
+            });
+        }
+
+        function updateMultiSelectDisplay(select) {
+            const trigger = select.querySelector('.select-trigger span');
+            const selectedOptions = select.querySelectorAll('.select-option.selected');
+            
+            if (selectedOptions.length === 0) {
+                trigger.textContent = 'None selected';
+            } else if (selectedOptions.length === 1) {
+                trigger.textContent = selectedOptions[0].textContent.trim();
+            } else {
+                trigger.textContent = `${selectedOptions.length} selected`;
+            }
+        }
+
+        function navigateToSection(section) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`[data-section="${section}"]`).classList.add('active');
+
+            currentSection = section;
+            
+            // Update breadcrumb and URL
+            const breadcrumb = document.getElementById('breadcrumb-text');
+            const currentUrl = document.getElementById('current-url');
+            
+            breadcrumb.textContent = section.charAt(0).toUpperCase() + section.slice(1);
+            
+            // Map sections to tabs and switch
+            const sectionTabMap = {
+                'dashboard': 'dashboard',
+                'performance': 'performance',
+                'teams': 'teams',
+                'projects': 'projects',
+                'resources': 'resources',
+                'reports': 'reports'
+            };
+            
+            if (sectionTabMap[section]) {
+                switchTab(sectionTabMap[section]);
+            }
+        }
+
+        function switchTab(tabName) {
+            activeTab = tabName;
+            currentSection = tabName;
+            
+            // Update browser URL
+            if (tabUrls[tabName]) {
+                updateBrowserUrl(tabUrls[tabName]);
+            }
+            
+            // Update UI consistently
+            updateUIForTab(tabName);
+        }
+
+        function closeTab(tabName) {
+            const tab = document.querySelector(`[data-tab="${tabName}"]`);
+            const panel = document.getElementById(tabName);
+            
+            if (tab && panel) {
+                const remainingTabs = document.querySelectorAll('.tab').length;
+                if (remainingTabs <= 1) {
+                    showNotification('Cannot close the last tab', 'warning');
+                    return;
+                }
+
+                tab.remove();
+                
+                if (tabName === activeTab) {
+                    const firstTab = document.querySelector('.tab');
+                    if (firstTab) {
+                        switchTab(firstTab.dataset.tab);
+                    }
+                }
+            }
+        }
+
+        function initializeCharts() {
+            // Revenue Chart
+            const revenueCtx = document.getElementById('revenueChart');
+            if (revenueCtx) {
+                charts.revenue = new Chart(revenueCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                        datasets: [{
+                            label: 'Revenue',
+                            data: [180000, 195000, 210000, 225000, 240000, 255000, 270000, 285000, 300000, 315000, 330000, 345000],
+                            borderColor: '#3498db',
+                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '$' + (value / 1000) + 'K';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Productivity Chart
+            const productivityCtx = document.getElementById('productivityChart');
+            if (productivityCtx) {
+                charts.productivity = new Chart(productivityCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Completed', 'In Progress', 'Pending', 'Overdue'],
+                        datasets: [{
+                            data: [65, 25, 8, 2],
+                            backgroundColor: ['#27ae60', '#3498db', '#f39c12', '#e74c3c'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Resource Chart
+            const resourceCtx = document.getElementById('resourceChart');
+            if (resourceCtx) {
+                charts.resource = new Chart(resourceCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Engineering', 'Marketing', 'Sales', 'Operations', 'HR', 'Finance'],
+                        datasets: [{
+                            data: [35, 20, 18, 12, 8, 7],
+                            backgroundColor: ['#3498db', '#e74c3c', '#27ae60', '#f39c12', '#9b59b6', '#95a5a6'],
+                            borderWidth: 2,
+                            borderColor: '#fff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Initialize charts for other tabs
+            initializePerformanceCharts();
+            initializeProjectCharts();
+            initializeResourceCharts();
+        }
+
+        function initializePerformanceCharts() {
+            const healthCtx = document.getElementById('healthChart');
+            if (healthCtx) {
+                charts.health = new Chart(healthCtx, {
+                    type: 'line',
+                    data: {
+                        labels: Array.from({length: 24}, (_, i) => i + ':00'),
+                        datasets: [{
+                            label: 'Response Time (ms)',
+                            data: Array.from({length: 24}, () => Math.random() * 3 + 0.5),
+                            borderColor: '#3498db',
+                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Response Time (ms)'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function initializeProjectCharts() {
+            const timelineCtx = document.getElementById('timelineChart');
+            if (timelineCtx) {
+                charts.timeline = new Chart(timelineCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Mobile App', 'API Integration', 'Security Audit', 'UI Redesign', 'Data Migration'],
+                        datasets: [{
+                            label: 'Progress (%)',
+                            data: [78, 45, 23, 67, 89],
+                            backgroundColor: ['#27ae60', '#f39c12', '#e74c3c', '#3498db', '#27ae60'],
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                title: {
+                                    display: true,
+                                    text: 'Progress (%)'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function initializeResourceCharts() {
+            const utilizationCtx = document.getElementById('utilizationChart');
+            if (utilizationCtx) {
+                charts.utilization = new Chart(utilizationCtx, {
+                    type: 'line',
+                    data: {
+                        labels: Array.from({length: 12}, (_, i) => (i + 1) + ':00'),
+                        datasets: [{
+                            label: 'CPU Usage',
+                            data: Array.from({length: 12}, () => Math.random() * 40 + 30),
+                            borderColor: '#3498db',
+                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                            tension: 0.4
+                        }, {
+                            label: 'Memory Usage',
+                            data: Array.from({length: 12}, () => Math.random() * 30 + 50),
+                            borderColor: '#27ae60',
+                            backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                title: {
+                                    display: true,
+                                    text: 'Usage (%)'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function updateChartsForTab(tabName) {
+            // Update charts when switching tabs
+            setTimeout(() => {
+                Object.keys(charts).forEach(chartKey => {
+                    if (charts[chartKey]) {
+                        charts[chartKey].resize();
+                    }
+                });
+            }, 100);
+        }
+
+        function initializeFilters() {
+            filters = {
+                dateRange: 'last30',
+                departments: [],
+                projectStatus: [],
+                metricType: [],
+                serviceLevel: 'production',
+                priority: [],
+                budget: 'all',
+                timeline: 'all',
+                resourceType: [],
+                alertLevel: 'all',
+                reportType: 'all'
+            };
+        }
+
+        function applyFilters() {
+            // Collect current filter values
+            document.querySelectorAll('.advanced-select').forEach(select => {
+                const filterName = select.dataset.filter;
+                if (!filterName) return;
+
+                if (select.classList.contains('multi-select')) {
+                    const selected = Array.from(select.querySelectorAll('.select-option.selected'))
+                        .map(option => option.dataset.value);
+                    filters[filterName] = selected;
+                } else {
+                    const selected = select.querySelector('.select-option.selected');
+                    if (selected) {
+                        filters[filterName] = selected.dataset.value;
+                    }
+                }
+            });
+
+            // Apply filters based on current tab
+            switch (activeTab) {
+                case 'dashboard':
+                    applyDashboardFilters();
+                    break;
+                case 'performance':
+                    applyPerformanceFilters();
+                    break;
+                case 'teams':
+                    applyTeamsFilters();
+                    break;
+                case 'projects':
+                    applyProjectFilters();
+                    break;
+                case 'resources':
+                    applyResourceFilters();
+                    break;
+                case 'reports':
+                    applyReportFilters();
+                    break;
+            }
+
+            updateUrlWithFilters();
+        }
+
+        function applyDashboardFilters() {
+            // Simulate filtering dashboard data
+            showLoading();
+            setTimeout(() => {
+                hideLoading();
+                showNotification('Dashboard filters applied', 'success');
+            }, 1000);
+        }
+
+        function applyPerformanceFilters() {
+            showLoading();
+            setTimeout(() => {
+                hideLoading();
+                showNotification('Performance data refreshed', 'success');
+            }, 800);
+        }
+
+        function applyTeamsFilters() {
+            const teamCards = document.querySelectorAll('.team-card');
+            let visibleCount = 0;
+
+            teamCards.forEach(card => {
+                let shouldShow = true;
+
+                // Apply team size filter
+                if (filters.teamSize && filters.teamSize !== 'all') {
+                    const membersText = card.querySelector('.stat-item:nth-child(2) strong').textContent;
+                    const memberCount = parseInt(membersText);
+                    
+                    switch (filters.teamSize) {
+                        case 'small':
+                            shouldShow = memberCount <= 5;
+                            break;
+                        case 'medium':
+                            shouldShow = memberCount >= 6 && memberCount <= 15;
+                            break;
+                        case 'large':
+                            shouldShow = memberCount >= 16;
+                            break;
+                    }
+                }
+
+                card.style.display = shouldShow ? 'block' : 'none';
+                if (shouldShow) visibleCount++;
+            });
+
+            showNotification(`${visibleCount} teams match your filters`, 'info');
+        }
+
+        function applyProjectFilters() {
+            showLoading();
+            setTimeout(() => {
+                hideLoading();
+                showNotification('Project data filtered', 'success');
+            }, 600);
+        }
+
+        function applyResourceFilters() {
+            showLoading();
+            setTimeout(() => {
+                hideLoading();
+                showNotification('Resource data updated', 'success');
+            }, 700);
+        }
+
+        function applyReportFilters() {
+            const tableRows = document.querySelectorAll('#reports .data-table tbody tr');
+            let visibleCount = 0;
+
+            tableRows.forEach(row => {
+                let shouldShow = true;
+
+                if (filters.reportType && filters.reportType !== 'all') {
+                    const reportType = row.cells[1].textContent.toLowerCase();
+                    shouldShow = reportType.includes(filters.reportType.toLowerCase());
+                }
+
+                row.style.display = shouldShow ? '' : 'none';
+                if (shouldShow) visibleCount++;
+            });
+
+            showNotification(`${visibleCount} reports match your filters`, 'info');
+        }
+
+        function updateUrlWithFilters() {
+            const currentUrl = document.getElementById('current-url');
+            if (currentUrl && tabUrls[activeTab]) {
+                let url = tabUrls[activeTab];
+                const params = new URLSearchParams();
+
+                Object.keys(filters).forEach(key => {
+                    const value = filters[key];
+                    if (Array.isArray(value) && value.length > 0) {
+                        params.set(key, value.join(','));
+                    } else if (value && value !== 'all' && !Array.isArray(value)) {
+                        params.set(key, value);
+                    }
+                });
+
+                if (params.toString()) {
+                    url += '?' + params.toString();
+                }
+
+                currentUrl.textContent = url;
+                updateBrowserUrl(url);
+            }
+        }
+
+        function loadDashboardData() {
+            // Simulate real-time data updates
+            setInterval(updateRealTimeData, 30000); // Update every 30 seconds
+        }
+
+        // Handle back/forward navigation
+        window.addEventListener('popstate', function(event) {
+            initializeFromUrl();
+        });
+
+        function updateRealTimeData() {
+            // Update notification count
+            const notificationCount = document.querySelector('.notification-count');
+            if (notificationCount) {
+                const currentCount = parseInt(notificationCount.textContent);
+                if (Math.random() > 0.7) { // 30% chance of new notification
+                    notificationCount.textContent = currentCount + 1;
+                }
+            }
+
+            // Update activity feed
+            if (activeTab === 'dashboard') {
+                addNewActivity();
+            }
+        }
+
+        function addNewActivity() {
+            const activityFeed = document.querySelector('.activity-feed');
+            if (activityFeed && Math.random() > 0.8) { // 20% chance
+                const activities = [
+                    { user: 'Alex Johnson', action: 'uploaded new document to Finance folder', time: 'Just now', color: '#3498db' },
+                    { user: 'Maria Garcia', action: 'completed code review for mobile app', time: 'Just now', color: '#27ae60' },
+                    { user: 'Tom Wilson', action: 'scheduled quarterly planning meeting', time: 'Just now', color: '#e74c3c' }
+                ];
+
+                const activity = activities[Math.floor(Math.random() * activities.length)];
+                const activityElement = document.createElement('div');
+                activityElement.className = 'activity-item';
+                activityElement.innerHTML = `
+                    <div class="activity-avatar" style="background: ${activity.color};">${activity.user.split(' ').map(n => n[0]).join('')}</div>
+                    <div class="activity-content">
+                        <div class="activity-text">
+                            <strong>${activity.user}</strong> ${activity.action}
+                        </div>
+                        <div class="activity-time">${activity.time}</div>
+                    </div>
+                `;
+
+                activityFeed.insertBefore(activityElement, activityFeed.firstChild);
+                
+                // Remove last item if too many
+                if (activityFeed.children.length > 6) {
+                    activityFeed.removeChild(activityFeed.lastChild);
+                }
+            }
+        }
+
+        function performGlobalSearch(query) {
+            if (query.length < 2) return;
+
+            // Simulate search results
+            const searchResults = [
+                'Mobile App Redesign Project',
+                'Q4 Marketing Campaign',
+                'Sales Performance Dashboard',
+                'Team Performance Review',
+                'Security Compliance Report'
+            ].filter(item => item.toLowerCase().includes(query.toLowerCase()));
+
+            if (searchResults.length > 0) {
+                showNotification(`Found ${searchResults.length} results for "${query}"`, 'info');
+            }
+        }
+
+        function showLoading() {
+            const activePanel = document.querySelector('.tab-panel.active');
+            if (activePanel && !activePanel.querySelector('.loading-overlay')) {
+                const overlay = document.createElement('div');
+                overlay.className = 'loading-overlay';
+                overlay.innerHTML = '<div class="spinner"></div>';
+                activePanel.style.position = 'relative';
+                activePanel.appendChild(overlay);
+            }
+        }
+
+        function hideLoading() {
+            const activePanel = document.querySelector('.tab-panel.active');
+            if (activePanel) {
+                const overlay = activePanel.querySelector('.loading-overlay');
+                if (overlay) {
+                    overlay.remove();
+                }
+            }
+        }
+
+        function showModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('active');
+            }
+        }
+
+        function closeModal() {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.classList.remove('active');
+            });
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = 'notification-toast';
+            
+            const icons = {
+                'success': 'fas fa-check-circle',
+                'warning': 'fas fa-exclamation-triangle',
+                'error': 'fas fa-times-circle',
+                'info': 'fas fa-info-circle'
+            };
+
+            const colors = {
+                'success': '#27ae60',
+                'warning': '#f39c12',
+                'error': '#e74c3c',
+                'info': '#3498db'
+            };
+
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="${icons[type]}" style="color: ${colors[type]};"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+
+            document.body.appendChild(notification);
+            
+            setTimeout(() => notification.classList.add('show'), 100);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Export functionality
+        document.addEventListener('click', function(e) {
+            if (e.target.matches('.export-options .btn')) {
+                const exportType = e.target.textContent.trim();
+                showLoading();
+                setTimeout(() => {
+                    hideLoading();
+                    showNotification(`${exportType} export completed`, 'success');
+                }, 2000);
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key.toLowerCase()) {
+                    case 'k':
+                        e.preventDefault();
+                        document.getElementById('globalSearch').focus();
+                        break;
+                    case 'n':
+                        e.preventDefault();
+                        document.getElementById('quickAdd').click();
+                        break;
+                    case 'r':
+                        e.preventDefault();
+                        location.reload();
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

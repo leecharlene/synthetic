@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Task Management Board</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4a5568;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .search-container {
+            position: relative;
+        }
+
+        .search-input {
+            padding: 0.5rem 2.5rem 0.5rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 25px;
+            width: 300px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 2rem;
+            height: 2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .filter-dropdown {
+            position: relative;
+        }
+
+        .filter-btn {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover {
+            background: #3182ce;
+            transform: translateY(-1px);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            min-width: 200px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            z-index: 1001;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-menu.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            border-bottom: 1px solid #f7fafc;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f7fafc;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .add-task-btn {
+            background: #48bb78;
+            color: white;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .add-task-btn:hover {
+            background: #38a169;
+            transform: translateY(-1px);
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .kanban-board {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .column {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            min-height: 600px;
+            transition: all 0.3s ease;
+        }
+
+        .column:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+
+        .column-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f7fafc;
+        }
+
+        .column-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-badge {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .todo .status-badge { background: #ed8936; }
+        .progress .status-badge { background: #4299e1; }
+        .review .status-badge { background: #9f7aea; }
+        .done .status-badge { background: #48bb78; }
+
+        .task-count {
+            background: #edf2f7;
+            color: #4a5568;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .task-list {
+            min-height: 500px;
+            transition: all 0.3s ease;
+        }
+
+        .task-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: move;
+            transition: all 0.3s ease;
+            border-left: 4px solid #e2e8f0;
+        }
+
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        .task-card.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+
+        .task-card.high-priority {
+            border-left-color: #f56565;
+        }
+
+        .task-card.medium-priority {
+            border-left-color: #ed8936;
+        }
+
+        .task-card.low-priority {
+            border-left-color: #48bb78;
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+        }
+
+        .task-title {
+            font-weight: 600;
+            color: #2d3748;
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 0.5rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .task-card:hover .task-actions {
+            opacity: 1;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            padding: 0.25rem;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            color: #718096;
+        }
+
+        .action-btn:hover {
+            background: #edf2f7;
+            color: #4a5568;
+        }
+
+        .task-description {
+            color: #718096;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            margin-bottom: 0.75rem;
+        }
+
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+        }
+
+        .task-priority {
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .priority-high {
+            background: #fed7d7;
+            color: #c53030;
+        }
+
+        .priority-medium {
+            background: #feebc8;
+            color: #c05621;
+        }
+
+        .priority-low {
+            background: #c6f6d5;
+            color: #2f855a;
+        }
+
+        .task-assignee {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #4a5568;
+        }
+
+        .assignee-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #4299e1;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .drop-zone {
+            min-height: 100px;
+            border: 2px dashed #cbd5e0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #a0aec0;
+            font-style: italic;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .drop-zone.drag-over {
+            border-color: #4299e1;
+            background: #ebf8ff;
+            color: #4299e1;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #718096;
+            transition: color 0.2s ease;
+        }
+
+        .close-btn:hover {
+            color: #4a5568;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #4299e1;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #4299e1;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #3182ce;
+        }
+
+        .btn-secondary {
+            background: #edf2f7;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        .date-picker {
+            position: relative;
+        }
+
+        .calendar {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            z-index: 1000;
+            min-width: 250px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .calendar.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .autocomplete-container {
+            position: relative;
+        }
+
+        .autocomplete-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            z-index: 1000;
+            max-height: 200px;
+            overflow-y: auto;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-5px);
+            transition: all 0.3s ease;
+        }
+
+        .autocomplete-results.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .autocomplete-item {
+            padding: 0.75rem;
+            cursor: pointer;
+            border-bottom: 1px solid #f7fafc;
+            transition: background-color 0.2s ease;
+        }
+
+        .autocomplete-item:hover {
+            background-color: #f7fafc;
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        @media (max-width: 768px) {
+            .kanban-board {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .search-input {
+                width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">TaskFlow</div>
+            <div class="header-controls">
+                <div class="search-container autocomplete-container">
+                    <input type="text" class="search-input" placeholder="Search tasks, projects, or team members..." id="searchInput">
+                    <button class="search-btn" onclick="performSearch()">🔍</button>
+                    <div class="autocomplete-results" id="autocompleteResults"></div>
+                </div>
+                <div class="filter-dropdown">
+                    <button class="filter-btn" onclick="toggleDropdown('filterDropdown')">
+                        Filter & Sort
+                        <span>▼</span>
+                    </button>
+                    <div class="dropdown-menu" id="filterDropdown">
+                        <div class="dropdown-item" onclick="filterTasks('all')">All Tasks</div>
+                        <div class="dropdown-item" onclick="filterTasks('high')">High Priority</div>
+                        <div class="dropdown-item" onclick="filterTasks('medium')">Medium Priority</div>
+                        <div class="dropdown-item" onclick="filterTasks('low')">Low Priority</div>
+                        <div class="dropdown-item" onclick="sortTasks('date')">Sort by Date</div>
+                        <div class="dropdown-item" onclick="sortTasks('priority')">Sort by Priority</div>
+                        <div class="dropdown-item" onclick="sortTasks('assignee')">Sort by Assignee</div>
+                    </div>
+                </div>
+                <button class="add-task-btn" onclick="openTaskModal()">+ Add Task</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <div class="kanban-board">
+            <div class="column todo" data-status="todo">
+                <div class="column-header">
+                    <div class="column-title">
+                        <div class="status-badge"></div>
+                        To Do
+                    </div>
+                    <div class="task-count" id="todoCount">0</div>
+                </div>
+                <div class="task-list" id="todoList" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <div class="drop-zone">Drop tasks here</div>
+                </div>
+            </div>
+
+            <div class="column progress" data-status="in-progress">
+                <div class="column-header">
+                    <div class="column-title">
+                        <div class="status-badge"></div>
+                        In Progress
+                    </div>
+                    <div class="task-count" id="progressCount">0</div>
+                </div>
+                <div class="task-list" id="progressList" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <div class="drop-zone">Drop tasks here</div>
+                </div>
+            </div>
+
+            <div class="column review" data-status="review">
+                <div class="column-header">
+                    <div class="column-title">
+                        <div class="status-badge"></div>
+                        Under Review
+                    </div>
+                    <div class="task-count" id="reviewCount">0</div>
+                </div>
+                <div class="task-list" id="reviewList" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <div class="drop-zone">Drop tasks here</div>
+                </div>
+            </div>
+
+            <div class="column done" data-status="done">
+                <div class="column-header">
+                    <div class="column-title">
+                        <div class="status-badge"></div>
+                        Completed
+                    </div>
+                    <div class="task-count" id="doneCount">0</div>
+                </div>
+                <div class="task-list" id="doneList" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <div class="drop-zone">Drop tasks here</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Modal -->
+    <div class="modal" id="taskModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Add New Task</h2>
+                <button class="close-btn" onclick="closeTaskModal()">&times;</button>
+            </div>
+            <form id="taskForm">
+                <div class="form-group">
+                    <label class="form-label" for="taskTitle">Task Title *</label>
+                    <input type="text" class="form-input" id="taskTitle" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="taskDescription">Description</label>
+                    <textarea class="form-textarea" id="taskDescription" placeholder="Enter task description..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="taskPriority">Priority</label>
+                    <select class="form-select" id="taskPriority">
+                        <option value="low">Low Priority</option>
+                        <option value="medium" selected>Medium Priority</option>
+                        <option value="high">High Priority</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="taskAssignee">Assignee</label>
+                    <div class="autocomplete-container">
+                        <input type="text" class="form-input" id="taskAssignee" placeholder="Search team members...">
+                        <div class="autocomplete-results" id="assigneeResults"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="taskDueDate">Due Date</label>
+                    <div class="date-picker">
+                        <input type="date" class="form-input" id="taskDueDate">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="taskStatus">Status</label>
+                    <select class="form-select" id="taskStatus">
+                        <option value="todo" selected>To Do</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="review">Under Review</option>
+                        <option value="done">Completed</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeTaskModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let tasks = [
+            // Engineering Team Tasks
+            {
+                id: 1,
+                title: "Design new landing page",
+                description: "Create a modern, responsive landing page for the new product launch",
+                priority: "high",
+                assignee: "Sarah Chen",
+                dueDate: "2024-12-15",
+                status: "todo",
+                createdAt: new Date('2024-12-01')
+            },
+            {
+                id: 2,
+                title: "Implement user authentication",
+                description: "Set up OAuth integration and user session management",
+                priority: "high",
+                assignee: "Mike Johnson",
+                dueDate: "2024-12-20",
+                status: "in-progress",
+                createdAt: new Date('2024-12-02')
+            },
+            {
+                id: 3,
+                title: "Write API documentation",
+                description: "Document all REST endpoints with examples and error codes",
+                priority: "medium",
+                assignee: "Alex Rodriguez",
+                dueDate: "2024-12-18",
+                status: "review",
+                createdAt: new Date('2024-12-03')
+            },
+            {
+                id: 4,
+                title: "Set up CI/CD pipeline",
+                description: "Configure automated testing and deployment workflows",
+                priority: "medium",
+                assignee: "Emily Davis",
+                dueDate: "2024-12-10",
+                status: "done",
+                createdAt: new Date('2024-11-28')
+            },
+            {
+                id: 5,
+                title: "Database optimization",
+                description: "Optimize slow queries and implement proper indexing",
+                priority: "low",
+                assignee: "David Wilson",
+                dueDate: "2024-12-25",
+                status: "todo",
+                createdAt: new Date('2024-12-04')
+            },
+            {
+                id: 6,
+                title: "Migrate to microservices architecture",
+                description: "Break down monolithic application into containerized microservices",
+                priority: "high",
+                assignee: "Lisa Thompson",
+                dueDate: "2025-01-30",
+                status: "in-progress",
+                createdAt: new Date('2024-11-20')
+            },
+            {
+                id: 7,
+                title: "Implement payment gateway integration",
+                description: "Integrate Stripe and PayPal payment processing with fraud detection",
+                priority: "high",
+                assignee: "Robert Brown",
+                dueDate: "2024-12-28",
+                status: "todo",
+                createdAt: new Date('2024-12-05')
+            },
+            {
+                id: 8,
+                title: "Mobile app performance optimization",
+                description: "Reduce app loading time and improve battery efficiency",
+                priority: "medium",
+                assignee: "Jennifer Lee",
+                dueDate: "2025-01-15",
+                status: "in-progress",
+                createdAt: new Date('2024-12-01')
+            },
+            {
+                id: 9,
+                title: "Security audit and penetration testing",
+                description: "Conduct comprehensive security assessment with external firm",
+                priority: "high",
+                assignee: "Michael Anderson",
+                dueDate: "2024-12-22",
+                status: "review",
+                createdAt: new Date('2024-11-25')
+            },
+            {
+                id: 10,
+                title: "Implement real-time chat feature",
+                description: "Build WebSocket-based chat system with file sharing capabilities",
+                priority: "medium",
+                assignee: "Jessica Taylor",
+                dueDate: "2025-01-20",
+                status: "todo",
+                createdAt: new Date('2024-12-03')
+            },
+            {
+                id: 11,
+                title: "Data warehouse ETL pipeline",
+                description: "Build automated data pipeline for business intelligence reporting",
+                priority: "medium",
+                assignee: "John Smith",
+                dueDate: "2025-02-10",
+                status: "todo",
+                createdAt: new Date('2024-12-06')
+            },
+            {
+                id: 12,
+                title: "API rate limiting implementation",
+                description: "Implement Redis-based rate limiting for all public APIs",
+                priority: "low",
+                assignee: "Maria Garcia",
+                dueDate: "2025-01-05",
+                status: "done",
+                createdAt: new Date('2024-11-15')
+            },
+            
+            // Marketing Team Tasks
+            {
+                id: 13,
+                title: "Q1 2025 campaign strategy",
+                description: "Develop comprehensive marketing strategy for product launch",
+                priority: "high",
+                assignee: "Amanda Peterson",
+                dueDate: "2024-12-30",
+                status: "in-progress",
+                createdAt: new Date('2024-12-01')
+            },
+            {
+                id: 14,
+                title: "Social media content calendar",
+                description: "Create 3-month content calendar for all social platforms",
+                priority: "medium",
+                assignee: "Brian Mitchell",
+                dueDate: "2024-12-20",
+                status: "review",
+                createdAt: new Date('2024-12-02')
+            },
+            {
+                id: 15,
+                title: "Influencer partnership program",
+                description: "Establish partnerships with 10 key industry influencers",
+                priority: "medium",
+                assignee: "Christina Lopez",
+                dueDate: "2025-01-31",
+                status: "todo",
+                createdAt: new Date('2024-12-04')
+            },
+            {
+                id: 16,
+                title: "Website SEO optimization",
+                description: "Improve organic search rankings for target keywords",
+                priority: "high",
+                assignee: "Daniel Roberts",
+                dueDate: "2024-12-25",
+                status: "in-progress",
+                createdAt: new Date('2024-11-28')
+            },
+            {
+                id: 17,
+                title: "Email marketing automation setup",
+                description: "Configure drip campaigns and customer segmentation",
+                priority: "medium",
+                assignee: "Elena Vasquez",
+                dueDate: "2025-01-10",
+                status: "todo",
+                createdAt: new Date('2024-12-07')
+            },
+            {
+                id: 18,
+                title: "Trade show booth design",
+                description: "Design and order materials for CES 2025 exhibition",
+                priority: "high",
+                assignee: "Frank Williams",
+                dueDate: "2024-12-15",
+                status: "review",
+                createdAt: new Date('2024-11-20')
+            },
+            
+            // Sales Team Tasks
+            {
+                id: 19,
+                title: "Enterprise client onboarding",
+                description: "Develop streamlined onboarding process for Fortune 500 clients",
+                priority: "high",
+                assignee: "Grace Zhang",
+                dueDate: "2024-12-28",
+                status: "in-progress",
+                createdAt: new Date('2024-12-01')
+            },
+            {
+                id: 20,
+                title: "Sales training workshop",
+                description: "Conduct product knowledge training for new sales team members",
+                priority: "medium",
+                assignee: "Henry Kumar",
+                dueDate: "2024-12-18",
+                status: "done",
+                createdAt: new Date('2024-11-25')
+            },
+            {
+                id: 21,
+                title: "CRM system migration",
+                description: "Migrate from legacy CRM to Salesforce with data integrity checks",
+                priority: "high",
+                assignee: "Isabel Rodriguez",
+                dueDate: "2025-01-15",
+                status: "todo",
+                createdAt: new Date('2024-12-05')
+            },
+            {
+                id: 22,
+                title: "Q4 sales performance analysis",
+                description: "Analyze sales metrics and prepare quarterly business review",
+                priority: "medium",
+                assignee: "Jack Thompson",
+                dueDate: "2024-12-31",
+                status: "in-progress",
+                createdAt: new Date('2024-12-08')
+            },
+            {
+                id: 23,
+                title: "Partner channel development",
+                description: "Establish reseller partnerships in APAC markets",
+                priority: "medium",
+                assignee: "Karen Lee",
+                dueDate: "2025-02-28",
+                status: "todo",
+                createdAt: new Date('2024-12-06')
+            },
+            
+            // HR & Operations Tasks
+            {
+                id: 24,
+                title: "Employee performance review cycle",
+                description: "Conduct annual performance reviews for all departments",
+                priority: "high",
+                assignee: "Laura Martinez",
+                dueDate: "2024-12-20",
+                status: "in-progress",
+                createdAt: new Date('2024-11-30')
+            },
+            {
+                id: 25,
+                title: "Office space expansion planning",
+                description: "Evaluate and plan for 50% headcount growth in 2025",
+                priority: "medium",
+                assignee: "Marcus Johnson",
+                dueDate: "2025-01-25",
+                status: "todo",
+                createdAt: new Date('2024-12-03')
+            },
+            {
+                id: 26,
+                title: "Diversity and inclusion program",
+                description: "Launch company-wide D&I initiative with training modules",
+                priority: "high",
+                assignee: "Nina Patel",
+                dueDate: "2025-01-31",
+                status: "review",
+                createdAt: new Date('2024-12-01')
+            },
+            {
+                id: 27,
+                title: "IT security compliance audit",
+                description: "Prepare for SOC 2 Type II compliance certification",
+                priority: "high",
+                assignee: "Oscar Chen",
+                dueDate: "2024-12-30",
+                status: "in-progress",
+                createdAt: new Date('2024-11-28')
+            },
+            {
+                id: 28,
+                title: "Employee wellness program",
+                description: "Implement mental health support and fitness benefits",
+                priority: "medium",
+                assignee: "Patricia Wong",
+                dueDate: "2025-02-15",
+                status: "todo",
+                createdAt: new Date('2024-12-07')
+            },
+            {
+                id: 29,
+                title: "Budget planning for 2025",
+                description: "Create departmental budgets and resource allocation plans",
+                priority: "high",
+                assignee: "Quincy Adams",
+                dueDate: "2024-12-15",
+                status: "review",
+                createdAt: new Date('2024-11-22')
+            },
+            
+            // Product Management Tasks
+            {
+                id: 30,
+                title: "Customer feedback analysis",
+                description: "Analyze user feedback and prioritize feature requests",
+                priority: "medium",
+                assignee: "Rachel Kim",
+                dueDate: "2024-12-22",
+                status: "in-progress",
+                createdAt: new Date('2024-12-05')
+            },
+            {
+                id: 31,
+                title: "Competitive analysis report",
+                description: "Research competitor features and market positioning",
+                priority: "medium",
+                assignee: "Samuel Davis",
+                dueDate: "2025-01-08",
+                status: "todo",
+                createdAt: new Date('2024-12-08')
+            },
+            {
+                id: 32,
+                title: "Product roadmap Q2 2025",
+                description: "Define product development priorities for next quarter",
+                priority: "high",
+                assignee: "Tina Chang",
+                dueDate: "2024-12-28",
+                status: "review",
+                createdAt: new Date('2024-12-02')
+            },
+            {
+                id: 33,
+                title: "User experience testing",
+                description: "Conduct usability testing with 50 beta users",
+                priority: "high",
+                assignee: "Victor Gonzalez",
+                dueDate: "2024-12-20",
+                status: "done",
+                createdAt: new Date('2024-11-18')
+            },
+            {
+                id: 34,
+                title: "Mobile app analytics setup",
+                description: "Implement comprehensive analytics tracking for mobile app",
+                priority: "medium",
+                assignee: "Wendy Liu",
+                dueDate: "2025-01-12",
+                status: "todo",
+                createdAt: new Date('2024-12-06')
+            },
+            
+            // Customer Support Tasks
+            {
+                id: 35,
+                title: "Knowledge base expansion",
+                description: "Create 50 new help articles for common customer issues",
+                priority: "medium",
+                assignee: "Xavier Murphy",
+                dueDate: "2025-01-20",
+                status: "in-progress",
+                createdAt: new Date('2024-12-04')
+            },
+            {
+                id: 36,
+                title: "Customer support chatbot",
+                description: "Implement AI-powered chatbot for first-level support",
+                priority: "high",
+                assignee: "Yuki Tanaka",
+                dueDate: "2025-01-31",
+                status: "todo",
+                createdAt: new Date('2024-12-07')
+            },
+            {
+                id: 37,
+                title: "Support ticket categorization",
+                description: "Implement automated ticket routing and prioritization",
+                priority: "low",
+                assignee: "Zoe Anderson",
+                dueDate: "2025-02-28",
+                status: "todo",
+                createdAt: new Date('2024-12-08')
+            },
+            {
+                id: 38,
+                title: "Customer satisfaction survey",
+                description: "Design and deploy quarterly customer satisfaction survey",
+                priority: "medium",
+                assignee: "Andrew Foster",
+                dueDate: "2024-12-25",
+                status: "review",
+                createdAt: new Date('2024-12-01')
+            },
+            
+            // Legal & Compliance Tasks
+            {
+                id: 39,
+                title: "GDPR compliance review",
+                description: "Audit data processing activities for GDPR compliance",
+                priority: "high",
+                assignee: "Barbara Stone",
+                dueDate: "2024-12-31",
+                status: "in-progress",
+                createdAt: new Date('2024-11-29')
+            },
+            {
+                id: 40,
+                title: "Terms of service update",
+                description: "Revise terms of service for new product features",
+                priority: "medium",
+                assignee: "Carl Jackson",
+                dueDate: "2025-01-15",
+                status: "todo",
+                createdAt: new Date('2024-12-05')
+            },
+            {
+                id: 41,
+                title: "Vendor contract negotiations",
+                description: "Negotiate contracts with key technology vendors",
+                priority: "high",
+                assignee: "Diana Miller",
+                dueDate: "2024-12-20",
+                status: "in-progress",
+                createdAt: new Date('2024-12-02')
+            },
+            {
+                id: 42,
+                title: "Intellectual property audit",
+                description: "Review and file patents for recent innovations",
+                priority: "medium",
+                assignee: "Edward Clark",
+                dueDate: "2025-02-10",
+                status: "todo",
+                createdAt: new Date('2024-12-06')
+            }
+        ];
+
+        let currentEditingTask = null;
+        let draggedTask = null;
+
+        const teamMembers = [
+            // Engineering Team
+            "Sarah Chen", "Mike Johnson", "Alex Rodriguez", "Emily Davis", 
+            "David Wilson", "Lisa Thompson", "John Smith", "Maria Garcia",
+            "Robert Brown", "Jennifer Lee", "Michael Anderson", "Jessica Taylor",
+            
+            // Marketing Team
+            "Amanda Peterson", "Brian Mitchell", "Christina Lopez", "Daniel Roberts",
+            "Elena Vasquez", "Frank Williams",
+            
+            // Sales Team
+            "Grace Zhang", "Henry Kumar", "Isabel Rodriguez", "Jack Thompson", "Karen Lee",
+            
+            // HR & Operations
+            "Laura Martinez", "Marcus Johnson", "Nina Patel", "Oscar Chen", 
+            "Patricia Wong", "Quincy Adams",
+            
+            // Product Management
+            "Rachel Kim", "Samuel Davis", "Tina Chang", "Victor Gonzalez", "Wendy Liu",
+            
+            // Customer Support
+            "Xavier Murphy", "Yuki Tanaka", "Zoe Anderson", "Andrew Foster",
+            
+            // Legal & Compliance
+            "Barbara Stone", "Carl Jackson", "Diana Miller", "Edward Clark"
+        ];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTasks();
+            setupEventListeners();
+            updateTaskCounts();
+        });
+
+        function setupEventListeners() {
+            // Search autocomplete
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', handleSearchInput);
+            
+            // Task form submission
+            document.getElementById('taskForm').addEventListener('submit', handleTaskSubmit);
+            
+            // Assignee autocomplete
+            const assigneeInput = document.getElementById('taskAssignee');
+            assigneeInput.addEventListener('input', handleAssigneeInput);
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(event) {
+                closeAllDropdowns(event);
+            });
+        }
+
+        function renderTasks() {
+            const columns = {
+                'todo': document.getElementById('todoList'),
+                'in-progress': document.getElementById('progressList'),
+                'review': document.getElementById('reviewList'),
+                'done': document.getElementById('doneList')
+            };
+
+            // Clear all columns
+            Object.values(columns).forEach(column => {
+                column.innerHTML = '<div class="drop-zone">Drop tasks here</div>';
+            });
+
+            // Render tasks in their respective columns
+            tasks.forEach(task => {
+                const taskElement = createTaskElement(task);
+                const targetColumn = columns[task.status];
+                if (targetColumn) {
+                    targetColumn.appendChild(taskElement);
+                }
+            });
+
+            updateTaskCounts();
+        }
+
+        function createTaskElement(task) {
+            const taskDiv = document.createElement('div');
+            taskDiv.className = `task-card ${task.priority}-priority`;
+            taskDiv.draggable = true;
+            taskDiv.dataset.taskId = task.id;
+            
+            const initials = task.assignee ? task.assignee.split(' ').map(n => n[0]).join('') : '?';
+            const priorityColor = {
+                'high': 'priority-high',
+                'medium': 'priority-medium',
+                'low': 'priority-low'
+            };
+
+            taskDiv.innerHTML = `
+                <div class="task-header">
+                    <div class="task-title">${task.title}</div>
+                    <div class="task-actions">
+                        <button class="action-btn" onclick="editTask(${task.id})" title="Edit">✏️</button>
+                        <button class="action-btn" onclick="deleteTask(${task.id})" title="Delete">🗑️</button>
+                    </div>
+                </div>
+                <div class="task-description">${task.description}</div>
+                <div class="task-meta">
+                    <span class="task-priority ${priorityColor[task.priority]}">${task.priority}</span>
+                    <div class="task-assignee">
+                        <div class="assignee-avatar">${initials}</div>
+                        <span>${task.assignee}</span>
+                    </div>
+                </div>
+            `;
+
+            // Add drag event listeners
+            taskDiv.addEventListener('dragstart', handleDragStart);
+            taskDiv.addEventListener('dragend', handleDragEnd);
+
+            return taskDiv;
+        }
+
+        // Drag and Drop functionality
+        function handleDragStart(e) {
+            draggedTask = this;
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', this.outerHTML);
+        }
+
+        function handleDragEnd(e) {
+            this.classList.remove('dragging');
+            draggedTask = null;
+        }
+
+        function allowDrop(e) {
+            e.preventDefault();
+            const dropZone = e.currentTarget;
+            dropZone.classList.add('drag-over');
+        }
+
+        function drop(e) {
+            e.preventDefault();
+            const dropZone = e.currentTarget;
+            dropZone.classList.remove('drag-over');
+            
+            if (draggedTask) {
+                const taskId = parseInt(draggedTask.dataset.taskId);
+                const newStatus = dropZone.closest('.column').dataset.status;
+                
+                // Update task status
+                const task = tasks.find(t => t.id === taskId);
+                if (task) {
+                    task.status = newStatus;
+                    renderTasks();
+                }
+            }
+        }
+
+        // Task management functions
+        function openTaskModal(taskId = null) {
+            const modal = document.getElementById('taskModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const form = document.getElementById('taskForm');
+            
+            if (taskId) {
+                currentEditingTask = tasks.find(t => t.id === taskId);
+                modalTitle.textContent = 'Edit Task';
+                populateTaskForm(currentEditingTask);
+            } else {
+                currentEditingTask = null;
+                modalTitle.textContent = 'Add New Task';
+                form.reset();
+            }
+            
+            modal.classList.add('active');
+        }
+
+        function closeTaskModal() {
+            document.getElementById('taskModal').classList.remove('active');
+            currentEditingTask = null;
+        }
+
+        function populateTaskForm(task) {
+            document.getElementById('taskTitle').value = task.title;
+            document.getElementById('taskDescription').value = task.description;
+            document.getElementById('taskPriority').value = task.priority;
+            document.getElementById('taskAssignee').value = task.assignee;
+            document.getElementById('taskDueDate').value = task.dueDate;
+            document.getElementById('taskStatus').value = task.status;
+        }
+
+        function handleTaskSubmit(e) {
+            e.preventDefault();
+            
+            const formData = {
+                title: document.getElementById('taskTitle').value,
+                description: document.getElementById('taskDescription').value,
+                priority: document.getElementById('taskPriority').value,
+                assignee: document.getElementById('taskAssignee').value,
+                dueDate: document.getElementById('taskDueDate').value,
+                status: document.getElementById('taskStatus').value
+            };
+
+            if (currentEditingTask) {
+                // Update existing task
+                Object.assign(currentEditingTask, formData);
+            } else {
+                // Create new task
+                const newTask = {
+                    id: Math.max(...tasks.map(t => t.id)) + 1,
+                    ...formData,
+                    createdAt: new Date()
+                };
+                tasks.push(newTask);
+            }
+
+            renderTasks();
+            closeTaskModal();
+        }
+
+        function editTask(taskId) {
+            openTaskModal(taskId);
+        }
+
+        function deleteTask(taskId) {
+            if (confirm('Are you sure you want to delete this task?')) {
+                tasks = tasks.filter(t => t.id !== taskId);
+                renderTasks();
+            }
+        }
+
+        // Search and filter functionality
+        function handleSearchInput(e) {
+            const query = e.target.value.toLowerCase();
+            const results = document.getElementById('autocompleteResults');
+            
+            if (query.length < 2) {
+                results.classList.remove('active');
+                return;
+            }
+
+            const searchResults = [];
+            
+            // Search in tasks
+            tasks.forEach(task => {
+                if (task.title.toLowerCase().includes(query) || 
+                    task.description.toLowerCase().includes(query) ||
+                    task.assignee.toLowerCase().includes(query)) {
+                    searchResults.push({
+                        type: 'task',
+                        title: task.title,
+                        subtitle: `Assigned to ${task.assignee}`,
+                        data: task
+                    });
+                }
+            });
+
+            // Search in team members
+            teamMembers.forEach(member => {
+                if (member.toLowerCase().includes(query)) {
+                    searchResults.push({
+                        type: 'member',
+                        title: member,
+                        subtitle: 'Team Member',
+                        data: member
+                    });
+                }
+            });
+
+            displaySearchResults(searchResults);
+        }
+
+        function displaySearchResults(results) {
+            const container = document.getElementById('autocompleteResults');
+            
+            if (results.length === 0) {
+                container.innerHTML = '<div class="autocomplete-item">No results found</div>';
+            } else {
+                container.innerHTML = results.map(result => `
+                    <div class="autocomplete-item" onclick="selectSearchResult('${result.type}', ${JSON.stringify(result.data).replace(/"/g, '&quot;')})">
+                        <strong>${result.title}</strong><br>
+                        <small>${result.subtitle}</small>
+                    </div>
+                `).join('');
+            }
+            
+            container.classList.add('active');
+        }
+
+        function selectSearchResult(type, data) {
+            if (type === 'task') {
+                // Highlight the task
+                const taskElement = document.querySelector(`[data-task-id="${data.id}"]`);
+                if (taskElement) {
+                    taskElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    taskElement.style.transform = 'scale(1.05)';
+                    setTimeout(() => {
+                        taskElement.style.transform = '';
+                    }, 1000);
+                }
+            }
+            document.getElementById('autocompleteResults').classList.remove('active');
+            document.getElementById('searchInput').value = '';
+        }
+
+        function performSearch() {
+            const query = document.getElementById('searchInput').value;
+            if (query.trim()) {
+                filterTasksBySearch(query);
+            }
+        }
+
+        function filterTasksBySearch(query) {
+            const allTaskElements = document.querySelectorAll('.task-card');
+            allTaskElements.forEach(element => {
+                const taskId = parseInt(element.dataset.taskId);
+                const task = tasks.find(t => t.id === taskId);
+                
+                const matches = task.title.toLowerCase().includes(query.toLowerCase()) ||
+                               task.description.toLowerCase().includes(query.toLowerCase()) ||
+                               task.assignee.toLowerCase().includes(query.toLowerCase());
+                
+                element.style.display = matches ? 'block' : 'none';
+            });
+        }
+
+        function handleAssigneeInput(e) {
+            const query = e.target.value.toLowerCase();
+            const results = document.getElementById('assigneeResults');
+            
+            if (query.length < 1) {
+                results.classList.remove('active');
+                return;
+            }
+
+            const filteredMembers = teamMembers.filter(member => 
+                member.toLowerCase().includes(query)
+            );
+
+            if (filteredMembers.length === 0) {
+                results.innerHTML = '<div class="autocomplete-item">No team members found</div>';
+            } else {
+                results.innerHTML = filteredMembers.map(member => `
+                    <div class="autocomplete-item" onclick="selectAssignee('${member}')">
+                        ${member}
+                    </div>
+                `).join('');
+            }
+            
+            results.classList.add('active');
+        }
+
+        function selectAssignee(member) {
+            document.getElementById('taskAssignee').value = member;
+            document.getElementById('assigneeResults').classList.remove('active');
+        }
+
+        // Dropdown and filter functions
+        function toggleDropdown(dropdownId) {
+            const dropdown = document.getElementById(dropdownId);
+            dropdown.classList.toggle('active');
+        }
+
+        function closeAllDropdowns(event) {
+            const dropdowns = document.querySelectorAll('.dropdown-menu, .autocomplete-results');
+            dropdowns.forEach(dropdown => {
+                if (!dropdown.closest('.filter-dropdown, .autocomplete-container').contains(event.target)) {
+                    dropdown.classList.remove('active');
+                }
+            });
+        }
+
+        function filterTasks(criteria) {
+            const allTaskElements = document.querySelectorAll('.task-card');
+            
+            allTaskElements.forEach(element => {
+                const taskId = parseInt(element.dataset.taskId);
+                const task = tasks.find(t => t.id === taskId);
+                
+                let show = true;
+                if (criteria !== 'all') {
+                    show = task.priority === criteria;
+                }
+                
+                element.style.display = show ? 'block' : 'none';
+            });
+            
+            document.getElementById('filterDropdown').classList.remove('active');
+        }
+
+        function sortTasks(criteria) {
+            let sortedTasks = [...tasks];
+            
+            switch(criteria) {
+                case 'date':
+                    sortedTasks.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+                    break;
+                case 'priority':
+                    const priorityOrder = { 'high': 3, 'medium': 2, 'low': 1 };
+                    sortedTasks.sort((a, b) => priorityOrder[b.priority] - priorityOrder[a.priority]);
+                    break;
+                case 'assignee':
+                    sortedTasks.sort((a, b) => a.assignee.localeCompare(b.assignee));
+                    break;
+            }
+            
+            tasks = sortedTasks;
+            renderTasks();
+            document.getElementById('filterDropdown').classList.remove('active');
+        }
+
+        function updateTaskCounts() {
+            const counts = {
+                todo: tasks.filter(t => t.status === 'todo').length,
+                'in-progress': tasks.filter(t => t.status === 'in-progress').length,
+                review: tasks.filter(t => t.status === 'review').length,
+                done: tasks.filter(t => t.status === 'done').length
+            };
+
+            document.getElementById('todoCount').textContent = counts.todo;
+            document.getElementById('progressCount').textContent = counts['in-progress'];
+            document.getElementById('reviewCount').textContent = counts.review;
+            document.getElementById('doneCount').textContent = counts.done;
+        }
+
+        // Add event listeners for drag over effects
+        document.addEventListener('DOMContentLoaded', function() {
+            const taskLists = document.querySelectorAll('.task-list');
+            taskLists.forEach(list => {
+                list.addEventListener('dragenter', function(e) {
+                    e.preventDefault();
+                    this.classList.add('drag-over');
+                });
+                
+                list.addEventListener('dragleave', function(e) {
+                    if (!this.contains(e.relatedTarget)) {
+                        this.classList.remove('drag-over');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

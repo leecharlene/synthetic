@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SynerTech Solutions - Enterprise Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1rem 2rem;
+            color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+
+        .main-container {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .widget {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border: 1px solid #e1e8ed;
+        }
+
+        .widget h3 {
+            margin-bottom: 1rem;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 0.5rem;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .data-table tr.selected {
+            background: #e3f2fd;
+        }
+
+        .data-table th.sortable:hover {
+            background: #e9ecef;
+        }
+
+        .data-table th.sorted-asc::after {
+            content: ' ↑';
+            color: #3498db;
+        }
+
+        .data-table th.sorted-desc::after {
+            content: ' ↓';
+            color: #3498db;
+        }
+
+        .form-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        .btn {
+            background: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        .search-container {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 40px 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+
+        .autocomplete-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 10;
+            display: none;
+        }
+
+        .autocomplete-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+
+        .autocomplete-item:hover,
+        .autocomplete-item.selected {
+            background: #f8f9fa;
+        }
+
+        .datepicker-container {
+            position: relative;
+        }
+
+        .calendar {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 10;
+            display: none;
+            min-width: 280px;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            padding: 10px;
+        }
+
+        .calendar-day {
+            padding: 8px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .calendar-day:hover {
+            background: #e3f2fd;
+        }
+
+        .calendar-day.selected {
+            background: #3498db;
+            color: white;
+        }
+
+        .calendar-day.other-month {
+            color: #ccc;
+        }
+
+        .dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .dialog {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .dialog h3 {
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+
+        .dialog-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+
+
+        .drag-container {
+            padding: 20px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            text-align: center;
+            margin: 1rem 0;
+            transition: border-color 0.3s;
+        }
+
+        .drag-container.dragover {
+            border-color: #3498db;
+            background: #f0f8ff;
+        }
+
+        .draggable-item {
+            display: inline-block;
+            padding: 10px 15px;
+            background: #3498db;
+            color: white;
+            border-radius: 4px;
+            margin: 5px;
+            cursor: move;
+            user-select: none;
+        }
+
+        .slider-container {
+            margin: 1rem 0;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .slider:hover {
+            opacity: 1;
+        }
+
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3498db;
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3498db;
+            cursor: pointer;
+        }
+
+        .shortcuts-info {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 12px;
+            max-width: 300px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .shortcuts-info h4 {
+            margin-bottom: 10px;
+            color: #3498db;
+        }
+
+        .shortcuts-info ul {
+            list-style: none;
+        }
+
+        .shortcuts-info li {
+            margin-bottom: 5px;
+        }
+
+        .shortcuts-info kbd {
+            background: #34495e;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+        }
+
+        .text-editor {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            min-height: 200px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            overflow-wrap: break-word;
+            outline: none;
+        }
+
+        .text-editor:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px 4px 0 0;
+        }
+
+        .toolbar button {
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .toolbar button:hover {
+            background: #e9ecef;
+        }
+
+        .toolbar button.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .status-bar {
+            background: #f8f9fa;
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">ST</div>
+            <div>
+                <h1>SynerTech Solutions</h1>
+                <p>Enterprise Resource Management Platform</p>
+            </div>
+        </div>
+    </header>
+
+
+    <main class="main-container">
+        <div class="dashboard-grid">
+            <!-- Project Management Widget -->
+            <div class="widget">
+                <h3>Project Management</h3>
+                <div class="search-container">
+                    <input type="text" class="search-input" id="project-search" placeholder="Search projects...">
+                    <span class="search-icon">🔍</span>
+                    <div class="autocomplete-results" id="project-autocomplete"></div>
+                </div>
+                <table class="data-table" id="projects-table">
+                    <thead>
+                        <tr>
+                            <th class="sortable" data-column="name">Project Name</th>
+                            <th class="sortable" data-column="status">Status</th>
+                            <th class="sortable" data-column="deadline">Deadline</th>
+                            <th class="sortable" data-column="progress">Progress</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr data-id="1">
+                            <td>Alpha System Integration</td>
+                            <td>In Progress</td>
+                            <td>2024-03-15</td>
+                            <td>75%</td>
+                        </tr>
+                        <tr data-id="2">
+                            <td>Beta Cloud Migration</td>
+                            <td>Planning</td>
+                            <td>2024-04-20</td>
+                            <td>25%</td>
+                        </tr>
+                        <tr data-id="3">
+                            <td>Gamma Security Audit</td>
+                            <td>Completed</td>
+                            <td>2024-02-28</td>
+                            <td>100%</td>
+                        </tr>
+                        <tr data-id="4">
+                            <td>Delta Mobile App</td>
+                            <td>Testing</td>
+                            <td>2024-03-30</td>
+                            <td>90%</td>
+                        </tr>
+                        <tr data-id="5">
+                            <td>Epsilon Data Analytics</td>
+                            <td>On Hold</td>
+                            <td>2024-05-15</td>
+                            <td>15%</td>
+                        </tr>
+                        <tr data-id="6">
+                            <td>Zeta API Gateway</td>
+                            <td>In Progress</td>
+                            <td>2024-04-10</td>
+                            <td>60%</td>
+                        </tr>
+                        <tr data-id="7">
+                            <td>Eta Customer Portal</td>
+                            <td>Planning</td>
+                            <td>2024-05-30</td>
+                            <td>10%</td>
+                        </tr>
+                        <tr data-id="8">
+                            <td>Theta Database Optimization</td>
+                            <td>In Progress</td>
+                            <td>2024-03-25</td>
+                            <td>80%</td>
+                        </tr>
+                        <tr data-id="9">
+                            <td>Iota Backup System</td>
+                            <td>Completed</td>
+                            <td>2024-02-15</td>
+                            <td>100%</td>
+                        </tr>
+                        <tr data-id="10">
+                            <td>Kappa User Authentication</td>
+                            <td>Testing</td>
+                            <td>2024-03-20</td>
+                            <td>95%</td>
+                        </tr>
+                        <tr data-id="11">
+                            <td>Lambda Network Infrastructure</td>
+                            <td>In Progress</td>
+                            <td>2024-06-15</td>
+                            <td>35%</td>
+                        </tr>
+                        <tr data-id="12">
+                            <td>Mu Payment Processing</td>
+                            <td>Planning</td>
+                            <td>2024-07-01</td>
+                            <td>5%</td>
+                        </tr>
+                        <tr data-id="13">
+                            <td>Nu Inventory Management</td>
+                            <td>In Progress</td>
+                            <td>2024-04-25</td>
+                            <td>45%</td>
+                        </tr>
+                        <tr data-id="14">
+                            <td>Xi Reporting Dashboard</td>
+                            <td>Testing</td>
+                            <td>2024-03-12</td>
+                            <td>85%</td>
+                        </tr>
+                        <tr data-id="15">
+                            <td>Omicron Email Service</td>
+                            <td>Completed</td>
+                            <td>2024-01-30</td>
+                            <td>100%</td>
+                        </tr>
+                        <tr data-id="16">
+                            <td>Pi Machine Learning Model</td>
+                            <td>On Hold</td>
+                            <td>2024-08-20</td>
+                            <td>20%</td>
+                        </tr>
+                        <tr data-id="17">
+                            <td>Rho Content Management</td>
+                            <td>Planning</td>
+                            <td>2024-05-10</td>
+                            <td>15%</td>
+                        </tr>
+                        <tr data-id="18">
+                            <td>Sigma Load Balancer</td>
+                            <td>In Progress</td>
+                            <td>2024-04-05</td>
+                            <td>70%</td>
+                        </tr>
+                        <tr data-id="19">
+                            <td>Tau Monitoring System</td>
+                            <td>Testing</td>
+                            <td>2024-03-08</td>
+                            <td>92%</td>
+                        </tr>
+                        <tr data-id="20">
+                            <td>Upsilon Chat Integration</td>
+                            <td>Completed</td>
+                            <td>2024-02-10</td>
+                            <td>100%</td>
+                        </tr>
+                        <tr data-id="21">
+                            <td>Phi Workflow Automation</td>
+                            <td>In Progress</td>
+                            <td>2024-05-05</td>
+                            <td>55%</td>
+                        </tr>
+                        <tr data-id="22">
+                            <td>Chi Documentation Portal</td>
+                            <td>Planning</td>
+                            <td>2024-06-30</td>
+                            <td>8%</td>
+                        </tr>
+                        <tr data-id="23">
+                            <td>Psi Quality Assurance</td>
+                            <td>On Hold</td>
+                            <td>2024-04-15</td>
+                            <td>30%</td>
+                        </tr>
+                        <tr data-id="24">
+                            <td>Omega DevOps Pipeline</td>
+                            <td>In Progress</td>
+                            <td>2024-03-18</td>
+                            <td>65%</td>
+                        </tr>
+                        <tr data-id="25">
+                            <td>Apollo Performance Testing</td>
+                            <td>Testing</td>
+                            <td>2024-03-22</td>
+                            <td>88%</td>
+                        </tr>
+                        <tr data-id="26">
+                            <td>Artemis Compliance Framework</td>
+                            <td>Planning</td>
+                            <td>2024-07-15</td>
+                            <td>12%</td>
+                        </tr>
+                        <tr data-id="27">
+                            <td>Atlas Resource Planning</td>
+                            <td>In Progress</td>
+                            <td>2024-05-20</td>
+                            <td>40%</td>
+                        </tr>
+                        <tr data-id="28">
+                            <td>Prometheus Metrics Collection</td>
+                            <td>Testing</td>
+                            <td>2024-03-28</td>
+                            <td>93%</td>
+                        </tr>
+                        <tr data-id="29">
+                            <td>Hermes Message Queue</td>
+                            <td>Completed</td>
+                            <td>2024-01-25</td>
+                            <td>100%</td>
+                        </tr>
+                        <tr data-id="30">
+                            <td>Zeus Infrastructure Scaling</td>
+                            <td>On Hold</td>
+                            <td>2024-09-10</td>
+                            <td>5%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Employee Form Widget -->
+            <div class="widget">
+                <h3>Employee Information Form</h3>
+                <form id="employee-form">
+                    <div class="form-container">
+                        <div class="form-group">
+                            <label for="employee-name">Full Name *</label>
+                            <input type="text" id="employee-name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="employee-email">Email Address *</label>
+                            <input type="email" id="employee-email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="employee-department">Department</label>
+                            <select id="employee-department" name="department">
+                                <option value="">Select Department</option>
+                                <option value="engineering">Engineering</option>
+                                <option value="marketing">Marketing</option>
+                                <option value="sales">Sales</option>
+                                <option value="hr">Human Resources</option>
+                                <option value="finance">Finance</option>
+                                <option value="operations">Operations</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="employee-role">Job Role</label>
+                            <select id="employee-role" name="role">
+                                <option value="">Select Role</option>
+                                <option value="manager">Manager</option>
+                                <option value="senior">Senior Specialist</option>
+                                <option value="specialist">Specialist</option>
+                                <option value="associate">Associate</option>
+                                <option value="intern">Intern</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="start-date">Start Date</label>
+                            <div class="datepicker-container">
+                                <input type="text" id="start-date" name="startDate" placeholder="Select date..." readonly>
+                                <div class="calendar" id="calendar"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="employee-phone">Phone Number</label>
+                            <input type="tel" id="employee-phone" name="phone" placeholder="(555) 123-4567">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="employee-notes">Additional Notes</label>
+                        <textarea id="employee-notes" name="notes" rows="3" placeholder="Enter any additional information..."></textarea>
+                    </div>
+                    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                        <button type="submit" class="btn">Save Employee</button>
+                        <button type="button" class="btn btn-secondary" onclick="clearForm()">Clear Form</button>
+                        <button type="button" class="btn btn-secondary" onclick="showDialog()">Preview</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Document Editor Widget -->
+        <div class="widget" style="margin-bottom: 2rem;">
+            <h3>Document Editor</h3>
+            <div class="toolbar">
+                <button onclick="formatText('bold')" title="Bold (Ctrl+B)"><strong>B</strong></button>
+                <button onclick="formatText('italic')" title="Italic (Ctrl+I)"><em>I</em></button>
+                <button onclick="formatText('underline')" title="Underline (Ctrl+U)"><u>U</u></button>
+                <button onclick="insertText('• ')" title="Bullet Point">•</button>
+                <button onclick="insertText('1. ')" title="Numbered List">1.</button>
+                <button onclick="insertText('    ')" title="Indent (Tab)">→</button>
+                <button onclick="saveDocument()" title="Save (Ctrl+S)">Save</button>
+                <button onclick="loadTemplate()" title="Load Template">Template</button>
+            </div>
+            <div class="text-editor" id="document-editor" contenteditable="true" 
+                 placeholder="Start typing your document here...&#10;&#10;Keyboard shortcuts:&#10;Ctrl+B = Bold&#10;Ctrl+I = Italic&#10;Ctrl+S = Save&#10;Tab = Indent&#10;Ctrl+Z = Undo">
+Welcome to SynerTech Solutions Document Editor
+
+This is a sample document demonstrating the rich text editing capabilities of our platform.
+
+Key Features:
+- Real-time text formatting
+- Keyboard shortcuts support
+- Auto-save functionality
+- Template management
+- Collaborative editing (coming soon)
+
+Instructions:
+1. Use the toolbar buttons or keyboard shortcuts to format text
+2. Press Tab to indent lines
+3. Use Ctrl+S to save your document
+4. Select text and use formatting shortcuts
+
+Project Requirements:
+- System must support multiple user roles
+- Database integration for real-time updates
+- Mobile-responsive design
+- Advanced search and filtering capabilities
+            </div>
+            <div class="status-bar">
+                <span id="doc-status">Ready</span> | 
+                <span id="word-count">0 words</span> | 
+                <span id="char-count">0 characters</span> | 
+                <span>Last saved: Never</span>
+            </div>
+        </div>
+
+        <!-- System Controls Widget -->
+        <div class="widget" style="max-width: 600px; margin: 0 auto;">
+            <h3>System Controls</h3>
+            
+            <div style="margin-bottom: 1.5rem;">
+                <label for="budget-slider">Budget Allocation: <span id="budget-value">50</span>%</label>
+                <div class="slider-container">
+                    <input type="range" id="budget-slider" class="slider" min="0" max="100" value="50">
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label>Priority Tasks (Drag to Reorder)</label>
+                <div class="drag-container" id="priority-container">
+                    <div class="draggable-item" draggable="true" data-priority="1">Security Review</div>
+                    <div class="draggable-item" draggable="true" data-priority="2">Code Deploy</div>
+                    <div class="draggable-item" draggable="true" data-priority="3">Testing Phase</div>
+                    <div class="draggable-item" draggable="true" data-priority="4">Documentation</div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <button class="btn" onclick="exportData()">Export Data</button>
+                <button class="btn btn-secondary" onclick="showConfirmDialog()">Reset System</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Dialog Box -->
+    <div class="dialog-overlay" id="dialog-overlay">
+        <div class="dialog">
+            <h3 id="dialog-title">Confirm Action</h3>
+            <p id="dialog-message">Are you sure you want to proceed with this action?</p>
+            <div class="dialog-buttons">
+                <button class="btn btn-secondary" onclick="closeDialog()">Cancel</button>
+                <button class="btn" onclick="confirmAction()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Keyboard Shortcuts Info -->
+    <div class="shortcuts-info">
+        <h4>Keyboard Shortcuts</h4>
+        <ul>
+            <li><kbd>Ctrl</kbd> + <kbd>↑</kbd> - Select multiple table rows</li>
+            <li><kbd>Shift</kbd> + <kbd>Click</kbd> - Select range</li>
+            <li><kbd>Ctrl</kbd> + <kbd>F</kbd> - Focus search</li>
+            <li><kbd>Tab</kbd> - Navigate form fields</li>
+            <li><kbd>Enter</kbd> - Submit forms</li>
+            <li><kbd>Esc</kbd> - Close dialogs</li>
+            <li><kbd>Ctrl</kbd> + <kbd>S</kbd> - Save document</li>
+        </ul>
+    </div>
+
+    <script>
+        // Global variables
+        let selectedRows = new Set();
+        let sortColumn = null;
+        let sortDirection = 'asc';
+        let currentCalendarDate = new Date();
+        let selectedDate = null;
+        let draggedElement = null;
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEventListeners();
+            initializeAutocomplete();
+            initializeCalendar();
+            initializeDragAndDrop();
+            updateWordCount();
+        });
+
+        // Event listeners
+        function initializeEventListeners() {
+            // Table selection with Ctrl+Up and Shift+Click
+            const table = document.getElementById('projects-table');
+            const rows = table.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                row.addEventListener('click', function(e) {
+                    if (e.ctrlKey) {
+                        toggleRowSelection(this);
+                    } else if (e.shiftKey && selectedRows.size > 0) {
+                        selectRowRange(this);
+                    } else {
+                        clearSelection();
+                        selectRow(this);
+                    }
+                });
+            });
+
+            // Table sorting
+            const headers = document.querySelectorAll('.sortable');
+            headers.forEach(header => {
+                header.addEventListener('click', function() {
+                    sortTable(this.dataset.column);
+                });
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey) {
+                    switch(e.key) {
+                        case 'ArrowUp':
+                            e.preventDefault();
+                            selectMultipleRows();
+                            break;
+                        case 'f':
+                            e.preventDefault();
+                            focusSearch();
+                            break;
+                        case 's':
+                            e.preventDefault();
+                            saveDocument();
+                            break;
+                        case 'b':
+                            if (document.activeElement.id === 'document-editor') {
+                                e.preventDefault();
+                                formatText('bold');
+                            }
+                            break;
+                        case 'i':
+                            if (document.activeElement.id === 'document-editor') {
+                                e.preventDefault();
+                                formatText('italic');
+                            }
+                            break;
+                        case 'u':
+                            if (document.activeElement.id === 'document-editor') {
+                                e.preventDefault();
+                                formatText('underline');
+                            }
+                            break;
+                    }
+                } else if (e.key === 'Escape') {
+                    closeDialog();
+                    hideCalendar();
+                }
+            });
+
+            // Form submission
+            document.getElementById('employee-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitForm();
+            });
+
+            // Search functionality
+            document.getElementById('project-search').addEventListener('input', function() {
+                handleSearch(this.value);
+            });
+
+            // Budget slider
+            document.getElementById('budget-slider').addEventListener('input', function() {
+                document.getElementById('budget-value').textContent = this.value;
+            });
+
+            // Date picker
+            document.getElementById('start-date').addEventListener('click', function() {
+                showCalendar();
+            });
+
+            // Document editor
+            const editor = document.getElementById('document-editor');
+            editor.addEventListener('input', updateWordCount);
+            editor.addEventListener('keydown', function(e) {
+                if (e.key === 'Tab') {
+                    e.preventDefault();
+                    insertText('    ');
+                }
+            });
+        }
+
+        // Table functionality
+        function selectRow(row) {
+            row.classList.add('selected');
+            selectedRows.add(row);
+        }
+
+        function toggleRowSelection(row) {
+            if (selectedRows.has(row)) {
+                row.classList.remove('selected');
+                selectedRows.delete(row);
+            } else {
+                row.classList.add('selected');
+                selectedRows.add(row);
+            }
+        }
+
+        function selectRowRange(endRow) {
+            const rows = Array.from(document.querySelectorAll('#projects-table tbody tr'));
+            const startIndex = rows.indexOf(Array.from(selectedRows)[0]);
+            const endIndex = rows.indexOf(endRow);
+            
+            const start = Math.min(startIndex, endIndex);
+            const end = Math.max(startIndex, endIndex);
+            
+            for (let i = start; i <= end; i++) {
+                selectRow(rows[i]);
+            }
+        }
+
+        function clearSelection() {
+            selectedRows.forEach(row => row.classList.remove('selected'));
+            selectedRows.clear();
+        }
+
+        function selectMultipleRows() {
+            const rows = document.querySelectorAll('#projects-table tbody tr');
+            rows.forEach(row => {
+                if (!selectedRows.has(row)) {
+                    selectRow(row);
+                }
+            });
+        }
+
+        function sortTable(column) {
+            const table = document.getElementById('projects-table');
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            // Update sort direction
+            if (sortColumn === column) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortDirection = 'asc';
+            }
+            sortColumn = column;
+            
+            // Update header indicators
+            document.querySelectorAll('.sortable').forEach(header => {
+                header.classList.remove('sorted-asc', 'sorted-desc');
+            });
+            
+            const currentHeader = document.querySelector(`[data-column="${column}"]`);
+            currentHeader.classList.add(sortDirection === 'asc' ? 'sorted-asc' : 'sorted-desc');
+            
+            // Sort rows
+            const columnIndex = Array.from(currentHeader.parentNode.children).indexOf(currentHeader);
+            
+            rows.sort((a, b) => {
+                const aValue = a.children[columnIndex].textContent.trim();
+                const bValue = b.children[columnIndex].textContent.trim();
+                
+                let comparison = 0;
+                if (column === 'deadline') {
+                    comparison = new Date(aValue) - new Date(bValue);
+                } else if (column === 'progress') {
+                    comparison = parseInt(aValue) - parseInt(bValue);
+                } else {
+                    comparison = aValue.localeCompare(bValue);
+                }
+                
+                return sortDirection === 'asc' ? comparison : -comparison;
+            });
+            
+            // Reorder rows in table
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        // Search and autocomplete
+        function initializeAutocomplete() {
+            const searchInput = document.getElementById('project-search');
+            const autocomplete = document.getElementById('project-autocomplete');
+            
+            const suggestions = [
+                'Alpha System Integration',
+                'Beta Cloud Migration',
+                'Gamma Security Audit',
+                'Delta Mobile App',
+                'Epsilon Data Analytics',
+                'Zeta API Gateway',
+                'Eta Customer Portal',
+                'Theta Database Optimization',
+                'Iota Backup System',
+                'Kappa User Authentication',
+                'Lambda Network Infrastructure',
+                'Mu Payment Processing',
+                'Nu Inventory Management',
+                'Xi Reporting Dashboard',
+                'Omicron Email Service',
+                'Pi Machine Learning Model',
+                'Rho Content Management',
+                'Sigma Load Balancer',
+                'Tau Monitoring System',
+                'Upsilon Chat Integration',
+                'Phi Workflow Automation',
+                'Chi Documentation Portal',
+                'Psi Quality Assurance',
+                'Omega DevOps Pipeline',
+                'Apollo Performance Testing',
+                'Artemis Compliance Framework',
+                'Atlas Resource Planning',
+                'Prometheus Metrics Collection',
+                'Hermes Message Queue',
+                'Zeus Infrastructure Scaling'
+            ];
+            
+            searchInput.addEventListener('input', function() {
+                const value = this.value.toLowerCase();
+                if (value.length < 2) {
+                    autocomplete.style.display = 'none';
+                    return;
+                }
+                
+                const matches = suggestions.filter(s => s.toLowerCase().includes(value));
+                
+                if (matches.length > 0) {
+                    autocomplete.innerHTML = matches.map(match => 
+                        `<div class="autocomplete-item">${match}</div>`
+                    ).join('');
+                    autocomplete.style.display = 'block';
+                    
+                    // Add click listeners to autocomplete items
+                    autocomplete.querySelectorAll('.autocomplete-item').forEach(item => {
+                        item.addEventListener('click', function() {
+                            searchInput.value = this.textContent;
+                            autocomplete.style.display = 'none';
+                            handleSearch(this.textContent);
+                        });
+                    });
+                } else {
+                    autocomplete.style.display = 'none';
+                }
+            });
+            
+            // Hide autocomplete when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !autocomplete.contains(e.target)) {
+                    autocomplete.style.display = 'none';
+                }
+            });
+        }
+
+        function handleSearch(query) {
+            const rows = document.querySelectorAll('#projects-table tbody tr');
+            const lowerQuery = query.toLowerCase();
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(lowerQuery) || query === '') {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+
+        function focusSearch() {
+            document.getElementById('project-search').focus();
+        }
+
+        // Calendar functionality
+        function initializeCalendar() {
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const calendar = document.getElementById('calendar');
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+            
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const firstDayOfWeek = firstDay.getDay();
+            const daysInMonth = lastDay.getDate();
+            
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                               'July', 'August', 'September', 'October', 'November', 'December'];
+            
+            calendar.innerHTML = `
+                <div class="calendar-header">
+                    <button onclick="previousMonth()">&lt;</button>
+                    <span>${monthNames[month]} ${year}</span>
+                    <button onclick="nextMonth()">&gt;</button>
+                </div>
+                <div class="calendar-grid">
+                    <div style="font-weight: bold; text-align: center;">Sun</div>
+                    <div style="font-weight: bold; text-align: center;">Mon</div>
+                    <div style="font-weight: bold; text-align: center;">Tue</div>
+                    <div style="font-weight: bold; text-align: center;">Wed</div>
+                    <div style="font-weight: bold; text-align: center;">Thu</div>
+                    <div style="font-weight: bold; text-align: center;">Fri</div>
+                    <div style="font-weight: bold; text-align: center;">Sat</div>
+                </div>
+            `;
+            
+            const grid = calendar.querySelector('.calendar-grid');
+            
+            // Add empty cells for days before the first day of the month
+            for (let i = 0; i < firstDayOfWeek; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'calendar-day other-month';
+                const prevMonthDay = new Date(year, month, 1 - firstDayOfWeek + i).getDate();
+                emptyDay.textContent = prevMonthDay;
+                grid.appendChild(emptyDay);
+            }
+            
+            // Add days of the current month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                dayElement.textContent = day;
+                dayElement.addEventListener('click', function() {
+                    selectDate(year, month, day);
+                });
+                grid.appendChild(dayElement);
+            }
+            
+            // Add days from next month to fill the grid
+            const totalCells = grid.children.length;
+            const remainingCells = 42 - totalCells; // 6 rows * 7 days
+            for (let day = 1; day <= remainingCells; day++) {
+                const nextMonthDay = document.createElement('div');
+                nextMonthDay.className = 'calendar-day other-month';
+                nextMonthDay.textContent = day;
+                grid.appendChild(nextMonthDay);
+            }
+        }
+
+        function showCalendar() {
+            document.getElementById('calendar').style.display = 'block';
+        }
+
+        function hideCalendar() {
+            document.getElementById('calendar').style.display = 'none';
+        }
+
+        function previousMonth() {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+            renderCalendar();
+        }
+
+        function nextMonth() {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+            renderCalendar();
+        }
+
+        function selectDate(year, month, day) {
+            selectedDate = new Date(year, month, day);
+            document.getElementById('start-date').value = selectedDate.toLocaleDateString();
+            
+            // Update selected day styling
+            document.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('selected'));
+            event.target.classList.add('selected');
+            
+            hideCalendar();
+        }
+
+        // Form functionality
+        function submitForm() {
+            const formData = new FormData(document.getElementById('employee-form'));
+            const data = Object.fromEntries(formData);
+            
+            // Validate required fields
+            if (!data.name || !data.email) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+            
+            // Simulate form submission
+            showDialog('Success', 'Employee information has been saved successfully!');
+            
+            // Reset form after successful submission
+            setTimeout(() => {
+                clearForm();
+                closeDialog();
+            }, 2000);
+        }
+
+        function clearForm() {
+            document.getElementById('employee-form').reset();
+            document.getElementById('start-date').value = '';
+            selectedDate = null;
+        }
+
+        // Dialog functionality
+        function showDialog(title = 'Preview', message = 'Form data preview would be shown here.') {
+            document.getElementById('dialog-title').textContent = title;
+            document.getElementById('dialog-message').textContent = message;
+            document.getElementById('dialog-overlay').style.display = 'flex';
+        }
+
+        function showConfirmDialog() {
+            showDialog('Confirm Reset', 'Are you sure you want to reset all system settings? This action cannot be undone.');
+        }
+
+        function closeDialog() {
+            document.getElementById('dialog-overlay').style.display = 'none';
+        }
+
+        function confirmAction() {
+            // Simulate action
+            alert('Action confirmed!');
+            closeDialog();
+        }
+
+        // Document editor functionality
+        function formatText(command) {
+            document.execCommand(command, false, null);
+            document.getElementById('document-editor').focus();
+        }
+
+        function insertText(text) {
+            const editor = document.getElementById('document-editor');
+            const selection = window.getSelection();
+            const range = selection.getRangeAt(0);
+            
+            const textNode = document.createTextNode(text);
+            range.insertNode(textNode);
+            range.setStartAfter(textNode);
+            range.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(range);
+            
+            editor.focus();
+            updateWordCount();
+        }
+
+        function saveDocument() {
+            const content = document.getElementById('document-editor').innerHTML;
+            localStorage.setItem('synertech-document', content);
+            document.getElementById('doc-status').textContent = 'Saved';
+            
+            // Update last saved time
+            const statusBar = document.querySelector('.status-bar');
+            const now = new Date();
+            statusBar.innerHTML = statusBar.innerHTML.replace(
+                /Last saved: .*/,
+                `Last saved: ${now.toLocaleTimeString()}`
+            );
+            
+            setTimeout(() => {
+                document.getElementById('doc-status').textContent = 'Ready';
+            }, 2000);
+        }
+
+        function loadTemplate() {
+            const template = `Project Status Report Template
+
+Date: ${new Date().toLocaleDateString()}
+Project: [Project Name]
+Manager: [Manager Name]
+Status: [In Progress/Completed/On Hold]
+
+Executive Summary:
+[Brief overview of project status and key achievements]
+
+Completed Tasks:
+- [Task 1]
+- [Task 2]
+- [Task 3]
+
+Upcoming Milestones:
+1. [Milestone 1] - [Date]
+2. [Milestone 2] - [Date]
+3. [Milestone 3] - [Date]
+
+Issues & Risks:
+- [Issue 1]: [Description and mitigation plan]
+- [Issue 2]: [Description and mitigation plan]
+
+Budget Status:
+- Allocated: $[Amount]
+- Spent: $[Amount]
+- Remaining: $[Amount]
+
+Next Steps:
+[Outline the immediate next actions and timeline]
+
+Additional Notes:
+[Any other relevant information]`;
+
+            document.getElementById('document-editor').innerText = template;
+            updateWordCount();
+        }
+
+        function updateWordCount() {
+            const editor = document.getElementById('document-editor');
+            const text = editor.innerText || editor.textContent;
+            const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+            const wordCount = words.length;
+            const charCount = text.length;
+            
+            document.getElementById('word-count').textContent = `${wordCount} words`;
+            document.getElementById('char-count').textContent = `${charCount} characters`;
+        }
+
+        // Drag and drop functionality
+        function initializeDragAndDrop() {
+            const draggableItems = document.querySelectorAll('.draggable-item');
+            const container = document.getElementById('priority-container');
+            
+            draggableItems.forEach(item => {
+                item.addEventListener('dragstart', function(e) {
+                    draggedElement = this;
+                    this.style.opacity = '0.5';
+                });
+                
+                item.addEventListener('dragend', function(e) {
+                    this.style.opacity = '1';
+                    draggedElement = null;
+                });
+            });
+            
+            container.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('dragover');
+            });
+            
+            container.addEventListener('dragleave', function(e) {
+                this.classList.remove('dragover');
+            });
+            
+            container.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+                
+                if (draggedElement) {
+                    const afterElement = getDragAfterElement(container, e.clientY);
+                    if (afterElement == null) {
+                        container.appendChild(draggedElement);
+                    } else {
+                        container.insertBefore(draggedElement, afterElement);
+                    }
+                }
+            });
+        }
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.draggable-item:not(.dragging)')];
+            
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        // Utility functions
+        function exportData() {
+            const data = {
+                projects: Array.from(document.querySelectorAll('#projects-table tbody tr')).map(row => ({
+                    name: row.cells[0].textContent,
+                    status: row.cells[1].textContent,
+                    deadline: row.cells[2].textContent,
+                    progress: row.cells[3].textContent
+                })),
+                document: document.getElementById('document-editor').innerHTML,
+                settings: {
+                    budget: document.getElementById('budget-slider').value,
+                    priorities: Array.from(document.querySelectorAll('.draggable-item')).map(item => item.textContent)
+                }
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'synertech-data-export.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+    </script>
+</body>
+</html>
