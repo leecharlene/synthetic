@@ -1,0 +1,2629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VelocitySync - Project Performance Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-menu {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .nav-items {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-item {
+            position: relative;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item:hover {
+            background: #f0f0f0;
+        }
+
+        .dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            min-width: 200px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            display: none;
+            z-index: 101;
+        }
+
+        .dropdown.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        .dropdown-item {
+            padding: 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+            transition: background 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background: #f8f9fa;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 250px 1fr 300px;
+            gap: 2rem;
+            padding: 2rem;
+            height: calc(100vh - 80px);
+        }
+
+        .sidebar {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            max-height: 100%;
+        }
+
+        .sidebar h3 {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .scrollable-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .list-item {
+            padding: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .list-item:hover {
+            background: #f8f9fa;
+            transform: translateX(5px);
+        }
+
+        .list-item.selected {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+        }
+
+        .main-content {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+
+        .search-container {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #2196f3;
+        }
+
+        .autocomplete-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            z-index: 10;
+        }
+
+        .autocomplete-dropdown.active {
+            display: block;
+        }
+
+        .autocomplete-item {
+            padding: 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .autocomplete-item:hover {
+            background: #f8f9fa;
+        }
+
+        .data-table-container {
+            margin: 2rem 0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            background: white;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            background: #2196f3;
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            cursor: pointer;
+        }
+
+        .data-table th:hover {
+            background: #1976d2;
+        }
+
+        .data-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .form-container {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            background: white;
+        }
+
+        .date-picker-container {
+            position: relative;
+        }
+
+        .calendar {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+            display: none;
+            z-index: 20;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .calendar.active {
+            display: block;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+        }
+
+        .calendar-day {
+            padding: 0.5rem;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.2s ease;
+        }
+
+        .calendar-day:hover {
+            background: #e3f2fd;
+        }
+
+        .calendar-day.selected {
+            background: #2196f3;
+            color: white;
+        }
+
+        .widgets-panel {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+
+        .widget {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .drag-slider {
+            width: 100%;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            position: relative;
+            margin: 1rem 0;
+            cursor: pointer;
+        }
+
+        .slider-thumb {
+            width: 20px;
+            height: 20px;
+            background: #2196f3;
+            border-radius: 50%;
+            position: absolute;
+            top: -7px;
+            cursor: grab;
+            transition: all 0.2s ease;
+        }
+
+        .slider-thumb:active {
+            cursor: grabbing;
+            transform: scale(1.2);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .btn {
+            background: #2196f3;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #1976d2;
+        }
+
+        .btn-secondary {
+            background: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #555;
+        }
+
+        .editor-container {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .editor-toolbar {
+            background: #f0f0f0;
+            padding: 0.5rem;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .editor-btn {
+            padding: 0.5rem;
+            background: none;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .editor-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .editor-content {
+            min-height: 200px;
+            padding: 1rem;
+            outline: none;
+            white-space: pre-wrap;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .scrollbar-custom::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .scrollbar-custom::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .scrollbar-custom::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        .scrollbar-custom::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .deadline-item {
+            padding: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid transparent;
+        }
+
+        .deadline-item:hover {
+            background: #f8f9fa;
+            transform: translateX(5px);
+        }
+
+        .deadline-item.overdue {
+            border-left-color: #f44336;
+            background: #ffebee;
+        }
+
+        .deadline-item.urgent {
+            border-left-color: #ff9800;
+            background: #fff3e0;
+        }
+
+        .deadline-item.upcoming {
+            border-left-color: #4caf50;
+            background: #e8f5e8;
+        }
+
+        .deadline-date {
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .deadline-item.overdue .deadline-date {
+            color: #f44336;
+        }
+
+        .deadline-item.urgent .deadline-date {
+            color: #ff9800;
+        }
+
+        .deadline-item.upcoming .deadline-date {
+            color: #4caf50;
+        }
+
+        .deadline-item.editing {
+            background: #f0f8ff;
+            border-left-color: #2196f3;
+        }
+
+        .deadline-edit-form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            width: 100%;
+        }
+
+        .deadline-edit-input {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .deadline-edit-buttons {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+
+        .deadline-btn {
+            padding: 0.3rem 0.8rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background 0.2s ease;
+        }
+
+        .deadline-btn-save {
+            background: #4caf50;
+            color: white;
+        }
+
+        .deadline-btn-save:hover {
+            background: #45a049;
+        }
+
+        .deadline-btn-cancel {
+            background: #f44336;
+            color: white;
+        }
+
+        .deadline-btn-cancel:hover {
+            background: #da190b;
+        }
+
+        .deadline-btn-edit {
+            background: #2196f3;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            margin-left: 0.5rem;
+            font-size: 0.7rem;
+        }
+
+        .deadline-btn-edit:hover {
+            background: #1976d2;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+
+        .status-pending {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .status-inactive {
+            background: #ffebee;
+            color: #c62828;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav-menu">
+            <div class="logo">VelocitySync</div>
+            <div class="nav-items">
+                <div class="nav-item" id="dashboardNav">
+                    Dashboard
+                    <div class="dropdown" id="dashboardDropdown">
+                        <div class="dropdown-item" onclick="navigateToPage('analytics')">Analytics</div>
+                        <div class="dropdown-item" onclick="navigateToPage('reports')">Reports</div>
+                        <div class="dropdown-item" onclick="navigateToPage('metrics')">Metrics</div>
+                    </div>
+                </div>
+                <div class="nav-item" id="projectsNav">
+                    Projects
+                    <div class="dropdown" id="projectsDropdown">
+                        <div class="dropdown-item" onclick="navigateToPage('active-projects')">Active Projects</div>
+                        <div class="dropdown-item" onclick="navigateToPage('completed-projects')">Completed</div>
+                        <div class="dropdown-item" onclick="navigateToPage('archived-projects')">Archived</div>
+                    </div>
+                </div>
+                <div class="nav-item" id="settingsNav">
+                    Settings
+                    <div class="dropdown" id="settingsDropdown">
+                        <div class="dropdown-item" onclick="navigateToPage('user-settings')">User Settings</div>
+                        <div class="dropdown-item" onclick="navigateToPage('system-config')">System Config</div>
+                        <div class="dropdown-item" onclick="navigateToPage('integrations')">Integrations</div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <aside class="sidebar scrollbar-custom">
+            <h3>Project Categories</h3>
+            <div class="scrollable-list scrollbar-custom">
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>AI/ML Development</span>
+                    <span class="status-badge status-active">12 Active</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Web Applications</span>
+                    <span class="status-badge status-active">8 Active</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Mobile Development</span>
+                    <span class="status-badge status-pending">5 Pending</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Data Analytics</span>
+                    <span class="status-badge status-active">15 Active</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Cloud Infrastructure</span>
+                    <span class="status-badge status-active">7 Active</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>DevOps & CI/CD</span>
+                    <span class="status-badge status-pending">3 Pending</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Security Audits</span>
+                    <span class="status-badge status-active">4 Active</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>API Development</span>
+                    <span class="status-badge status-active">9 Active</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Database Design</span>
+                    <span class="status-badge status-pending">2 Pending</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>UI/UX Research</span>
+                    <span class="status-badge status-active">6 Active</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Quality Assurance</span>
+                    <span class="status-badge status-inactive">1 Inactive</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Documentation</span>
+                    <span class="status-badge status-pending">4 Pending</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Blockchain Development</span>
+                    <span class="status-badge status-active">3 Active</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>IoT Solutions</span>
+                    <span class="status-badge status-pending">2 Pending</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Machine Learning</span>
+                    <span class="status-badge status-active">11 Active</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Cybersecurity</span>
+                    <span class="status-badge status-active">8 Active</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Data Migration</span>
+                    <span class="status-badge status-pending">5 Pending</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Performance Testing</span>
+                    <span class="status-badge status-active">7 Active</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Cloud Architecture</span>
+                    <span class="status-badge status-active">9 Active</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Business Intelligence</span>
+                    <span class="status-badge status-inactive">2 Inactive</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Microservices</span>
+                    <span class="status-badge status-active">6 Active</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>System Integration</span>
+                    <span class="status-badge status-pending">3 Pending</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Automation Tools</span>
+                    <span class="status-badge status-active">4 Active</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Digital Transformation</span>
+                    <span class="status-badge status-active">5 Active</span>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 2rem;">Team Members</h3>
+            <div class="scrollable-list scrollbar-custom" style="max-height: 300px;">
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Sarah Chen - Tech Lead</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Marcus Johnson - Backend Dev</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Elena Rodriguez - Frontend Dev</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>David Kim - Data Scientist</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Amanda Foster - UX Designer</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Robert Chang - DevOps Engineer</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Lisa Thompson - QA Engineer</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>James Wilson - Product Manager</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Michael Torres - Senior Architect</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Jennifer Liu - Security Specialist</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Ryan O'Connor - Mobile Developer</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Priya Patel - Data Engineer</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Alex Kowalski - DevOps Lead</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Samantha Reed - Business Analyst</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Carlos Mendez - Full Stack Developer</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Emily Watson - Project Coordinator</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Nathan Brooks - Cloud Engineer</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Olivia Martin - UX Researcher</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Daniel Park - ML Engineer</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Rachel Green - Technical Writer</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Kevin Anderson - Database Admin</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Isabella Cruz - Frontend Lead</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Thomas Singh - Site Reliability Engineer</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Maya Johnson - Product Designer</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Jacob Miller - Solutions Architect</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Sophia Davis - Integration Specialist</span>
+                </div>
+                <div class="list-item" onclick="selectListItem(this)">
+                    <span>Ethan Taylor - Performance Engineer</span>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content scrollbar-custom">
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search projects, tasks, or team members..." 
+                       id="searchInput" oninput="handleSearch(this.value)">
+                <div class="autocomplete-dropdown" id="autocompleteDropdown">
+                    <div class="autocomplete-item" onclick="selectAutocomplete('AI chatbot development')">AI chatbot development</div>
+                    <div class="autocomplete-item" onclick="selectAutocomplete('Mobile app redesign')">Mobile app redesign</div>
+                    <div class="autocomplete-item" onclick="selectAutocomplete('Database optimization')">Database optimization</div>
+                    <div class="autocomplete-item" onclick="selectAutocomplete('Cloud migration project')">Cloud migration project</div>
+                    <div class="autocomplete-item" onclick="selectAutocomplete('Security vulnerability assessment')">Security vulnerability assessment</div>
+                </div>
+            </div>
+
+            <h2>Project Dashboard</h2>
+            
+            <div class="data-table-container scrollbar-custom">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable(0)">Project Name ↕</th>
+                            <th onclick="sortTable(1)">Status ↕</th>
+                            <th onclick="sortTable(2)">Priority ↕</th>
+                            <th onclick="sortTable(3)">Due Date ↕</th>
+                            <th onclick="sortTable(4)">Assigned To ↕</th>
+                            <th onclick="sortTable(5)">Progress ↕</th>
+                        </tr>
+                    </thead>
+                    <tbody id="projectTableBody">
+                        <tr onclick="selectTableRow(this)">
+                            <td>E-commerce Platform Upgrade</td>
+                            <td><span class="status-badge status-active">In Progress</span></td>
+                            <td>High</td>
+                            <td>2024-02-15</td>
+                            <td>Sarah Chen</td>
+                            <td>75%</td>
+                        </tr>
+                        <tr onclick="selectTableRow(this)">
+                            <td>Mobile App Security Audit</td>
+                            <td><span class="status-badge status-pending">Pending Review</span></td>
+                            <td>Critical</td>
+                            <td>2024-01-30</td>
+                            <td>Marcus Johnson</td>
+                            <td>90%</td>
+                        </tr>
+                        <tr onclick="selectTableRow(this)">
+                            <td>AI Recommendation Engine</td>
+                            <td><span class="status-badge status-active">In Progress</span></td>
+                            <td>Medium</td>
+                            <td>2024-03-01</td>
+                            <td>David Kim</td>
+                            <td>45%</td>
+                        </tr>
+                        <tr onclick="selectTableRow(this)">
+                            <td>Customer Portal Redesign</td>
+                            <td><span class="status-badge status-active">In Progress</span></td>
+                            <td>High</td>
+                            <td>2024-02-20</td>
+                            <td>Elena Rodriguez</td>
+                            <td>60%</td>
+                        </tr>
+                        <tr onclick="selectTableRow(this)">
+                            <td>Data Warehouse Migration</td>
+                            <td><span class="status-badge status-pending">Planning</span></td>
+                            <td>High</td>
+                            <td>2024-04-15</td>
+                            <td>Robert Chang</td>
+                            <td>20%</td>
+                        </tr>
+                        <tr onclick="selectTableRow(this)">
+                            <td>API Gateway Implementation</td>
+                            <td><span class="status-badge status-active">In Progress</span></td>
+                            <td>Medium</td>
+                            <td>2024-02-28</td>
+                            <td>Marcus Johnson</td>
+                            <td>85%</td>
+                        </tr>
+                        <tr onclick="selectTableRow(this)">
+                            <td>User Authentication System</td>
+                            <td><span class="status-badge status-inactive">On Hold</span></td>
+                            <td>Low</td>
+                            <td>2024-05-01</td>
+                            <td>Sarah Chen</td>
+                            <td>10%</td>
+                        </tr>
+                        <tr onclick="selectTableRow(this)">
+                            <td>Performance Monitoring Setup</td>
+                            <td><span class="status-badge status-active">In Progress</span></td>
+                            <td>Medium</td>
+                            <td>2024-03-10</td>
+                            <td>Lisa Thompson</td>
+                            <td>55%</td>
+                        </tr>
+                        <tr onclick="selectTableRow(this)">
+                            <td>Blockchain Payment Integration</td>
+                            <td><span class="status-badge status-pending">Planning</span></td>
+                            <td>High</td>
+                            <td>2024-04-01</td>
+                            <td>Michael Torres</td>
+                            <td>15%</td>
+                        </tr>
+                        <tr onclick="selectTableRow(this)">
+                            <td>IoT Device Management Platform</td>
+                            <td><span class="status-badge status-active">Development</span></td>
+                            <td>Medium</td>
+                            <td>2024-03-25</td>
+                            <td>Ryan O'Connor</td>
+                            <td>35%</td>
+                        </tr>
+                        <tr onclick="selectTableRow(this)">
+                            <td>Cybersecurity Framework Implementation</td>
+                            <td><span class="status-badge status-active">In Progress</span></td>
+                            <td>Critical</td>
+                            <td>2024-02-10</td>
+                            <td>Jennifer Liu</td>
+                            <td>80%</td>
+                        </tr>
+                        <tr onclick="selectTableRow(this)">
+                            <td>Data Lake Architecture Design</td>
+                            <td><span class="status-badge status-pending">Review</span></td>
+                            <td>High</td>
+                            <td>2024-03-15</td>
+                            <td>Priya Patel</td>
+                            <td>70%</td>
+                        </tr>
+                        <tr onclick="selectTableRow(this)">
+                            <td>Microservices Migration</td>
+                            <td><span class="status-badge status-active">Development</span></td>
+                            <td>High</td>
+                            <td>2024-04-30</td>
+                            <td>Alex Kowalski</td>
+                            <td>40%</td>
+                        </tr>
+                        <tr onclick="selectTableRow(this)">
+                            <td>Business Intelligence Dashboard</td>
+                            <td><span class="status-badge status-active">Testing</span></td>
+                            <td>Medium</td>
+                            <td>2024-02-25</td>
+                            <td>Samantha Reed</td>
+                            <td>85%</td>
+                        </tr>
+                        <tr onclick="selectTableRow(this)">
+                            <td>Machine Learning Pipeline</td>
+                            <td><span class="status-badge status-active">In Progress</span></td>
+                            <td>High</td>
+                            <td>2024-03-20</td>
+                            <td>Daniel Park</td>
+                            <td>65%</td>
+                        </tr>
+                        <tr onclick="selectTableRow(this)">
+                            <td>Cloud Infrastructure Optimization</td>
+                            <td><span class="status-badge status-pending">Planning</span></td>
+                            <td>Medium</td>
+                            <td>2024-04-05</td>
+                            <td>Nathan Brooks</td>
+                            <td>25%</td>
+                        </tr>
+                        <tr onclick="selectTableRow(this)">
+                            <td>Mobile App Performance Enhancement</td>
+                            <td><span class="status-badge status-active">Development</span></td>
+                            <td>High</td>
+                            <td>2024-03-08</td>
+                            <td>Carlos Mendez</td>
+                            <td>50%</td>
+                        </tr>
+                        <tr onclick="selectTableRow(this)">
+                            <td>Legacy System Modernization</td>
+                            <td><span class="status-badge status-inactive">On Hold</span></td>
+                            <td>Low</td>
+                            <td>2024-06-01</td>
+                            <td>Jacob Miller</td>
+                            <td>5%</td>
+                        </tr>
+                        <tr onclick="selectTableRow(this)">
+                            <td>Real-time Analytics Engine</td>
+                            <td><span class="status-badge status-active">Testing</span></td>
+                            <td>High</td>
+                            <td>2024-02-18</td>
+                            <td>Emily Watson</td>
+                            <td>88%</td>
+                        </tr>
+                        <tr onclick="selectTableRow(this)">
+                            <td>Automated Testing Framework</td>
+                            <td><span class="status-badge status-active">In Progress</span></td>
+                            <td>Medium</td>
+                            <td>2024-03-12</td>
+                            <td>Thomas Singh</td>
+                            <td>42%</td>
+                        </tr>
+                        <tr onclick="selectTableRow(this)">
+                            <td>Digital Asset Management System</td>
+                            <td><span class="status-badge status-pending">Requirements</span></td>
+                            <td>Medium</td>
+                            <td>2024-04-20</td>
+                            <td>Maya Johnson</td>
+                            <td>30%</td>
+                        </tr>
+                        <tr onclick="selectTableRow(this)">
+                            <td>API Rate Limiting Implementation</td>
+                            <td><span class="status-badge status-active">Development</span></td>
+                            <td>High</td>
+                            <td>2024-02-28</td>
+                            <td>Isabella Cruz</td>
+                            <td>72%</td>
+                        </tr>
+                        <tr onclick="selectTableRow(this)">
+                            <td>Customer Data Platform Integration</td>
+                            <td><span class="status-badge status-active">In Progress</span></td>
+                            <td>Critical</td>
+                            <td>2024-03-05</td>
+                            <td>Sophia Davis</td>
+                            <td>58%</td>
+                        </tr>
+                        <tr onclick="selectTableRow(this)">
+                            <td>Load Balancing Optimization</td>
+                            <td><span class="status-badge status-pending">Review</span></td>
+                            <td>Medium</td>
+                            <td>2024-03-18</td>
+                            <td>Ethan Taylor</td>
+                            <td>63%</td>
+                        </tr>
+                        <tr onclick="selectTableRow(this)">
+                            <td>Content Management System Upgrade</td>
+                            <td><span class="status-badge status-active">Development</span></td>
+                            <td>Medium</td>
+                            <td>2024-04-10</td>
+                            <td>Rachel Green</td>
+                            <td>38%</td>
+                        </tr>
+                        <tr onclick="selectTableRow(this)">
+                            <td>Database Replication Setup</td>
+                            <td><span class="status-badge status-active">Implementation</span></td>
+                            <td>High</td>
+                            <td>2024-02-22</td>
+                            <td>Kevin Anderson</td>
+                            <td>77%</td>
+                        </tr>
+                        <tr onclick="selectTableRow(this)">
+                            <td>Progressive Web App Development</td>
+                            <td><span class="status-badge status-active">In Progress</span></td>
+                            <td>High</td>
+                            <td>2024-03-30</td>
+                            <td>Olivia Martin</td>
+                            <td>52%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="form-container">
+                <h3>Create New Project</h3>
+                <form id="projectForm">
+                    <div class="form-group">
+                        <label class="form-label" for="projectName">Project Name</label>
+                        <input type="text" class="form-input" id="projectName" name="projectName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="projectCategory">Category</label>
+                        <select class="form-select" id="projectCategory" name="projectCategory" required>
+                            <option value="">Select Category</option>
+                            <option value="ai-ml">AI/ML Development</option>
+                            <option value="web-app">Web Applications</option>
+                            <option value="mobile">Mobile Development</option>
+                            <option value="data-analytics">Data Analytics</option>
+                            <option value="cloud">Cloud Infrastructure</option>
+                            <option value="devops">DevOps & CI/CD</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="priority">Priority Level</label>
+                        <select class="form-select" id="priority" name="priority" required>
+                            <option value="">Select Priority</option>
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                            <option value="critical">Critical</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="dueDate">Due Date</label>
+                        <div class="date-picker-container">
+                            <input type="text" class="form-input" id="dueDate" name="dueDate" 
+                                   placeholder="Select due date" readonly onclick="toggleCalendar()">
+                            <div class="calendar" id="calendar">
+                                <div class="calendar-header">
+                                    <button type="button" onclick="previousMonth()">&lt;</button>
+                                    <span id="currentMonth">January 2024</span>
+                                    <button type="button" onclick="nextMonth()">&gt;</button>
+                                </div>
+                                <div class="calendar-grid" id="calendarGrid">
+                                    <!-- Calendar days will be generated by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="assignedTo">Assigned To</label>
+                        <select class="form-select" id="assignedTo" name="assignedTo" required>
+                            <option value="">Select Team Member</option>
+                            <option value="sarah-chen">Sarah Chen - Tech Lead</option>
+                            <option value="marcus-johnson">Marcus Johnson - Backend Dev</option>
+                            <option value="elena-rodriguez">Elena Rodriguez - Frontend Dev</option>
+                            <option value="david-kim">David Kim - Data Scientist</option>
+                            <option value="amanda-foster">Amanda Foster - UX Designer</option>
+                            <option value="robert-chang">Robert Chang - DevOps Engineer</option>
+                        </select>
+                    </div>
+
+                    <button type="button" class="btn" onclick="openModal()">Create Project</button>
+                </form>
+            </div>
+
+            <div class="editor-container">
+                <div class="editor-toolbar">
+                    <button class="editor-btn" onclick="formatText('bold')" title="Bold"><b>B</b></button>
+                    <button class="editor-btn" onclick="formatText('italic')" title="Italic"><i>I</i></button>
+                    <button class="editor-btn" onclick="formatText('underline')" title="Underline"><u>U</u></button>
+                    <button class="editor-btn" onclick="insertList()" title="Bullet List">•</button>
+                    <button class="editor-btn" onclick="clearFormat()" title="Clear Format">Clear</button>
+                </div>
+                <div class="editor-content" contenteditable="true" id="editor" 
+                     placeholder="Write project notes, requirements, or documentation here...">
+                </div>
+            </div>
+        </main>
+
+        <aside class="widgets-panel scrollbar-custom">
+            <div class="widget">
+                <h4>Project Progress</h4>
+                <div class="drag-slider" id="progressSlider">
+                    <div class="slider-thumb" id="progressThumb" style="left: 60%;"></div>
+                </div>
+                <p>Progress: <span id="progressValue">60%</span></p>
+            </div>
+
+            <div class="widget">
+                <h4>Budget Allocation</h4>
+                <div class="drag-slider" id="budgetSlider">
+                    <div class="slider-thumb" id="budgetThumb" style="left: 75%;"></div>
+                </div>
+                <p>Budget Used: <span id="budgetValue">75%</span></p>
+            </div>
+
+            <div class="widget">
+                <h4>Quick Actions</h4>
+                <button class="btn" onclick="openModal()" style="width: 100%; margin-bottom: 1rem;">
+                    Add New Task
+                </button>
+                <button class="btn btn-secondary" onclick="generateReport()" style="width: 100%; margin-bottom: 1rem;">
+                    Generate Report
+                </button>
+                <button class="btn" onclick="exportData()" style="width: 100%;">
+                    Export Data
+                </button>
+            </div>
+
+            <div class="widget">
+                <h4>Recent Activities</h4>
+                <div class="scrollable-list scrollbar-custom" style="max-height: 200px;">
+                    <div class="list-item">
+                        <span>Sarah updated API Gateway</span>
+                        <small>2 min ago</small>
+                    </div>
+                    <div class="list-item">
+                        <span>New security audit completed</span>
+                        <small>15 min ago</small>
+                    </div>
+                    <div class="list-item">
+                        <span>Marcus deployed to staging</span>
+                        <small>1 hour ago</small>
+                    </div>
+                    <div class="list-item">
+                        <span>Elena finished UI mockups</span>
+                        <small>2 hours ago</small>
+                    </div>
+                    <div class="list-item">
+                        <span>David ran ML model training</span>
+                        <small>3 hours ago</small>
+                    </div>
+                    <div class="list-item">
+                        <span>Robert updated CI/CD pipeline</span>
+                        <small>4 hours ago</small>
+                    </div>
+                    <div class="list-item">
+                        <span>Jennifer completed security scan</span>
+                        <small>5 hours ago</small>
+                    </div>
+                    <div class="list-item">
+                        <span>Michael pushed blockchain updates</span>
+                        <small>6 hours ago</small>
+                    </div>
+                    <div class="list-item">
+                        <span>Priya optimized data queries</span>
+                        <small>7 hours ago</small>
+                    </div>
+                    <div class="list-item">
+                        <span>Alex configured monitoring</span>
+                        <small>8 hours ago</small>
+                    </div>
+                    <div class="list-item">
+                        <span>Carlos fixed mobile bug</span>
+                        <small>9 hours ago</small>
+                    </div>
+                    <div class="list-item">
+                        <span>Nathan scaled cloud resources</span>
+                        <small>10 hours ago</small>
+                    </div>
+                    <div class="list-item">
+                        <span>Daniel updated ML models</span>
+                        <small>11 hours ago</small>
+                    </div>
+                    <div class="list-item">
+                        <span>Isabella refactored frontend</span>
+                        <small>12 hours ago</small>
+                    </div>
+                    <div class="list-item">
+                        <span>Thomas automated deployments</span>
+                        <small>13 hours ago</small>
+                    </div>
+                    <div class="list-item">
+                        <span>Maya created design prototypes</span>
+                        <small>14 hours ago</small>
+                    </div>
+                    <div class="list-item">
+                        <span>Jacob reviewed architecture</span>
+                        <small>15 hours ago</small>
+                    </div>
+                    <div class="list-item">
+                        <span>Sophia integrated APIs</span>
+                        <small>16 hours ago</small>
+                    </div>
+                    <div class="list-item">
+                        <span>Ethan optimized performance</span>
+                        <small>17 hours ago</small>
+                    </div>
+                    <div class="list-item">
+                        <span>Rachel updated documentation</span>
+                        <small>18 hours ago</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="widget">
+                <h4>Team Notifications</h4>
+                <div class="scrollable-list scrollbar-custom" style="max-height: 150px;">
+                    <div class="list-item">
+                        <span>🔔 Sprint review tomorrow</span>
+                    </div>
+                    <div class="list-item">
+                        <span>⚠️ Server maintenance scheduled</span>
+                    </div>
+                    <div class="list-item">
+                        <span>📊 Weekly report ready</span>
+                    </div>
+                    <div class="list-item">
+                        <span>🎉 Project milestone reached</span>
+                    </div>
+                    <div class="list-item">
+                        <span>🚀 New deployment ready</span>
+                    </div>
+                    <div class="list-item">
+                        <span>⏰ Code review deadline today</span>
+                    </div>
+                    <div class="list-item">
+                        <span>🔍 Security audit scheduled</span>
+                    </div>
+                    <div class="list-item">
+                        <span>📈 Performance metrics updated</span>
+                    </div>
+                    <div class="list-item">
+                        <span>💾 Database backup completed</span>
+                    </div>
+                    <div class="list-item">
+                        <span>🎯 Sprint goals updated</span>
+                    </div>
+                    <div class="list-item">
+                        <span>🔧 System configuration changed</span>
+                    </div>
+                    <div class="list-item">
+                        <span>📝 Requirements document ready</span>
+                    </div>
+                    <div class="list-item">
+                        <span>🌐 API endpoints updated</span>
+                    </div>
+                    <div class="list-item">
+                        <span>🔐 Security patches applied</span>
+                    </div>
+                    <div class="list-item">
+                        <span>📊 Analytics dashboard live</span>
+                    </div>
+                    <div class="list-item">
+                        <span>🎨 UI components finalized</span>
+                    </div>
+                    <div class="list-item">
+                        <span>⚡ Performance optimization complete</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="widget">
+                <h4>Project Metrics</h4>
+                <div class="scrollable-list scrollbar-custom" style="max-height: 200px;">
+                    <div class="list-item">
+                        <span>Total Projects: 28</span>
+                        <span class="status-badge status-active">Active</span>
+                    </div>
+                    <div class="list-item">
+                        <span>On Schedule: 85%</span>
+                        <span class="status-badge status-active">Good</span>
+                    </div>
+                    <div class="list-item">
+                        <span>Team Utilization: 92%</span>
+                        <span class="status-badge status-active">High</span>
+                    </div>
+                    <div class="list-item">
+                        <span>Budget Usage: 67%</span>
+                        <span class="status-badge status-pending">Monitor</span>
+                    </div>
+                    <div class="list-item">
+                        <span>Quality Score: 94%</span>
+                        <span class="status-badge status-active">Excellent</span>
+                    </div>
+                    <div class="list-item">
+                        <span>Risk Level: Low</span>
+                        <span class="status-badge status-active">Safe</span>
+                    </div>
+                    <div class="list-item">
+                        <span>Client Satisfaction: 96%</span>
+                        <span class="status-badge status-active">High</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="widget">
+                <h4>Resource Allocation</h4>
+                <div class="scrollable-list scrollbar-custom" style="max-height: 180px;">
+                    <div class="list-item">
+                        <span>Development: 45%</span>
+                        <small>12 developers</small>
+                    </div>
+                    <div class="list-item">
+                        <span>Testing: 20%</span>
+                        <small>5 testers</small>
+                    </div>
+                    <div class="list-item">
+                        <span>Design: 15%</span>
+                        <small>4 designers</small>
+                    </div>
+                    <div class="list-item">
+                        <span>DevOps: 12%</span>
+                        <small>3 engineers</small>
+                    </div>
+                    <div class="list-item">
+                        <span>Management: 8%</span>
+                        <small>2 managers</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="widget">
+                <h4>Upcoming Deadlines</h4>
+                <div class="scrollable-list scrollbar-custom" style="max-height: 250px;" id="upcomingDeadlines">
+                    <div class="list-item">
+                        <span>Loading deadlines...</span>
+                        <small>Please wait</small>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Modal Dialog -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal()">&times;</button>
+            <h3>Confirm Action</h3>
+            <p>Are you sure you want to create this new project? This will add it to your project dashboard.</p>
+            <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+                <button class="btn" onclick="confirmAction()">Confirm</button>
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables for calendar
+        let currentDate = new Date();
+        let selectedDate = null;
+        let editingDeadlineIndex = -1;
+        let deadlineCalendarVisible = false;
+        let mainCalendarDate = new Date();
+
+        // Project deadlines data
+        const projectDeadlines = [
+            { name: 'Mobile Security Audit', dueDate: new Date('2025-07-05') },
+            { name: 'Cybersecurity Framework', dueDate: new Date('2025-07-08') },
+            { name: 'E-commerce Platform', dueDate: new Date('2025-07-12') },
+            { name: 'Real-time Analytics', dueDate: new Date('2025-07-15') },
+            { name: 'Customer Portal', dueDate: new Date('2025-07-18') },
+            { name: 'Database Replication', dueDate: new Date('2025-07-22') },
+            { name: 'Business Intelligence', dueDate: new Date('2025-07-25') },
+            { name: 'API Gateway & Rate Limiting', dueDate: new Date('2025-07-28') },
+            { name: 'AI Recommendation Engine', dueDate: new Date('2025-08-01') },
+            { name: 'Customer Data Platform', dueDate: new Date('2025-08-05') },
+            { name: 'Mobile Performance', dueDate: new Date('2025-08-08') },
+            { name: 'Performance Monitoring', dueDate: new Date('2025-08-10') }
+        ];
+
+        // Navigation dropdown functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const navItems = document.querySelectorAll('.nav-item');
+            
+            navItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const dropdown = this.querySelector('.dropdown');
+                    
+                    // Close all other dropdowns
+                    document.querySelectorAll('.dropdown').forEach(d => {
+                        if (d !== dropdown) d.classList.remove('active');
+                    });
+                    
+                    // Toggle current dropdown
+                    if (dropdown) {
+                        dropdown.classList.toggle('active');
+                    }
+                });
+            });
+
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function() {
+                document.querySelectorAll('.dropdown').forEach(d => {
+                    d.classList.remove('active');
+                });
+                document.getElementById('autocompleteDropdown').classList.remove('active');
+                document.getElementById('calendar').classList.remove('active');
+                
+                // Close all deadline calendars
+                document.querySelectorAll('[id^="deadlineCalendar_"]').forEach(cal => {
+                    cal.classList.remove('active');
+                });
+            });
+
+            // Initialize calendar
+            generateCalendar();
+            
+            // Initialize sliders
+            initializeSliders();
+            
+            // Initialize deadlines widget
+            initializeDeadlines();
+        });
+
+        function navigateToPage(page) {
+            console.log('Navigating to:', page);
+            // Update URL hash and trigger page update
+            window.location.hash = page;
+            updatePageContent(page);
+        }
+
+        function updatePageContent(page) {
+            // Hide all dropdowns when navigating
+            document.querySelectorAll('.dropdown').forEach(d => {
+                d.classList.remove('active');
+            });
+
+            // Update main content based on the page
+            const mainContent = document.querySelector('.main-content');
+            const pageTitle = document.querySelector('h2');
+            
+            switch(page) {
+                case 'analytics':
+                    pageTitle.textContent = 'Analytics Dashboard';
+                    updateMainContentForAnalytics();
+                    break;
+                case 'reports':
+                    pageTitle.textContent = 'Reports Center';
+                    updateMainContentForReports();
+                    break;
+                case 'metrics':
+                    pageTitle.textContent = 'Performance Metrics';
+                    updateMainContentForMetrics();
+                    break;
+                case 'active-projects':
+                    pageTitle.textContent = 'Active Projects';
+                    updateMainContentForActiveProjects();
+                    break;
+                case 'completed-projects':
+                    pageTitle.textContent = 'Completed Projects';
+                    updateMainContentForCompletedProjects();
+                    break;
+                case 'archived-projects':
+                    pageTitle.textContent = 'Archived Projects';
+                    updateMainContentForArchivedProjects();
+                    break;
+                case 'user-settings':
+                    pageTitle.textContent = 'User Settings';
+                    updateMainContentForUserSettings();
+                    break;
+                case 'system-config':
+                    pageTitle.textContent = 'System Configuration';
+                    updateMainContentForSystemConfig();
+                    break;
+                case 'integrations':
+                    pageTitle.textContent = 'Third-party Integrations';
+                    updateMainContentForIntegrations();
+                    break;
+                default:
+                    pageTitle.textContent = 'Project Dashboard';
+                    updateMainContentForDashboard();
+                    break;
+            }
+        }
+
+        function updateMainContentForAnalytics() {
+            const content = `
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Search analytics data..." 
+                           id="searchInput" oninput="handleSearch(this.value)">
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 2rem 0;">
+                    <div class="widget">
+                        <h4>Performance Trends</h4>
+                        <div style="height: 200px; background: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #666;">
+                            📊 Chart: Project completion rates over time
+                        </div>
+                    </div>
+                    <div class="widget">
+                        <h4>Team Productivity</h4>
+                        <div style="height: 200px; background: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #666;">
+                            📈 Chart: Tasks completed per team member
+                        </div>
+                    </div>
+                </div>
+
+                <div class="data-table-container scrollbar-custom">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Current Value</th>
+                                <th>Previous Period</th>
+                                <th>Change</th>
+                                <th>Trend</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Project Velocity</td><td>23.5 pts/sprint</td><td>21.2 pts/sprint</td><td>+10.8%</td><td>📈 Improving</td></tr>
+                            <tr><td>Team Efficiency</td><td>87%</td><td>84%</td><td>+3.6%</td><td>📈 Improving</td></tr>
+                            <tr><td>Bug Resolution Time</td><td>2.3 days</td><td>2.8 days</td><td>-17.9%</td><td>📈 Improving</td></tr>
+                            <tr><td>Client Satisfaction</td><td>96%</td><td>94%</td><td>+2.1%</td><td>📈 Improving</td></tr>
+                            <tr><td>Code Quality Score</td><td>94.2</td><td>93.1</td><td>+1.2%</td><td>📈 Improving</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            updateMainContentHTML(content);
+        }
+
+        function updateMainContentForReports() {
+            const content = `
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Search reports..." 
+                           id="searchInput" oninput="handleSearch(this.value)">
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin: 2rem 0;">
+                    <div class="widget" style="cursor: pointer;" onclick="alert('Opening Weekly Sprint Report')">
+                        <h4>📊 Weekly Sprint Report</h4>
+                        <p>Sprint velocity, burn-down charts, and team performance metrics</p>
+                        <small>Last generated: 2 hours ago</small>
+                    </div>
+                    <div class="widget" style="cursor: pointer;" onclick="alert('Opening Project Status Report')">
+                        <h4>📈 Project Status Report</h4>
+                        <p>Overall project health, milestones, and risk assessment</p>
+                        <small>Last generated: 1 day ago</small>
+                    </div>
+                    <div class="widget" style="cursor: pointer;" onclick="alert('Opening Team Performance Report')">
+                        <h4>👥 Team Performance Report</h4>
+                        <p>Individual and team productivity analysis</p>
+                        <small>Last generated: 3 days ago</small>
+                    </div>
+                    <div class="widget" style="cursor: pointer;" onclick="alert('Opening Budget Analysis Report')">
+                        <h4>💰 Budget Analysis Report</h4>
+                        <p>Cost tracking, budget utilization, and financial projections</p>
+                        <small>Last generated: 1 week ago</small>
+                    </div>
+                    <div class="widget" style="cursor: pointer;" onclick="alert('Opening Quality Metrics Report')">
+                        <h4>🔍 Quality Metrics Report</h4>
+                        <p>Code quality, testing coverage, and bug analysis</p>
+                        <small>Last generated: 2 days ago</small>
+                    </div>
+                    <div class="widget" style="cursor: pointer;" onclick="alert('Opening Client Feedback Report')">
+                        <h4>⭐ Client Feedback Report</h4>
+                        <p>Customer satisfaction scores and feedback analysis</p>
+                        <small>Last generated: 5 days ago</small>
+                    </div>
+                </div>
+
+                <div class="form-container">
+                    <h3>Generate Custom Report</h3>
+                    <div class="form-group">
+                        <label class="form-label">Report Type</label>
+                        <select class="form-select">
+                            <option>Performance Analysis</option>
+                            <option>Resource Utilization</option>
+                            <option>Timeline Analysis</option>
+                            <option>Risk Assessment</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date Range</label>
+                        <div style="display: flex; gap: 1rem;">
+                            <input type="date" class="form-input">
+                            <input type="date" class="form-input">
+                        </div>
+                    </div>
+                    <button class="btn">Generate Report</button>
+                </div>
+            `;
+            updateMainContentHTML(content);
+        }
+
+        function updateMainContentForMetrics() {
+            const content = `
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Search metrics..." 
+                           id="searchInput" oninput="handleSearch(this.value)">
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 2rem 0;">
+                    <div class="widget">
+                        <h4>Sprint Velocity</h4>
+                        <div style="font-size: 2rem; font-weight: bold; color: #2196f3;">23.5</div>
+                        <small>Story points per sprint</small>
+                    </div>
+                    <div class="widget">
+                        <h4>Team Capacity</h4>
+                        <div style="font-size: 2rem; font-weight: bold; color: #4caf50;">92%</div>
+                        <small>Current utilization</small>
+                    </div>
+                    <div class="widget">
+                        <h4>Code Coverage</h4>
+                        <div style="font-size: 2rem; font-weight: bold; color: #ff9800;">87%</div>
+                        <small>Test coverage</small>
+                    </div>
+                    <div class="widget">
+                        <h4>Bug Resolution</h4>
+                        <div style="font-size: 2rem; font-weight: bold; color: #9c27b0;">2.3</div>
+                        <small>Average days</small>
+                    </div>
+                </div>
+
+                <div class="data-table-container scrollbar-custom">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Team Member</th>
+                                <th>Tasks Completed</th>
+                                <th>Story Points</th>
+                                <th>Code Reviews</th>
+                                <th>Bugs Fixed</th>
+                                <th>Performance Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Sarah Chen</td><td>24</td><td>32</td><td>18</td><td>7</td><td>95%</td></tr>
+                            <tr><td>Marcus Johnson</td><td>22</td><td>28</td><td>15</td><td>9</td><td>92%</td></tr>
+                            <tr><td>Elena Rodriguez</td><td>26</td><td>35</td><td>20</td><td>5</td><td>97%</td></tr>
+                            <tr><td>David Kim</td><td>19</td><td>31</td><td>12</td><td>3</td><td>89%</td></tr>
+                            <tr><td>Amanda Foster</td><td>21</td><td>25</td><td>16</td><td>4</td><td>91%</td></tr>
+                            <tr><td>Robert Chang</td><td>18</td><td>27</td><td>14</td><td>8</td><td>88%</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            updateMainContentHTML(content);
+        }
+
+        function updateMainContentForActiveProjects() {
+            const content = `
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Search active projects..." 
+                           id="searchInput" oninput="handleSearch(this.value)">
+                </div>
+                
+                <div class="data-table-container scrollbar-custom">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Project Name</th>
+                                <th>Status</th>
+                                <th>Priority</th>
+                                <th>Progress</th>
+                                <th>Team Lead</th>
+                                <th>Due Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>E-commerce Platform Upgrade</td><td><span class="status-badge status-active">In Progress</span></td><td>High</td><td>75%</td><td>Sarah Chen</td><td>2024-02-15</td></tr>
+                            <tr><td>AI Recommendation Engine</td><td><span class="status-badge status-active">Development</span></td><td>Medium</td><td>45%</td><td>David Kim</td><td>2024-03-01</td></tr>
+                            <tr><td>Customer Portal Redesign</td><td><span class="status-badge status-active">In Progress</span></td><td>High</td><td>60%</td><td>Elena Rodriguez</td><td>2024-02-20</td></tr>
+                            <tr><td>API Gateway Implementation</td><td><span class="status-badge status-active">Testing</span></td><td>Medium</td><td>85%</td><td>Marcus Johnson</td><td>2024-02-28</td></tr>
+                            <tr><td>Cybersecurity Framework</td><td><span class="status-badge status-active">In Progress</span></td><td>Critical</td><td>80%</td><td>Jennifer Liu</td><td>2024-02-10</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            updateMainContentHTML(content);
+        }
+
+        function updateMainContentForCompletedProjects() {
+            const content = `
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Search completed projects..." 
+                           id="searchInput" oninput="handleSearch(this.value)">
+                </div>
+                
+                <div class="data-table-container scrollbar-custom">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Project Name</th>
+                                <th>Completion Date</th>
+                                <th>Final Status</th>
+                                <th>Team Lead</th>
+                                <th>Duration</th>
+                                <th>Rating</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>User Authentication System v2</td><td>2024-01-15</td><td><span class="status-badge status-active">Success</span></td><td>Marcus Johnson</td><td>45 days</td><td>⭐⭐⭐⭐⭐</td></tr>
+                            <tr><td>Mobile Payment Integration</td><td>2024-01-08</td><td><span class="status-badge status-active">Success</span></td><td>Sarah Chen</td><td>32 days</td><td>⭐⭐⭐⭐⭐</td></tr>
+                            <tr><td>Data Backup System</td><td>2023-12-20</td><td><span class="status-badge status-active">Success</span></td><td>Robert Chang</td><td>28 days</td><td>⭐⭐⭐⭐</td></tr>
+                            <tr><td>Customer Support Portal</td><td>2023-12-15</td><td><span class="status-badge status-active">Success</span></td><td>Elena Rodriguez</td><td>52 days</td><td>⭐⭐⭐⭐⭐</td></tr>
+                            <tr><td>Analytics Dashboard v1</td><td>2023-11-30</td><td><span class="status-badge status-active">Success</span></td><td>David Kim</td><td>67 days</td><td>⭐⭐⭐⭐</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            updateMainContentHTML(content);
+        }
+
+        function updateMainContentForArchivedProjects() {
+            const content = `
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Search archived projects..." 
+                           id="searchInput" oninput="handleSearch(this.value)">
+                </div>
+                
+                <div class="data-table-container scrollbar-custom">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Project Name</th>
+                                <th>Archive Date</th>
+                                <th>Reason</th>
+                                <th>Team Lead</th>
+                                <th>Progress When Archived</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Legacy System Migration</td><td>2023-10-15</td><td>Budget constraints</td><td>Jacob Miller</td><td>25%</td><td><span class="status-badge status-inactive">Archived</span></td></tr>
+                            <tr><td>Blockchain Pilot Project</td><td>2023-09-20</td><td>Technology pivot</td><td>Michael Torres</td><td>40%</td><td><span class="status-badge status-inactive">Archived</span></td></tr>
+                            <tr><td>IoT Device Integration</td><td>2023-08-30</td><td>Client cancellation</td><td>Ryan O'Connor</td><td>60%</td><td><span class="status-badge status-inactive">Archived</span></td></tr>
+                            <tr><td>Virtual Reality Interface</td><td>2023-07-15</td><td>Resource reallocation</td><td>Amanda Foster</td><td>15%</td><td><span class="status-badge status-inactive">Archived</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            updateMainContentHTML(content);
+        }
+
+        function updateMainContentForUserSettings() {
+            const content = `
+                <div class="form-container">
+                    <h3>Profile Settings</h3>
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" class="form-input" value="John Administrator">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input" value="john.admin@velocitysync.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Role</label>
+                        <select class="form-select">
+                            <option selected>Administrator</option>
+                            <option>Project Manager</option>
+                            <option>Team Lead</option>
+                            <option>Developer</option>
+                        </select>
+                    </div>
+                    <button class="btn">Update Profile</button>
+                </div>
+
+                <div class="form-container">
+                    <h3>Notification Preferences</h3>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" checked> Email notifications for project updates
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" checked> SMS alerts for critical issues
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox"> Weekly summary reports
+                        </label>
+                    </div>
+                    <button class="btn">Save Preferences</button>
+                </div>
+            `;
+            updateMainContentHTML(content);
+        }
+
+        function updateMainContentForSystemConfig() {
+            const content = `
+                <div class="form-container">
+                    <h3>General System Settings</h3>
+                    <div class="form-group">
+                        <label class="form-label">Default Project Template</label>
+                        <select class="form-select">
+                            <option>Agile Development</option>
+                            <option>Waterfall</option>
+                            <option>Kanban</option>
+                            <option>Scrum</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Auto-archive Completed Projects After</label>
+                        <select class="form-select">
+                            <option>30 days</option>
+                            <option>60 days</option>
+                            <option>90 days</option>
+                            <option>Never</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Time Zone</label>
+                        <select class="form-select">
+                            <option>UTC-8 (Pacific)</option>
+                            <option>UTC-5 (Eastern)</option>
+                            <option>UTC+0 (GMT)</option>
+                            <option>UTC+1 (CET)</option>
+                        </select>
+                    </div>
+                    <button class="btn">Save Configuration</button>
+                </div>
+
+                <div class="form-container">
+                    <h3>Security Settings</h3>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" checked> Enable two-factor authentication
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" checked> Require password change every 90 days
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox"> Enable audit logging
+                        </label>
+                    </div>
+                    <button class="btn">Update Security</button>
+                </div>
+            `;
+            updateMainContentHTML(content);
+        }
+
+        function updateMainContentForIntegrations() {
+            const content = `
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Search integrations..." 
+                           id="searchInput" oninput="handleSearch(this.value)">
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin: 2rem 0;">
+                    <div class="widget">
+                        <h4>🔗 Slack Integration</h4>
+                        <p>Send project notifications to Slack channels</p>
+                        <div style="margin-top: 1rem;">
+                            <span class="status-badge status-active">Connected</span>
+                            <button class="btn" style="margin-left: 1rem; padding: 0.5rem 1rem;">Configure</button>
+                        </div>
+                    </div>
+                    <div class="widget">
+                        <h4>📧 Email Service</h4>
+                        <p>Automated email notifications and reports</p>
+                        <div style="margin-top: 1rem;">
+                            <span class="status-badge status-active">Connected</span>
+                            <button class="btn" style="margin-left: 1rem; padding: 0.5rem 1rem;">Configure</button>
+                        </div>
+                    </div>
+                    <div class="widget">
+                        <h4>📊 Google Analytics</h4>
+                        <p>Track dashboard usage and performance</p>
+                        <div style="margin-top: 1rem;">
+                            <span class="status-badge status-pending">Not Connected</span>
+                            <button class="btn" style="margin-left: 1rem; padding: 0.5rem 1rem;">Connect</button>
+                        </div>
+                    </div>
+                    <div class="widget">
+                        <h4>🐙 GitHub</h4>
+                        <p>Sync repositories and track commits</p>
+                        <div style="margin-top: 1rem;">
+                            <span class="status-badge status-active">Connected</span>
+                            <button class="btn" style="margin-left: 1rem; padding: 0.5rem 1rem;">Configure</button>
+                        </div>
+                    </div>
+                    <div class="widget">
+                        <h4>📋 Jira</h4>
+                        <p>Import issues and sync project status</p>
+                        <div style="margin-top: 1rem;">
+                            <span class="status-badge status-pending">Not Connected</span>
+                            <button class="btn" style="margin-left: 1rem; padding: 0.5rem 1rem;">Connect</button>
+                        </div>
+                    </div>
+                    <div class="widget">
+                        <h4>☁️ AWS CloudWatch</h4>
+                        <p>Monitor application performance metrics</p>
+                        <div style="margin-top: 1rem;">
+                            <span class="status-badge status-active">Connected</span>
+                            <button class="btn" style="margin-left: 1rem; padding: 0.5rem 1rem;">Configure</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            updateMainContentHTML(content);
+        }
+
+        function updateMainContentForDashboard() {
+            // Return to original dashboard content
+            const originalContent = document.createElement('div');
+            originalContent.innerHTML = `
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Search projects, tasks, or team members..." 
+                           id="searchInput" oninput="handleSearch(this.value)">
+                    <div class="autocomplete-dropdown" id="autocompleteDropdown">
+                        <div class="autocomplete-item" onclick="selectAutocomplete('AI chatbot development')">AI chatbot development</div>
+                        <div class="autocomplete-item" onclick="selectAutocomplete('Mobile app redesign')">Mobile app redesign</div>
+                        <div class="autocomplete-item" onclick="selectAutocomplete('Database optimization')">Database optimization</div>
+                        <div class="autocomplete-item" onclick="selectAutocomplete('Cloud migration project')">Cloud migration project</div>
+                        <div class="autocomplete-item" onclick="selectAutocomplete('Security vulnerability assessment')">Security vulnerability assessment</div>
+                    </div>
+                </div>
+
+                <div class="data-table-container scrollbar-custom">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable(0)">Project Name ↕</th>
+                                <th onclick="sortTable(1)">Status ↕</th>
+                                <th onclick="sortTable(2)">Priority ↕</th>
+                                <th onclick="sortTable(3)">Due Date ↕</th>
+                                <th onclick="sortTable(4)">Assigned To ↕</th>
+                                <th onclick="sortTable(5)">Progress ↕</th>
+                            </tr>
+                        </thead>
+                        <tbody id="projectTableBody">
+                            <tr onclick="selectTableRow(this)">
+                                <td>E-commerce Platform Upgrade</td>
+                                <td><span class="status-badge status-active">In Progress</span></td>
+                                <td>High</td>
+                                <td>2024-02-15</td>
+                                <td>Sarah Chen</td>
+                                <td>75%</td>
+                            </tr>
+                            <tr onclick="selectTableRow(this)">
+                                <td>Mobile App Security Audit</td>
+                                <td><span class="status-badge status-pending">Pending Review</span></td>
+                                <td>Critical</td>
+                                <td>2024-01-30</td>
+                                <td>Marcus Johnson</td>
+                                <td>90%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="form-container">
+                    <h3>Create New Project</h3>
+                    <form id="projectForm">
+                        <div class="form-group">
+                            <label class="form-label" for="projectName">Project Name</label>
+                            <input type="text" class="form-input" id="projectName" name="projectName" required>
+                        </div>
+                        <button type="button" class="btn" onclick="openModal()">Create Project</button>
+                    </form>
+                </div>
+            `;
+            updateMainContentHTML(originalContent.innerHTML);
+        }
+
+        function updateMainContentHTML(content) {
+            const mainContent = document.querySelector('.main-content');
+            // Keep the first element (search container) and h2, replace the rest
+            const h2 = mainContent.querySelector('h2');
+            mainContent.innerHTML = '';
+            mainContent.appendChild(h2);
+            mainContent.innerHTML += content;
+        }
+
+        // Handle browser back/forward buttons
+        window.addEventListener('hashchange', function() {
+            const hash = window.location.hash.substring(1);
+            if (hash) {
+                updatePageContent(hash);
+            } else {
+                updatePageContent('dashboard');
+            }
+        });
+
+        // Initialize page based on URL hash on load
+        window.addEventListener('load', function() {
+            const hash = window.location.hash.substring(1);
+            if (hash) {
+                updatePageContent(hash);
+            }
+        });
+
+        function selectListItem(item) {
+            // Remove selection from all items in the same list
+            const list = item.parentElement;
+            list.querySelectorAll('.list-item').forEach(i => i.classList.remove('selected'));
+            
+            // Add selection to clicked item
+            item.classList.add('selected');
+        }
+
+        function handleSearch(value) {
+            const dropdown = document.getElementById('autocompleteDropdown');
+            if (value.length > 0) {
+                dropdown.classList.add('active');
+            } else {
+                dropdown.classList.remove('active');
+            }
+        }
+
+        function selectAutocomplete(value) {
+            document.getElementById('searchInput').value = value;
+            document.getElementById('autocompleteDropdown').classList.remove('active');
+        }
+
+        function sortTable(columnIndex) {
+            const table = document.getElementById('projectTableBody');
+            const rows = Array.from(table.querySelectorAll('tr'));
+            
+            rows.sort((a, b) => {
+                const aText = a.cells[columnIndex].textContent.trim();
+                const bText = b.cells[columnIndex].textContent.trim();
+                return aText.localeCompare(bText);
+            });
+            
+            // Clear and repopulate table
+            table.innerHTML = '';
+            rows.forEach(row => table.appendChild(row));
+        }
+
+        function selectTableRow(row) {
+            // Remove selection from all rows
+            document.querySelectorAll('#projectTableBody tr').forEach(r => {
+                r.style.backgroundColor = '';
+            });
+            
+            // Highlight selected row
+            row.style.backgroundColor = '#e3f2fd';
+        }
+
+        // Calendar functionality
+        function toggleCalendar() {
+            const calendar = document.getElementById('calendar');
+            const dueDateInput = document.getElementById('dueDate');
+            
+            calendar.classList.toggle('active');
+            
+            // Generate calendar when opening
+            if (calendar.classList.contains('active')) {
+                generateCalendar();
+                dueDateInput.style.borderColor = '#2196f3';
+            } else {
+                dueDateInput.style.borderColor = '';
+            }
+        }
+
+        function generateCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            const monthNames = ["January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"];
+            
+            document.getElementById('currentMonth').textContent = 
+                monthNames[mainCalendarDate.getMonth()] + ' ' + mainCalendarDate.getFullYear();
+            
+            const firstDay = new Date(mainCalendarDate.getFullYear(), mainCalendarDate.getMonth(), 1);
+            const lastDay = new Date(mainCalendarDate.getFullYear(), mainCalendarDate.getMonth() + 1, 0);
+            const startDate = new Date(firstDay);
+            startDate.setDate(startDate.getDate() - firstDay.getDay());
+            
+            grid.innerHTML = '';
+            
+            // Add day headers
+            const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            dayHeaders.forEach(day => {
+                const dayElement = document.createElement('div');
+                dayElement.textContent = day;
+                dayElement.style.fontWeight = 'bold';
+                dayElement.style.textAlign = 'center';
+                dayElement.style.padding = '0.5rem';
+                grid.appendChild(dayElement);
+            });
+            
+            // Add calendar days
+            for (let i = 0; i < 42; i++) {
+                const dayElement = document.createElement('div');
+                const currentDay = new Date(startDate);
+                currentDay.setDate(startDate.getDate() + i);
+                
+                dayElement.textContent = currentDay.getDate();
+                dayElement.className = 'calendar-day';
+                
+                if (currentDay.getMonth() !== mainCalendarDate.getMonth()) {
+                    dayElement.style.color = '#ccc';
+                }
+                
+                dayElement.addEventListener('click', function() {
+                    document.querySelectorAll('#calendarGrid .calendar-day').forEach(d => d.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedDate = new Date(currentDay);
+                    const dueDateInput = document.getElementById('dueDate');
+                    dueDateInput.value = formatDeadlineDate(selectedDate);
+                    dueDateInput.style.borderColor = '';
+                    document.getElementById('calendar').classList.remove('active');
+                });
+                
+                grid.appendChild(dayElement);
+            }
+        }
+
+        function previousMonth() {
+            mainCalendarDate.setMonth(mainCalendarDate.getMonth() - 1);
+            generateCalendar();
+        }
+
+        function nextMonth() {
+            mainCalendarDate.setMonth(mainCalendarDate.getMonth() + 1);
+            generateCalendar();
+        }
+
+        function formatDate(date) {
+            return date.getFullYear() + '-' + 
+                   String(date.getMonth() + 1).padStart(2, '0') + '-' + 
+                   String(date.getDate()).padStart(2, '0');
+        }
+
+        // Modal functionality
+        function openModal() {
+            document.getElementById('modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        function confirmAction() {
+            alert('Project created successfully!');
+            closeModal();
+            // Reset form
+            document.getElementById('projectForm').reset();
+        }
+
+        // Text editor functionality
+        function formatText(command) {
+            document.execCommand(command, false, null);
+            document.getElementById('editor').focus();
+        }
+
+        function insertList() {
+            document.execCommand('insertUnorderedList', false, null);
+            document.getElementById('editor').focus();
+        }
+
+        function clearFormat() {
+            const editor = document.getElementById('editor');
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                const content = range.extractContents();
+                const textNode = document.createTextNode(content.textContent);
+                range.insertNode(textNode);
+            }
+            editor.focus();
+        }
+
+        // Slider functionality
+        function initializeSliders() {
+            const progressSlider = document.getElementById('progressSlider');
+            const progressThumb = document.getElementById('progressThumb');
+            const budgetSlider = document.getElementById('budgetSlider');
+            const budgetThumb = document.getElementById('budgetThumb');
+            
+            makeSliderDraggable(progressSlider, progressThumb, 'progressValue');
+            makeSliderDraggable(budgetSlider, budgetThumb, 'budgetValue');
+        }
+
+        function makeSliderDraggable(slider, thumb, valueElementId) {
+            let isDragging = false;
+            
+            thumb.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                e.preventDefault();
+            });
+            
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+                
+                const rect = slider.getBoundingClientRect();
+                const offsetX = e.clientX - rect.left;
+                const percentage = Math.max(0, Math.min(100, (offsetX / rect.width) * 100));
+                
+                thumb.style.left = percentage + '%';
+                document.getElementById(valueElementId).textContent = Math.round(percentage) + '%';
+            });
+            
+            document.addEventListener('mouseup', function() {
+                isDragging = false;
+            });
+            
+            slider.addEventListener('click', function(e) {
+                if (e.target === thumb) return;
+                
+                const rect = slider.getBoundingClientRect();
+                const offsetX = e.clientX - rect.left;
+                const percentage = Math.max(0, Math.min(100, (offsetX / rect.width) * 100));
+                
+                thumb.style.left = percentage + '%';
+                document.getElementById(valueElementId).textContent = Math.round(percentage) + '%';
+            });
+        }
+
+        // Deadline management functions
+        function initializeDeadlines() {
+            console.log('Starting deadline initialization...');
+            updateDeadlinesWidget();
+            // Update deadlines every hour
+            setInterval(updateDeadlinesWidget, 3600000);
+        }
+
+        function updateDeadlinesWidget() {
+            const container = document.getElementById('upcomingDeadlines');
+            
+            if (!container) {
+                console.error('Deadlines container not found');
+                return;
+            }
+
+            // Sort deadlines by due date
+            const sortedDeadlines = [...projectDeadlines].sort((a, b) => a.dueDate - b.dueDate);
+            
+            container.innerHTML = '';
+            
+            sortedDeadlines.forEach((deadline, index) => {
+                const originalIndex = projectDeadlines.findIndex(d => d === deadline);
+                const deadlineElement = createDeadlineElement(deadline, originalIndex);
+                container.appendChild(deadlineElement);
+            });
+        }
+
+        function createDeadlineElement(deadline, index) {
+            const element = document.createElement('div');
+            const urgencyClass = getDeadlineUrgency(deadline.dueDate);
+            const formattedDate = formatDeadlineDate(deadline.dueDate);
+            const daysRemaining = getDaysRemaining(deadline.dueDate);
+            
+            // Use list-item class for consistent styling
+            element.className = `list-item deadline-item ${urgencyClass}`;
+            element.dataset.index = index;
+            
+            if (editingDeadlineIndex === index) {
+                element.classList.add('editing');
+                element.innerHTML = createEditForm(deadline, index);
+            } else {
+                element.innerHTML = `
+                    <span>${deadline.name}</span>
+                    <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                        <div style="display: flex; align-items: center;">
+                            <div class="deadline-date">${formattedDate}</div>
+                            <button class="deadline-btn deadline-btn-edit" onclick="editDeadline(${index}); event.stopPropagation();">Edit</button>
+                        </div>
+                        <small style="color: #666;">${daysRemaining}</small>
+                    </div>
+                `;
+                element.onclick = () => showDeadlineDetails(deadline);
+            }
+            
+            return element;
+        }
+
+        function createEditForm(deadline, index) {
+            const currentDateStr = deadline.dueDate.toISOString().split('T')[0];
+            
+            return `
+                <div class="deadline-edit-form">
+                    <input type="text" class="deadline-edit-input" id="editName_${index}" value="${deadline.name}" placeholder="Project name">
+                    <div class="date-picker-container" style="position: relative;">
+                        <input type="text" class="deadline-edit-input" id="editDate_${index}" 
+                               value="${formatDeadlineDate(deadline.dueDate)}" 
+                               placeholder="Select due date" readonly onclick="toggleDeadlineCalendar(${index})">
+                        <div class="calendar" id="deadlineCalendar_${index}">
+                            <div class="calendar-header">
+                                <button type="button" onclick="previousDeadlineMonth(${index}); event.stopPropagation();">&lt;</button>
+                                <span id="deadlineCurrentMonth_${index}">January 2024</span>
+                                <button type="button" onclick="nextDeadlineMonth(${index}); event.stopPropagation();">&gt;</button>
+                            </div>
+                            <div class="calendar-grid" id="deadlineCalendarGrid_${index}">
+                                <!-- Calendar days will be generated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="deadline-edit-buttons">
+                        <button class="deadline-btn deadline-btn-save" onclick="saveDeadline(${index}); event.stopPropagation();">Save</button>
+                        <button class="deadline-btn deadline-btn-cancel" onclick="cancelEditDeadline(); event.stopPropagation();">Cancel</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getDeadlineUrgency(dueDate) {
+            if (!dueDate || !(dueDate instanceof Date) || isNaN(dueDate)) {
+                return '';
+            }
+            
+            const today = new Date();
+            const diffTime = dueDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays < 0) return 'overdue';
+            if (diffDays <= 7) return 'urgent';
+            if (diffDays <= 30) return 'upcoming';
+            return '';
+        }
+
+        function getDaysRemaining(dueDate) {
+            if (!dueDate || !(dueDate instanceof Date) || isNaN(dueDate)) {
+                return 'Invalid date';
+            }
+            
+            const today = new Date();
+            const diffTime = dueDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays < 0) return `${Math.abs(diffDays)} days overdue`;
+            if (diffDays === 0) return 'Due today';
+            if (diffDays === 1) return 'Due tomorrow';
+            return `${diffDays} days remaining`;
+        }
+
+        function formatDeadlineDate(date) {
+            if (!date || !(date instanceof Date) || isNaN(date)) {
+                return 'Invalid date';
+            }
+            
+            const options = { 
+                month: 'short', 
+                day: 'numeric', 
+                year: 'numeric' 
+            };
+            return date.toLocaleDateString('en-US', options);
+        }
+
+        function showDeadlineDetails(deadline) {
+            const urgency = getDeadlineUrgency(deadline.dueDate);
+            const daysRemaining = getDaysRemaining(deadline.dueDate);
+            const urgencyText = urgency === 'overdue' ? '⚠️ OVERDUE' : 
+                               urgency === 'urgent' ? '🔥 URGENT' : 
+                               urgency === 'upcoming' ? '📅 UPCOMING' : '📋 SCHEDULED';
+            
+            alert(`${urgencyText}\n\nProject: ${deadline.name}\nDue Date: ${formatDeadlineDate(deadline.dueDate)}\nStatus: ${daysRemaining}`);
+        }
+
+        function editDeadline(index) {
+            editingDeadlineIndex = index;
+            updateDeadlinesWidget();
+            
+            // Initialize the calendar for this deadline
+            setTimeout(() => {
+                initializeDeadlineCalendar(index);
+            }, 100);
+        }
+
+        function cancelEditDeadline() {
+            editingDeadlineIndex = -1;
+            updateDeadlinesWidget();
+        }
+
+        function saveDeadline(index) {
+            const nameInput = document.getElementById(`editName_${index}`);
+            const dateInput = document.getElementById(`editDate_${index}`);
+            
+            if (!nameInput || !dateInput) return;
+            
+            const newName = nameInput.value.trim();
+            const dateText = dateInput.value;
+            
+            if (!newName) {
+                alert('Please enter a project name');
+                return;
+            }
+            
+            if (!dateText) {
+                alert('Please select a due date');
+                return;
+            }
+            
+            // Parse the date from the formatted string
+            const newDate = parseFormattedDate(dateText);
+            if (!newDate || isNaN(newDate)) {
+                alert('Please select a valid date');
+                return;
+            }
+            
+            // Update the deadline
+            projectDeadlines[index].name = newName;
+            projectDeadlines[index].dueDate = newDate;
+            
+            editingDeadlineIndex = -1;
+            updateDeadlinesWidget();
+            
+            alert('Deadline updated successfully!');
+        }
+
+        function parseFormattedDate(dateString) {
+            // Parse "Jul 5, 2025" format
+            try {
+                return new Date(dateString);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function toggleDeadlineCalendar(index) {
+            const calendar = document.getElementById(`deadlineCalendar_${index}`);
+            if (!calendar) return;
+            
+            // Close all other calendars
+            document.querySelectorAll('.calendar').forEach(cal => {
+                if (cal.id !== `deadlineCalendar_${index}`) {
+                    cal.classList.remove('active');
+                }
+            });
+            
+            calendar.classList.toggle('active');
+            
+            if (calendar.classList.contains('active')) {
+                generateDeadlineCalendar(index);
+            }
+        }
+
+        function initializeDeadlineCalendar(index) {
+            const deadline = projectDeadlines[index];
+            if (deadline) {
+                currentDate = new Date(deadline.dueDate);
+                generateDeadlineCalendar(index);
+            }
+        }
+
+        function generateDeadlineCalendar(index) {
+            const grid = document.getElementById(`deadlineCalendarGrid_${index}`);
+            const monthDisplay = document.getElementById(`deadlineCurrentMonth_${index}`);
+            
+            if (!grid || !monthDisplay) return;
+            
+            const monthNames = ["January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"];
+            
+            monthDisplay.textContent = monthNames[currentDate.getMonth()] + ' ' + currentDate.getFullYear();
+            
+            const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+            const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+            const startDate = new Date(firstDay);
+            startDate.setDate(startDate.getDate() - firstDay.getDay());
+            
+            grid.innerHTML = '';
+            
+            // Add day headers
+            const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            dayHeaders.forEach(day => {
+                const dayElement = document.createElement('div');
+                dayElement.textContent = day;
+                dayElement.style.fontWeight = 'bold';
+                dayElement.style.textAlign = 'center';
+                dayElement.style.padding = '0.5rem';
+                grid.appendChild(dayElement);
+            });
+            
+            // Add calendar days
+            for (let i = 0; i < 42; i++) {
+                const dayElement = document.createElement('div');
+                const currentDay = new Date(startDate);
+                currentDay.setDate(startDate.getDate() + i);
+                
+                dayElement.textContent = currentDay.getDate();
+                dayElement.className = 'calendar-day';
+                
+                if (currentDay.getMonth() !== currentDate.getMonth()) {
+                    dayElement.style.color = '#ccc';
+                }
+                
+                // Highlight current selected date
+                const currentDeadline = projectDeadlines[index];
+                if (currentDeadline && 
+                    currentDay.toDateString() === currentDeadline.dueDate.toDateString()) {
+                    dayElement.classList.add('selected');
+                }
+                
+                dayElement.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    document.querySelectorAll(`#deadlineCalendarGrid_${index} .calendar-day`).forEach(d => d.classList.remove('selected'));
+                    this.classList.add('selected');
+                    
+                    const selectedDate = new Date(currentDay);
+                    document.getElementById(`editDate_${index}`).value = formatDeadlineDate(selectedDate);
+                    document.getElementById(`deadlineCalendar_${index}`).classList.remove('active');
+                });
+                
+                grid.appendChild(dayElement);
+            }
+        }
+
+        function previousDeadlineMonth(index) {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            generateDeadlineCalendar(index);
+        }
+
+        function nextDeadlineMonth(index) {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            generateDeadlineCalendar(index);
+        }
+
+        // Utility functions
+        function generateReport() {
+            alert('Generating comprehensive project report...');
+        }
+
+        function exportData() {
+            alert('Exporting project data to CSV...');
+        }
+
+        // Add some dynamic behavior to simulate real application
+        setInterval(function() {
+            const activities = document.querySelectorAll('.widget .scrollable-list .list-item');
+            if (activities.length > 0) {
+                const randomActivity = activities[Math.floor(Math.random() * activities.length)];
+                randomActivity.style.backgroundColor = '#e3f2fd';
+                setTimeout(() => {
+                    randomActivity.style.backgroundColor = '';
+                }, 1000);
+            }
+        }, 5000);
+
+        // Expose functions for testing
+        window.testDeadlines = function() {
+            console.log('Testing deadlines widget...');
+            console.log('Project deadlines array:', projectDeadlines);
+            console.log('Container element:', document.getElementById('upcomingDeadlines'));
+            updateDeadlinesWidget();
+        };
+
+        window.testMainCalendar = function() {
+            console.log('Testing main calendar...');
+            console.log('Calendar element:', document.getElementById('calendar'));
+            console.log('Due date input:', document.getElementById('dueDate'));
+            console.log('Main calendar date:', mainCalendarDate);
+            toggleCalendar();
+        };
+    </script>
+</body>
+</html>
