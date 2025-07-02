@@ -448,25 +448,219 @@
             border: 1px solid #ddd;
             border-radius: 5px;
             padding: 1rem;
+            background: #fafafa;
         }
 
         .sortable-item {
-            background: #f8f9fa;
+            background: white;
             padding: 0.75rem;
             margin-bottom: 0.5rem;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: move;
-            border-left: 4px solid #3498db;
-            transition: all 0.3s;
+            border-left: 5px solid #3498db;
+            border: 1px solid #e1e8ed;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .sortable-item:hover {
-            background: #e9ecef;
-            transform: translateX(5px);
+            background: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
         }
 
         .sortable-item.dragging {
-            opacity: 0.5;
+            opacity: 0.6;
+            transform: rotate(3deg) scale(1.02);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+            z-index: 1000;
+        }
+
+        .sortable-item.drag-over {
+            border-top: 3px solid #e74c3c;
+            margin-top: 8px;
+        }
+
+        .team-member-content {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+
+        .hierarchy-number {
+            background: #3498db;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .team-member-role {
+            flex: 1;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .position-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .sortable-item:hover .position-controls {
+            opacity: 1;
+        }
+
+        .position-btn {
+            background: #95a5a6;
+            color: white;
+            border: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .position-btn:hover {
+            background: #7f8c8d;
+        }
+
+        .position-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        .drag-handle {
+            color: #95a5a6;
+            margin-right: 8px;
+            cursor: grab;
+            font-size: 18px;
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+
+        .add-member-btn {
+            background: #27ae60;
+            color: white;
+            border: 2px dashed #27ae60;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        .add-member-btn:hover {
+            background: #219a52;
+            border-color: #219a52;
+        }
+
+        /* Document Manager Styles */
+        .document-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            border-radius: 4px;
+        }
+
+        .btn-preview {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-preview:hover {
+            background: #138496;
+        }
+
+        .upload-progress {
+            width: 100%;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .upload-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .upload-item-info {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .upload-item-name {
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .upload-item-size {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        .upload-item-progress {
+            margin: 8px 0;
+        }
+
+        .document-row {
+            transition: background-color 0.2s;
+        }
+
+        .document-row:hover {
+            background-color: #f8f9fa;
+        }
+
+        .document-type-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            display: inline-block;
+        }
+
+        .search-highlight {
+            background-color: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+            font-style: italic;
         }
     </style>
 </head>
@@ -728,14 +922,65 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Team Members Required</label>
+                            <label>Team Members Required (Drag to reorder by hierarchy)</label>
                             <div class="sortable-list" id="teamMembers">
-                                <div class="sortable-item" draggable="true">Project Manager</div>
-                                <div class="sortable-item" draggable="true">Developer (Frontend)</div>
-                                <div class="sortable-item" draggable="true">Developer (Backend)</div>
-                                <div class="sortable-item" draggable="true">Designer</div>
-                                <div class="sortable-item" draggable="true">QA Tester</div>
+                                <div class="sortable-item" draggable="true">
+                                    <div class="team-member-content">
+                                        <span class="drag-handle">⋮⋮</span>
+                                        <span class="hierarchy-number">1</span>
+                                        <span class="team-member-role">Project Manager</span>
+                                    </div>
+                                    <div class="position-controls">
+                                        <button class="position-btn move-up" title="Move Up">▲</button>
+                                        <button class="position-btn move-down" title="Move Down">▼</button>
+                                    </div>
+                                </div>
+                                <div class="sortable-item" draggable="true">
+                                    <div class="team-member-content">
+                                        <span class="drag-handle">⋮⋮</span>
+                                        <span class="hierarchy-number">2</span>
+                                        <span class="team-member-role">Developer (Frontend)</span>
+                                    </div>
+                                    <div class="position-controls">
+                                        <button class="position-btn move-up" title="Move Up">▲</button>
+                                        <button class="position-btn move-down" title="Move Down">▼</button>
+                                    </div>
+                                </div>
+                                <div class="sortable-item" draggable="true">
+                                    <div class="team-member-content">
+                                        <span class="drag-handle">⋮⋮</span>
+                                        <span class="hierarchy-number">3</span>
+                                        <span class="team-member-role">Developer (Backend)</span>
+                                    </div>
+                                    <div class="position-controls">
+                                        <button class="position-btn move-up" title="Move Up">▲</button>
+                                        <button class="position-btn move-down" title="Move Down">▼</button>
+                                    </div>
+                                </div>
+                                <div class="sortable-item" draggable="true">
+                                    <div class="team-member-content">
+                                        <span class="drag-handle">⋮⋮</span>
+                                        <span class="hierarchy-number">4</span>
+                                        <span class="team-member-role">Designer</span>
+                                    </div>
+                                    <div class="position-controls">
+                                        <button class="position-btn move-up" title="Move Up">▲</button>
+                                        <button class="position-btn move-down" title="Move Down">▼</button>
+                                    </div>
+                                </div>
+                                <div class="sortable-item" draggable="true">
+                                    <div class="team-member-content">
+                                        <span class="drag-handle">⋮⋮</span>
+                                        <span class="hierarchy-number">5</span>
+                                        <span class="team-member-role">QA Tester</span>
+                                    </div>
+                                    <div class="position-controls">
+                                        <button class="position-btn move-up" title="Move Up">▲</button>
+                                        <button class="position-btn move-down" title="Move Down">▼</button>
+                                    </div>
+                                </div>
                             </div>
+                            <div class="add-member-btn" onclick="addTeamMember()">+ Add Team Member</div>
                         </div>
 
                         <button type="submit" class="btn btn-success">Submit Project Request</button>
@@ -954,49 +1199,90 @@
                         <div class="file-list" id="documentFileList"></div>
                     </div>
 
-                    <table class="data-table">
+                    <div class="upload-progress" id="uploadProgress"></div>
+                    
+                    <table class="data-table" id="documentTable">
                         <thead>
                             <tr>
-                                <th onclick="sortTable(0, this.closest('table'))">Document Name</th>
-                                <th onclick="sortTable(1, this.closest('table'))">Type</th>
-                                <th onclick="sortTable(2, this.closest('table'))">Size</th>
-                                <th onclick="sortTable(3, this.closest('table'))">Modified</th>
-                                <th>Actions</th>
+                                <th onclick="sortDocumentTable(0)">📄 Document Name</th>
+                                <th onclick="sortDocumentTable(1)">📂 Type</th>
+                                <th onclick="sortDocumentTable(2)">📏 Size</th>
+                                <th onclick="sortDocumentTable(3)">📅 Modified</th>
+                                <th>🔧 Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>Employee Handbook 2024.pdf</td>
+                            <tr class="document-row" data-filename="Employee Handbook 2024.pdf">
+                                <td><span class="document-type-icon">📕</span>Employee Handbook 2024.pdf</td>
                                 <td>PDF</td>
                                 <td>2.3 MB</td>
                                 <td>2024-01-15</td>
                                 <td>
-                                    <button class="btn">Download</button>
-                                    <button class="btn btn-danger">Delete</button>
+                                    <div class="document-actions">
+                                        <button class="btn btn-small btn-preview" onclick="previewDocument('Employee Handbook 2024.pdf')">👁️ Preview</button>
+                                        <button class="btn btn-small" onclick="downloadDocument('Employee Handbook 2024.pdf', '2.3 MB')">⬇️ Download</button>
+                                        <button class="btn btn-small btn-danger" onclick="deleteDocument('Employee Handbook 2024.pdf', this)">🗑️ Delete</button>
+                                    </div>
                                 </td>
                             </tr>
-                            <tr>
-                                <td>Q4 Budget Report.xlsx</td>
+                            <tr class="document-row" data-filename="Q4 Budget Report.xlsx">
+                                <td><span class="document-type-icon">📊</span>Q4 Budget Report.xlsx</td>
                                 <td>Excel</td>
                                 <td>854 KB</td>
                                 <td>2024-01-10</td>
                                 <td>
-                                    <button class="btn">Download</button>
-                                    <button class="btn btn-danger">Delete</button>
+                                    <div class="document-actions">
+                                        <button class="btn btn-small btn-preview" onclick="previewDocument('Q4 Budget Report.xlsx')">👁️ Preview</button>
+                                        <button class="btn btn-small" onclick="downloadDocument('Q4 Budget Report.xlsx', '854 KB')">⬇️ Download</button>
+                                        <button class="btn btn-small btn-danger" onclick="deleteDocument('Q4 Budget Report.xlsx', this)">🗑️ Delete</button>
+                                    </div>
                                 </td>
                             </tr>
-                            <tr>
-                                <td>Marketing Strategy.docx</td>
+                            <tr class="document-row" data-filename="Marketing Strategy.docx">
+                                <td><span class="document-type-icon">📝</span>Marketing Strategy.docx</td>
                                 <td>Word</td>
                                 <td>1.2 MB</td>
                                 <td>2024-01-08</td>
                                 <td>
-                                    <button class="btn">Download</button>
-                                    <button class="btn btn-danger">Delete</button>
+                                    <div class="document-actions">
+                                        <button class="btn btn-small btn-preview" onclick="previewDocument('Marketing Strategy.docx')">👁️ Preview</button>
+                                        <button class="btn btn-small" onclick="downloadDocument('Marketing Strategy.docx', '1.2 MB')">⬇️ Download</button>
+                                        <button class="btn btn-small btn-danger" onclick="deleteDocument('Marketing Strategy.docx', this)">🗑️ Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="document-row" data-filename="Technical Specifications.pdf">
+                                <td><span class="document-type-icon">📄</span>Technical Specifications.pdf</td>
+                                <td>PDF</td>
+                                <td>3.1 MB</td>
+                                <td>2024-01-05</td>
+                                <td>
+                                    <div class="document-actions">
+                                        <button class="btn btn-small btn-preview" onclick="previewDocument('Technical Specifications.pdf')">👁️ Preview</button>
+                                        <button class="btn btn-small" onclick="downloadDocument('Technical Specifications.pdf', '3.1 MB')">⬇️ Download</button>
+                                        <button class="btn btn-small btn-danger" onclick="deleteDocument('Technical Specifications.pdf', this)">🗑️ Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="document-row" data-filename="Company Policy 2024.docx">
+                                <td><span class="document-type-icon">📋</span>Company Policy 2024.docx</td>
+                                <td>Word</td>
+                                <td>876 KB</td>
+                                <td>2024-01-03</td>
+                                <td>
+                                    <div class="document-actions">
+                                        <button class="btn btn-small btn-preview" onclick="previewDocument('Company Policy 2024.docx')">👁️ Preview</button>
+                                        <button class="btn btn-small" onclick="downloadDocument('Company Policy 2024.docx', '876 KB')">⬇️ Download</button>
+                                        <button class="btn btn-small btn-danger" onclick="deleteDocument('Company Policy 2024.docx', this)">🗑️ Delete</button>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
+                    
+                    <div class="no-results" id="noDocumentsFound" style="display: none;">
+                        📄 No documents found matching your search criteria.
+                    </div>
                 </section>
 
                 <!-- Calendar View -->
@@ -1117,6 +1403,45 @@
         </div>
     </div>
 
+    <!-- Document Preview Modal -->
+    <div id="document-preview-modal" class="modal">
+        <div class="modal-content" style="max-width: 800px; width: 95%;">
+            <div class="modal-header">
+                <h3 id="preview-document-title">📄 Document Preview</h3>
+                <span class="close" onclick="closeModal('document-preview-modal')">&times;</span>
+            </div>
+            <div id="document-preview-content" style="max-height: 500px; overflow-y: auto;">
+                <div style="text-align: center; padding: 2rem;">
+                    <p>📄 Document preview will be displayed here</p>
+                    <p style="color: #6c757d; font-size: 0.9rem;">Note: This is a demo preview. In a real application, this would show the actual document content.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('document-preview-modal')">Close</button>
+                <button class="btn btn-success" onclick="downloadFromPreview()">📥 Download</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-confirm-modal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3>🗑️ Confirm Delete</h3>
+                <span class="close" onclick="closeModal('delete-confirm-modal')">&times;</span>
+            </div>
+            <div id="delete-confirm-content">
+                <p>Are you sure you want to delete this document?</p>
+                <p><strong id="delete-document-name"></strong></p>
+                <p style="color: #e74c3c; font-size: 0.9rem;">⚠️ This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('delete-confirm-modal')">Cancel</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Navigation and UI Functions
         function showSection(sectionId) {
@@ -1216,7 +1541,7 @@
             document.getElementById('employeeSearchResults').style.display = 'none';
         }
 
-        // Document search autocomplete
+        // Document search autocomplete and filtering
         document.getElementById('documentSearch').addEventListener('input', function() {
             const results = document.getElementById('documentSearchResults');
             if (this.value.length > 0) {
@@ -1224,11 +1549,84 @@
             } else {
                 results.style.display = 'none';
             }
+            filterDocuments();
         });
 
         function selectDocument(name) {
             document.getElementById('documentSearch').value = name;
             document.getElementById('documentSearchResults').style.display = 'none';
+            filterDocuments();
+        }
+
+        // Enhanced document search filtering
+        function filterDocuments() {
+            const searchTerm = document.getElementById('documentSearch').value.toLowerCase();
+            const table = document.getElementById('documentTable');
+            const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+            let visibleCount = 0;
+            
+            for (let row of rows) {
+                const text = row.textContent.toLowerCase();
+                const isVisible = text.includes(searchTerm);
+                row.style.display = isVisible ? '' : 'none';
+                
+                if (isVisible) {
+                    visibleCount++;
+                    // Highlight search terms
+                    const cells = row.getElementsByTagName('td');
+                    for (let cell of cells) {
+                        if (searchTerm && searchTerm.length > 1) {
+                            const originalText = cell.getAttribute('data-original') || cell.textContent;
+                            cell.setAttribute('data-original', originalText);
+                            cell.innerHTML = originalText.replace(
+                                new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'),
+                                '<span class="search-highlight">$1</span>'
+                            );
+                        } else {
+                            // Restore original text if no search term
+                            const originalText = cell.getAttribute('data-original');
+                            if (originalText) {
+                                cell.innerHTML = originalText;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Show/hide no results message
+            const noResults = document.getElementById('noDocumentsFound');
+            if (visibleCount === 0 && searchTerm) {
+                noResults.style.display = 'block';
+                table.style.display = 'none';
+            } else {
+                noResults.style.display = 'none';
+                table.style.display = 'table';
+            }
+        }
+
+        // Add sorting functionality for document table
+        function sortDocumentTable(columnIndex) {
+            const table = document.getElementById('documentTable');
+            const tbody = table.getElementsByTagName('tbody')[0];
+            const rows = Array.from(tbody.getElementsByTagName('tr'));
+            
+            rows.sort((a, b) => {
+                const aText = a.getElementsByTagName('td')[columnIndex].textContent;
+                const bText = b.getElementsByTagName('td')[columnIndex].textContent;
+                
+                // Handle different data types
+                if (columnIndex === 2) { // Size column
+                    const aSize = parseFloat(aText.replace(/[^\d.]/g, ''));
+                    const bSize = parseFloat(bText.replace(/[^\d.]/g, ''));
+                    return aSize - bSize;
+                } else if (columnIndex === 3) { // Date column
+                    return new Date(aText) - new Date(bText);
+                } else {
+                    return aText.localeCompare(bText);
+                }
+            });
+            
+            rows.forEach(row => tbody.appendChild(row));
         }
 
         // Table sorting
@@ -1252,17 +1650,382 @@
             document.getElementById('budgetValue').textContent = '$' + value.toLocaleString();
         });
 
-        // Drag and drop for sortable list
-        const sortableItems = document.querySelectorAll('.sortable-item');
-        sortableItems.forEach(item => {
-            item.addEventListener('dragstart', function() {
-                this.classList.add('dragging');
+        // Enhanced Drag and Drop for Team Members
+        let draggedElement = null;
+        
+        function initializeDragAndDrop() {
+            const sortableItems = document.querySelectorAll('.sortable-item');
+            const sortableList = document.getElementById('teamMembers');
+            
+            sortableItems.forEach(item => {
+                // Drag start
+                item.addEventListener('dragstart', function(e) {
+                    draggedElement = this;
+                    this.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/html', this.outerHTML);
+                });
+                
+                // Drag end
+                item.addEventListener('dragend', function() {
+                    this.classList.remove('dragging');
+                    draggedElement = null;
+                    // Remove all drag-over classes
+                    document.querySelectorAll('.drag-over').forEach(el => {
+                        el.classList.remove('drag-over');
+                    });
+                    updateHierarchyNumbers();
+                });
+                
+                // Drag over
+                item.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    
+                    if (this !== draggedElement) {
+                        // Remove drag-over from all items
+                        document.querySelectorAll('.drag-over').forEach(el => {
+                            el.classList.remove('drag-over');
+                        });
+                        this.classList.add('drag-over');
+                    }
+                });
+                
+                // Drag enter
+                item.addEventListener('dragenter', function(e) {
+                    e.preventDefault();
+                });
+                
+                // Drag leave
+                item.addEventListener('dragleave', function() {
+                    this.classList.remove('drag-over');
+                });
+                
+                // Drop
+                item.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    if (this !== draggedElement) {
+                        const allItems = Array.from(sortableList.children);
+                        const draggedIndex = allItems.indexOf(draggedElement);
+                        const targetIndex = allItems.indexOf(this);
+                        
+                        if (draggedIndex < targetIndex) {
+                            this.parentNode.insertBefore(draggedElement, this.nextSibling);
+                        } else {
+                            this.parentNode.insertBefore(draggedElement, this);
+                        }
+                    }
+                    this.classList.remove('drag-over');
+                });
+                
+                // Up/Down button functionality
+                const moveUpBtn = item.querySelector('.move-up');
+                const moveDownBtn = item.querySelector('.move-down');
+                
+                moveUpBtn?.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    moveItemUp(item);
+                });
+                
+                moveDownBtn?.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    moveItemDown(item);
+                });
             });
             
-            item.addEventListener('dragend', function() {
-                this.classList.remove('dragging');
+            // Container drag over
+            sortableList.addEventListener('dragover', function(e) {
+                e.preventDefault();
             });
+            
+            updateHierarchyNumbers();
+        }
+        
+        function moveItemUp(item) {
+            const prevSibling = item.previousElementSibling;
+            if (prevSibling) {
+                item.parentNode.insertBefore(item, prevSibling);
+                updateHierarchyNumbers();
+            }
+        }
+        
+        function moveItemDown(item) {
+            const nextSibling = item.nextElementSibling;
+            if (nextSibling) {
+                item.parentNode.insertBefore(nextSibling, item);
+                updateHierarchyNumbers();
+            }
+        }
+        
+        function updateHierarchyNumbers() {
+            const items = document.querySelectorAll('#teamMembers .sortable-item');
+            items.forEach((item, index) => {
+                const numberElement = item.querySelector('.hierarchy-number');
+                if (numberElement) {
+                    numberElement.textContent = index + 1;
+                }
+                
+                // Update button states
+                const moveUpBtn = item.querySelector('.move-up');
+                const moveDownBtn = item.querySelector('.move-down');
+                
+                if (moveUpBtn) {
+                    moveUpBtn.disabled = index === 0;
+                }
+                if (moveDownBtn) {
+                    moveDownBtn.disabled = index === items.length - 1;
+                }
+            });
+        }
+        
+        function addTeamMember() {
+            const role = prompt('Enter the role/position for the new team member:');
+            if (role && role.trim()) {
+                const teamMembers = document.getElementById('teamMembers');
+                const newIndex = teamMembers.children.length + 1;
+                
+                const newItem = document.createElement('div');
+                newItem.className = 'sortable-item';
+                newItem.draggable = true;
+                newItem.innerHTML = `
+                    <div class="team-member-content">
+                        <span class="drag-handle">⋮⋮</span>
+                        <span class="hierarchy-number">${newIndex}</span>
+                        <span class="team-member-role">${role.trim()}</span>
+                    </div>
+                    <div class="position-controls">
+                        <button class="position-btn move-up" title="Move Up">▲</button>
+                        <button class="position-btn move-down" title="Move Down">▼</button>
+                    </div>
+                `;
+                
+                teamMembers.appendChild(newItem);
+                
+                // Re-initialize drag and drop for all items
+                initializeDragAndDrop();
+            }
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDragAndDrop();
         });
+
+        // Document Management Functions
+        let documentToDelete = null;
+        let deleteButtonRef = null;
+        let currentPreviewDocument = null;
+
+        function downloadDocument(filename, filesize) {
+            // Show download progress
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '⏳ Downloading...';
+            button.disabled = true;
+            
+            // Simulate download process
+            setTimeout(() => {
+                // Show success message
+                button.innerHTML = '✅ Downloaded';
+                button.style.background = '#27ae60';
+                
+                // Show notification
+                showNotification(`📥 ${filename} (${filesize}) downloaded successfully!`, 'success');
+                
+                // Reset button after delay
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                    button.style.background = '';
+                }, 2000);
+            }, 1500);
+        }
+
+        function previewDocument(filename) {
+            currentPreviewDocument = filename;
+            document.getElementById('preview-document-title').innerHTML = `📄 Preview: ${filename}`;
+            
+            // Simulate different document types
+            let previewContent = '';
+            const fileExt = filename.split('.').pop().toLowerCase();
+            
+            switch(fileExt) {
+                case 'pdf':
+                    previewContent = `
+                        <div style="text-align: center; padding: 2rem; background: #f8f9fa; border-radius: 8px;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">📄</div>
+                            <h4>${filename}</h4>
+                            <p style="color: #6c757d;">PDF Document Preview</p>
+                            <div style="text-align: left; max-width: 600px; margin: 2rem auto; padding: 1rem; background: white; border: 1px solid #ddd; border-radius: 4px;">
+                                <h5>Document Contents (Sample):</h5>
+                                <p><strong>Executive Summary</strong></p>
+                                <p>This document contains important company policies and procedures...</p>
+                                <p><strong>Table of Contents</strong></p>
+                                <ul>
+                                    <li>1. Introduction</li>
+                                    <li>2. Company Policies</li>
+                                    <li>3. Procedures</li>
+                                    <li>4. Contact Information</li>
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'xlsx':
+                case 'xls':
+                    previewContent = `
+                        <div style="text-align: center; padding: 2rem; background: #f8f9fa; border-radius: 8px;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">📊</div>
+                            <h4>${filename}</h4>
+                            <p style="color: #6c757d;">Excel Spreadsheet Preview</p>
+                            <div style="overflow-x: auto; margin: 2rem 0;">
+                                <table style="width: 100%; border-collapse: collapse; background: white;">
+                                    <tr style="background: #e9ecef;">
+                                        <th style="border: 1px solid #ddd; padding: 8px;">Quarter</th>
+                                        <th style="border: 1px solid #ddd; padding: 8px;">Revenue</th>
+                                        <th style="border: 1px solid #ddd; padding: 8px;">Expenses</th>
+                                        <th style="border: 1px solid #ddd; padding: 8px;">Profit</th>
+                                    </tr>
+                                    <tr>
+                                        <td style="border: 1px solid #ddd; padding: 8px;">Q1 2024</td>
+                                        <td style="border: 1px solid #ddd; padding: 8px;">$125,000</td>
+                                        <td style="border: 1px solid #ddd; padding: 8px;">$95,000</td>
+                                        <td style="border: 1px solid #ddd; padding: 8px;">$30,000</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="border: 1px solid #ddd; padding: 8px;">Q2 2024</td>
+                                        <td style="border: 1px solid #ddd; padding: 8px;">$142,000</td>
+                                        <td style="border: 1px solid #ddd; padding: 8px;">$108,000</td>
+                                        <td style="border: 1px solid #ddd; padding: 8px;">$34,000</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'docx':
+                case 'doc':
+                    previewContent = `
+                        <div style="text-align: center; padding: 2rem; background: #f8f9fa; border-radius: 8px;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">📝</div>
+                            <h4>${filename}</h4>
+                            <p style="color: #6c757d;">Word Document Preview</p>
+                            <div style="text-align: left; max-width: 600px; margin: 2rem auto; padding: 2rem; background: white; border: 1px solid #ddd; border-radius: 4px; line-height: 1.6;">
+                                <h3 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 0.5rem;">Document Title</h3>
+                                <p><strong>Date:</strong> January 2024</p>
+                                <p><strong>Department:</strong> Strategy & Planning</p>
+                                <br>
+                                <p>This document outlines the comprehensive strategy for the upcoming quarter, including key objectives, milestones, and resource allocation.</p>
+                                <br>
+                                <h4>Key Points:</h4>
+                                <ul>
+                                    <li>Market analysis and competitive positioning</li>
+                                    <li>Resource allocation and budget planning</li>
+                                    <li>Timeline and milestone tracking</li>
+                                    <li>Risk assessment and mitigation strategies</li>
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                default:
+                    previewContent = `
+                        <div style="text-align: center; padding: 2rem;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">📄</div>
+                            <h4>${filename}</h4>
+                            <p style="color: #6c757d;">File preview not available for this format</p>
+                            <p>Click download to view the file</p>
+                        </div>
+                    `;
+            }
+            
+            document.getElementById('document-preview-content').innerHTML = previewContent;
+            openModal('document-preview-modal');
+        }
+
+        function downloadFromPreview() {
+            if (currentPreviewDocument) {
+                const row = document.querySelector(`[data-filename="${currentPreviewDocument}"]`);
+                if (row) {
+                    const sizeCell = row.cells[2];
+                    downloadDocument(currentPreviewDocument, sizeCell.textContent);
+                }
+            }
+            closeModal('document-preview-modal');
+        }
+
+        function deleteDocument(filename, buttonElement) {
+            documentToDelete = filename;
+            deleteButtonRef = buttonElement;
+            document.getElementById('delete-document-name').textContent = filename;
+            openModal('delete-confirm-modal');
+        }
+
+        function confirmDelete() {
+            if (documentToDelete && deleteButtonRef) {
+                // Find and remove the row
+                const row = deleteButtonRef.closest('tr');
+                if (row) {
+                    // Add fade-out animation
+                    row.style.transition = 'opacity 0.5s, transform 0.5s';
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateX(-20px)';
+                    
+                    setTimeout(() => {
+                        row.remove();
+                        showNotification(`🗑️ ${documentToDelete} has been deleted`, 'success');
+                        
+                        // Check if table is empty
+                        const tableBody = document.querySelector('#documentTable tbody');
+                        if (tableBody.children.length === 0) {
+                            document.getElementById('noDocumentsFound').style.display = 'block';
+                            document.getElementById('documentTable').style.display = 'none';
+                        }
+                    }, 500);
+                }
+            }
+            
+            // Reset variables
+            documentToDelete = null;
+            deleteButtonRef = null;
+            closeModal('delete-confirm-modal');
+        }
+
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : '#3498db'};
+                color: white;
+                padding: 1rem 2rem;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                z-index: 10000;
+                font-weight: 500;
+                max-width: 400px;
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Slide in
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            // Remove after delay
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
 
         // File upload handlers
         document.getElementById('receiptUpload')?.addEventListener('change', function() {
@@ -1282,18 +2045,172 @@
 
         document.getElementById('documentUpload')?.addEventListener('change', function() {
             const fileList = document.getElementById('documentFileList');
-            fileList.innerHTML = '';
+            const progressContainer = document.getElementById('uploadProgress');
             
-            for (let file of this.files) {
-                const fileItem = document.createElement('div');
-                fileItem.className = 'file-item';
-                fileItem.innerHTML = `
-                    <span>${file.name}</span>
-                    <button class="btn btn-danger" onclick="this.parentElement.remove()">Remove</button>
-                `;
-                fileList.appendChild(fileItem);
+            if (this.files.length > 0) {
+                progressContainer.style.display = 'block';
+                fileList.innerHTML = '';
+                progressContainer.innerHTML = '';
+                
+                for (let file of this.files) {
+                    uploadFileWithProgress(file, fileList, progressContainer);
+                }
             }
         });
+
+        function uploadFileWithProgress(file, fileList, progressContainer) {
+            // Create upload item
+            const uploadItem = document.createElement('div');
+            uploadItem.className = 'upload-item';
+            
+            const fileIcon = getFileIcon(file.name);
+            const fileSize = formatFileSize(file.size);
+            
+            uploadItem.innerHTML = `
+                <div class="upload-item-info">
+                    <div class="upload-item-name">${fileIcon} ${file.name}</div>
+                    <div class="upload-item-size">${fileSize}</div>
+                </div>
+                <div class="upload-item-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%"></div>
+                    </div>
+                    <span class="upload-status">Preparing...</span>
+                </div>
+                <button class="btn btn-small btn-danger" onclick="cancelUpload(this)">Cancel</button>
+            `;
+            
+            progressContainer.appendChild(uploadItem);
+            
+            // Simulate upload progress
+            const progressFill = uploadItem.querySelector('.progress-fill');
+            const statusSpan = uploadItem.querySelector('.upload-status');
+            const cancelBtn = uploadItem.querySelector('.btn-danger');
+            
+            let progress = 0;
+            const uploadInterval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(uploadInterval);
+                    
+                    progressFill.style.width = '100%';
+                    progressFill.style.background = '#27ae60';
+                    statusSpan.textContent = '✅ Uploaded';
+                    statusSpan.style.color = '#27ae60';
+                    cancelBtn.textContent = 'Remove';
+                    cancelBtn.className = 'btn btn-small';
+                    
+                    // Add to document table
+                    setTimeout(() => {
+                        addDocumentToTable(file.name, fileSize);
+                        showNotification(`📁 ${file.name} uploaded successfully!`, 'success');
+                    }, 500);
+                } else {
+                    progressFill.style.width = progress + '%';
+                    statusSpan.textContent = `Uploading... ${Math.round(progress)}%`;
+                }
+            }, 200);
+            
+            // Store interval for cancellation
+            uploadItem.uploadInterval = uploadInterval;
+        }
+
+        function cancelUpload(button) {
+            const uploadItem = button.closest('.upload-item');
+            if (uploadItem.uploadInterval) {
+                clearInterval(uploadItem.uploadInterval);
+            }
+            uploadItem.remove();
+            
+            // Check if all uploads are done
+            const progressContainer = document.getElementById('uploadProgress');
+            if (progressContainer.children.length === 0) {
+                progressContainer.style.display = 'none';
+            }
+        }
+
+        function addDocumentToTable(filename, filesize) {
+            const table = document.getElementById('documentTable');
+            const tbody = table.getElementsByTagName('tbody')[0];
+            
+            const newRow = document.createElement('tr');
+            newRow.className = 'document-row';
+            newRow.setAttribute('data-filename', filename);
+            
+            const fileIcon = getFileIcon(filename);
+            const fileType = getFileType(filename);
+            const currentDate = new Date().toISOString().split('T')[0];
+            
+            newRow.innerHTML = `
+                <td><span class="document-type-icon">${fileIcon}</span>${filename}</td>
+                <td>${fileType}</td>
+                <td>${filesize}</td>
+                <td>${currentDate}</td>
+                <td>
+                    <div class="document-actions">
+                        <button class="btn btn-small btn-preview" onclick="previewDocument('${filename}')">👁️ Preview</button>
+                        <button class="btn btn-small" onclick="downloadDocument('${filename}', '${filesize}')">⬇️ Download</button>
+                        <button class="btn btn-small btn-danger" onclick="deleteDocument('${filename}', this)">🗑️ Delete</button>
+                    </div>
+                </td>
+            `;
+            
+            // Insert at the top of the table
+            tbody.insertBefore(newRow, tbody.firstChild);
+            
+            // Show table if it was hidden
+            table.style.display = 'table';
+            document.getElementById('noDocumentsFound').style.display = 'none';
+        }
+
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            switch(ext) {
+                case 'pdf': return '📕';
+                case 'doc': 
+                case 'docx': return '📝';
+                case 'xls':
+                case 'xlsx': return '📊';
+                case 'ppt':
+                case 'pptx': return '📊';
+                case 'jpg':
+                case 'jpeg':
+                case 'png':
+                case 'gif': return '🖼️';
+                case 'zip':
+                case 'rar': return '📦';
+                default: return '📄';
+            }
+        }
+
+        function getFileType(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            switch(ext) {
+                case 'pdf': return 'PDF';
+                case 'doc': 
+                case 'docx': return 'Word';
+                case 'xls':
+                case 'xlsx': return 'Excel';
+                case 'ppt':
+                case 'pptx': return 'PowerPoint';
+                case 'jpg':
+                case 'jpeg':
+                case 'png':
+                case 'gif': return 'Image';
+                case 'zip':
+                case 'rar': return 'Archive';
+                default: return ext.toUpperCase();
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
 
         // Calendar functions
         let currentMonth = new Date();
