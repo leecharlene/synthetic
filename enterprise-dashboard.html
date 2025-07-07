@@ -192,6 +192,19 @@
             background: #f8f9fa;
         }
 
+        .clear-search-btn {
+            transition: all 0.2s ease;
+        }
+
+        .clear-search-btn:hover {
+            background: #c53030 !important;
+            transform: translateY(-50%) scale(1.1) !important;
+        }
+
+        .search-container {
+            position: relative;
+        }
+
         .data-table-container {
             margin: 2rem 0;
             border-radius: 10px;
@@ -2074,11 +2087,7 @@
                     <input type="text" class="search-input" placeholder="Search projects, tasks, or team members..." 
                            id="searchInput" oninput="handleSearch(this.value)">
                     <div class="autocomplete-dropdown" id="autocompleteDropdown">
-                        <div class="autocomplete-item" onclick="selectAutocomplete('AI chatbot development')">AI chatbot development</div>
-                        <div class="autocomplete-item" onclick="selectAutocomplete('Mobile app redesign')">Mobile app redesign</div>
-                        <div class="autocomplete-item" onclick="selectAutocomplete('Database optimization')">Database optimization</div>
-                        <div class="autocomplete-item" onclick="selectAutocomplete('Cloud migration project')">Cloud migration project</div>
-                        <div class="autocomplete-item" onclick="selectAutocomplete('Security vulnerability assessment')">Security vulnerability assessment</div>
+                        <!-- Dynamic content will be populated by JavaScript -->
                     </div>
                 </div>
 
@@ -2165,18 +2174,239 @@
             item.classList.add('selected');
         }
 
+        // Project and team data for search
+        const projectData = [
+            // Extract from table data
+            { name: 'E-commerce Platform Upgrade', assignee: 'Sarah Chen', status: 'In Progress', priority: 'High', progress: '75%' },
+            { name: 'Mobile App Security Audit', assignee: 'Marcus Johnson', status: 'Pending Review', priority: 'Critical', progress: '90%' },
+            { name: 'AI Recommendation Engine', assignee: 'David Kim', status: 'In Progress', priority: 'Medium', progress: '45%' },
+            { name: 'Customer Portal Redesign', assignee: 'Elena Rodriguez', status: 'In Progress', priority: 'High', progress: '60%' },
+            { name: 'Data Warehouse Migration', assignee: 'Robert Chang', status: 'Planning', priority: 'High', progress: '20%' },
+            { name: 'API Gateway Implementation', assignee: 'Marcus Johnson', status: 'In Progress', priority: 'Medium', progress: '85%' },
+            { name: 'User Authentication System', assignee: 'Sarah Chen', status: 'On Hold', priority: 'Low', progress: '10%' },
+            { name: 'Performance Monitoring Setup', assignee: 'Lisa Thompson', status: 'In Progress', priority: 'Medium', progress: '55%' },
+            { name: 'Blockchain Payment Integration', assignee: 'Michael Torres', status: 'Planning', priority: 'High', progress: '15%' },
+            { name: 'IoT Device Management Platform', assignee: 'Ryan O\'Connor', status: 'Development', priority: 'Medium', progress: '35%' },
+            { name: 'Cybersecurity Framework Implementation', assignee: 'Jennifer Liu', status: 'In Progress', priority: 'Critical', progress: '80%' },
+            { name: 'Data Lake Architecture Design', assignee: 'Priya Patel', status: 'Review', priority: 'High', progress: '70%' },
+            { name: 'Microservices Migration', assignee: 'Alex Kowalski', status: 'Development', priority: 'High', progress: '40%' },
+            { name: 'Business Intelligence Dashboard', assignee: 'Samantha Reed', status: 'Testing', priority: 'Medium', progress: '85%' },
+            { name: 'Machine Learning Pipeline', assignee: 'Daniel Park', status: 'In Progress', priority: 'High', progress: '65%' },
+            { name: 'Cloud Infrastructure Optimization', assignee: 'Nathan Brooks', status: 'Planning', priority: 'Medium', progress: '25%' },
+            { name: 'Mobile App Performance Enhancement', assignee: 'Carlos Mendez', status: 'Development', priority: 'High', progress: '50%' },
+            { name: 'Legacy System Modernization', assignee: 'Jacob Miller', status: 'On Hold', priority: 'Low', progress: '5%' },
+            { name: 'Real-time Analytics Engine', assignee: 'Emily Watson', status: 'Testing', priority: 'High', progress: '88%' },
+            { name: 'Automated Testing Framework', assignee: 'Thomas Singh', status: 'In Progress', priority: 'Medium', progress: '42%' },
+            { name: 'Digital Asset Management System', assignee: 'Maya Johnson', status: 'Requirements', priority: 'Medium', progress: '30%' },
+            { name: 'API Rate Limiting Implementation', assignee: 'Isabella Cruz', status: 'Development', priority: 'High', progress: '72%' },
+            { name: 'Customer Data Platform Integration', assignee: 'Sophia Davis', status: 'In Progress', priority: 'Critical', progress: '58%' },
+            { name: 'Load Balancing Optimization', assignee: 'Ethan Taylor', status: 'Review', priority: 'Medium', progress: '63%' },
+            { name: 'Content Management System Upgrade', assignee: 'Rachel Green', status: 'Development', priority: 'Medium', progress: '38%' },
+            { name: 'Database Replication Setup', assignee: 'Kevin Anderson', status: 'Implementation', priority: 'High', progress: '77%' },
+            { name: 'Progressive Web App Development', assignee: 'Olivia Martin', status: 'In Progress', priority: 'High', progress: '52%' }
+        ];
+
+        const teamMembers = [
+            'Sarah Chen', 'Marcus Johnson', 'Elena Rodriguez', 'David Kim', 'Amanda Foster',
+            'Robert Chang', 'Lisa Thompson', 'James Wilson', 'Michael Torres', 'Jennifer Liu',
+            'Ryan O\'Connor', 'Priya Patel', 'Alex Kowalski', 'Samantha Reed', 'Carlos Mendez',
+            'Emily Watson', 'Nathan Brooks', 'Daniel Park', 'Rachel Green', 'Kevin Anderson',
+            'Isabella Cruz', 'Thomas Singh', 'Maya Johnson', 'Jacob Miller', 'Sophia Davis',
+            'Ethan Taylor', 'Olivia Martin'
+        ];
+
         function handleSearch(value) {
             const dropdown = document.getElementById('autocompleteDropdown');
-            if (value.length > 0) {
+            
+            if (value.length < 2) {
+                dropdown.classList.remove('active');
+                return;
+            }
+
+            const searchResults = getSearchResults(value.toLowerCase());
+            populateSearchDropdown(searchResults);
+            
+            if (searchResults.length > 0) {
                 dropdown.classList.add('active');
             } else {
                 dropdown.classList.remove('active');
             }
         }
 
-        function selectAutocomplete(value) {
-            document.getElementById('searchInput').value = value;
+        function getSearchResults(query) {
+            const results = [];
+            
+            // Search projects
+            projectData.forEach(project => {
+                if (project.name.toLowerCase().includes(query)) {
+                    results.push({
+                        type: 'project',
+                        title: project.name,
+                        subtitle: `${project.status} • ${project.assignee} • ${project.progress}`,
+                        data: project
+                    });
+                }
+            });
+            
+            // Search team members
+            teamMembers.forEach(member => {
+                if (member.toLowerCase().includes(query)) {
+                    const memberProjects = projectData.filter(p => p.assignee === member);
+                    results.push({
+                        type: 'member',
+                        title: member,
+                        subtitle: `${memberProjects.length} project(s) assigned`,
+                        data: member
+                    });
+                }
+            });
+            
+            // Search by status
+            const statusMatches = projectData.filter(project => 
+                project.status.toLowerCase().includes(query)
+            );
+            if (statusMatches.length > 0 && query.length > 2) {
+                results.push({
+                    type: 'status',
+                    title: `Projects with status: "${query}"`,
+                    subtitle: `${statusMatches.length} project(s) found`,
+                    data: query
+                });
+            }
+            
+            // Search by priority
+            const priorityMatches = projectData.filter(project => 
+                project.priority.toLowerCase().includes(query)
+            );
+            if (priorityMatches.length > 0 && query.length > 2) {
+                results.push({
+                    type: 'priority',
+                    title: `${query.charAt(0).toUpperCase() + query.slice(1)} priority projects`,
+                    subtitle: `${priorityMatches.length} project(s) found`,
+                    data: query
+                });
+            }
+            
+            return results.slice(0, 8); // Limit to 8 results
+        }
+
+        function populateSearchDropdown(results) {
+            const dropdown = document.getElementById('autocompleteDropdown');
+            
+            if (results.length === 0) {
+                dropdown.innerHTML = '<div class="autocomplete-item">No results found</div>';
+                return;
+            }
+            
+            dropdown.innerHTML = results.map(result => {
+                const icon = getResultIcon(result.type);
+                return `
+                    <div class="autocomplete-item" onclick="selectAutocomplete('${result.type}', ${JSON.stringify(result.data).replace(/"/g, '&quot;')}, '${result.title.replace(/'/g, "\\'")}')">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.1rem;">${icon}</span>
+                            <div>
+                                <div style="font-weight: 600;">${result.title}</div>
+                                <div style="font-size: 0.8rem; color: #666;">${result.subtitle}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getResultIcon(type) {
+            switch(type) {
+                case 'project': return '📁';
+                case 'member': return '👤';
+                case 'status': return '📊';
+                case 'priority': return '⚡';
+                default: return '🔍';
+            }
+        }
+
+        function selectAutocomplete(type, data, title) {
+            document.getElementById('searchInput').value = title;
             document.getElementById('autocompleteDropdown').classList.remove('active');
+            
+            // Filter the table based on selection
+            filterTableBySearch(type, data);
+        }
+
+        function filterTableBySearch(type, data) {
+            const tableBody = document.getElementById('projectTableBody');
+            const rows = tableBody.querySelectorAll('tr');
+            
+            rows.forEach(row => {
+                let shouldShow = false;
+                
+                switch(type) {
+                    case 'project':
+                        const projectName = row.cells[0].textContent.trim();
+                        shouldShow = projectName === data.name;
+                        break;
+                    case 'member':
+                        const assignee = row.cells[4].textContent.trim();
+                        shouldShow = assignee === data;
+                        break;
+                    case 'status':
+                        const status = row.cells[1].textContent.trim();
+                        shouldShow = status.toLowerCase().includes(data.toLowerCase());
+                        break;
+                    case 'priority':
+                        const priority = row.cells[2].textContent.trim();
+                        shouldShow = priority.toLowerCase().includes(data.toLowerCase());
+                        break;
+                }
+                
+                row.style.display = shouldShow ? '' : 'none';
+            });
+            
+            // Show clear filter option
+            showClearFilterButton(true);
+        }
+
+        function showClearFilterButton(show) {
+            const searchContainer = document.querySelector('.search-container');
+            let clearBtn = searchContainer.querySelector('.clear-search-btn');
+            
+            if (show && !clearBtn) {
+                clearBtn = document.createElement('button');
+                clearBtn.className = 'clear-search-btn';
+                clearBtn.innerHTML = '✕';
+                clearBtn.style.cssText = `
+                    position: absolute;
+                    right: 10px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    background: #e53e3e;
+                    color: white;
+                    border: none;
+                    border-radius: 50%;
+                    width: 24px;
+                    height: 24px;
+                    cursor: pointer;
+                    font-size: 0.8rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                `;
+                clearBtn.onclick = clearSearchFilter;
+                searchContainer.appendChild(clearBtn);
+            } else if (!show && clearBtn) {
+                clearBtn.remove();
+            }
+        }
+
+        function clearSearchFilter() {
+            const tableBody = document.getElementById('projectTableBody');
+            const rows = tableBody.querySelectorAll('tr');
+            
+            rows.forEach(row => {
+                row.style.display = '';
+            });
+            
+            document.getElementById('searchInput').value = '';
+            showClearFilterButton(false);
         }
 
         function sortTable(columnIndex) {
