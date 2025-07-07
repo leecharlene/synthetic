@@ -62,6 +62,31 @@
             padding: 1.5rem;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             border: 1px solid #e1e8ed;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .widget:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            border-color: #3498db;
+        }
+
+        .widget::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #3498db, #2980b9, #1abc9c);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .widget:hover::before {
+            transform: scaleX(1);
         }
 
         .widget h3 {
@@ -151,26 +176,55 @@
         }
 
         .btn {
-            background: #3498db;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
             color: white;
-            padding: 10px 20px;
+            padding: 12px 24px;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 14px;
-            transition: background 0.3s;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
         }
 
         .btn:hover {
-            background: #2980b9;
+            background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(52, 152, 219, 0.3);
         }
 
         .btn-secondary {
-            background: #95a5a6;
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+            box-shadow: 0 2px 8px rgba(149, 165, 166, 0.2);
         }
 
         .btn-secondary:hover {
-            background: #7f8c8d;
+            background: linear-gradient(135deg, #7f8c8d 0%, #95a5a6 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(149, 165, 166, 0.3);
         }
 
         .search-container {
@@ -312,60 +366,162 @@
             padding: 20px;
             border: 2px dashed #ddd;
             border-radius: 8px;
-            text-align: center;
+            text-align: left;
             margin: 1rem 0;
-            transition: border-color 0.3s;
+            transition: all 0.3s ease;
+            min-height: 120px;
+            position: relative;
         }
 
         .drag-container.dragover {
             border-color: #3498db;
-            background: #f0f8ff;
+            background: linear-gradient(135deg, #f0f8ff 0%, #e3f2fd 100%);
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2);
+            transform: scale(1.02);
         }
 
         .draggable-item {
-            display: inline-block;
-            padding: 10px 15px;
-            background: #3498db;
+            display: block;
+            padding: 12px 20px 12px 40px;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
             color: white;
-            border-radius: 4px;
-            margin: 5px;
+            border-radius: 6px;
+            margin: 8px 0;
             cursor: move;
             user-select: none;
+            position: relative;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            border-left: 4px solid #2980b9;
+        }
+
+        .draggable-item::before {
+            content: '⋮⋮';
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            color: rgba(255,255,255,0.7);
+            line-height: 0.6;
+        }
+
+        .draggable-item:hover {
+            background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+            border-left-color: #1abc9c;
+        }
+
+        .draggable-item.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg) scale(1.05);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+
+        .drag-placeholder {
+            height: 48px;
+            background: rgba(52, 152, 219, 0.1);
+            border: 2px dashed #3498db;
+            border-radius: 6px;
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #3498db;
+            font-size: 14px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
         }
 
         .slider-container {
             margin: 1rem 0;
+            position: relative;
         }
 
         .slider {
             width: 100%;
-            height: 6px;
-            border-radius: 3px;
-            background: #ddd;
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(to right, #ddd 0%, #ddd 100%);
             outline: none;
-            opacity: 0.7;
-            transition: opacity 0.2s;
+            opacity: 0.8;
+            transition: all 0.3s ease;
+            position: relative;
         }
 
         .slider:hover {
             opacity: 1;
+            transform: scaleY(1.2);
         }
 
         .slider::-webkit-slider-thumb {
             appearance: none;
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
-            background: #3498db;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
             cursor: pointer;
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+            border: 3px solid white;
+            transition: all 0.3s ease;
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.5);
         }
 
         .slider::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
-            background: #3498db;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
             cursor: pointer;
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+            border: 3px solid white;
+            transition: all 0.3s ease;
+        }
+
+        .slider::-moz-range-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.5);
+        }
+
+        .slider-value {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2c3e50;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .slider-value::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 4px solid transparent;
+            border-top-color: #2c3e50;
+        }
+
+        .slider-container:hover .slider-value {
+            opacity: 1;
         }
 
         .shortcuts-info {
@@ -789,6 +945,7 @@ Project Requirements:
                 <label for="budget-slider">Budget Allocation: <span id="budget-value">50</span>%</label>
                 <div class="slider-container">
                     <input type="range" id="budget-slider" class="slider" min="0" max="100" value="50">
+                    <div class="slider-value" id="slider-tooltip">50%</div>
                 </div>
             </div>
 
@@ -932,10 +1089,26 @@ Project Requirements:
                 handleSearch(this.value);
             });
 
-            // Budget slider
-            document.getElementById('budget-slider').addEventListener('input', function() {
-                document.getElementById('budget-value').textContent = this.value;
+            // Budget slider with enhanced interactivity
+            const budgetSlider = document.getElementById('budget-slider');
+            const budgetValue = document.getElementById('budget-value');
+            const sliderTooltip = document.getElementById('slider-tooltip');
+            
+            budgetSlider.addEventListener('input', function() {
+                const value = this.value;
+                budgetValue.textContent = value;
+                sliderTooltip.textContent = value + '%';
+                
+                // Update slider background to show progress
+                const percentage = (value / 100) * 100;
+                this.style.background = `linear-gradient(to right, #3498db 0%, #3498db ${percentage}%, #ddd ${percentage}%, #ddd 100%)`;
             });
+            
+            // Initialize slider background
+            const initialValue = budgetSlider.value;
+            const initialPercentage = (initialValue / 100) * 100;
+            budgetSlider.style.background = `linear-gradient(to right, #3498db 0%, #3498db ${initialPercentage}%, #ddd ${initialPercentage}%, #ddd 100%)`;
+            sliderTooltip.textContent = initialValue + '%';
 
             // Date picker
             document.getElementById('start-date').addEventListener('click', function() {
@@ -1377,22 +1550,34 @@ Additional Notes:
             draggableItems.forEach(item => {
                 item.addEventListener('dragstart', function(e) {
                     draggedElement = this;
-                    this.style.opacity = '0.5';
+                    this.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/html', this.outerHTML);
                 });
                 
                 item.addEventListener('dragend', function(e) {
-                    this.style.opacity = '1';
+                    this.classList.remove('dragging');
                     draggedElement = null;
+                    removePlaceholder();
                 });
             });
             
             container.addEventListener('dragover', function(e) {
                 e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
                 this.classList.add('dragover');
+                
+                if (draggedElement) {
+                    const afterElement = getDragAfterElement(container, e.clientY);
+                    showPlaceholder(afterElement);
+                }
             });
             
             container.addEventListener('dragleave', function(e) {
-                this.classList.remove('dragover');
+                if (!container.contains(e.relatedTarget)) {
+                    this.classList.remove('dragover');
+                    removePlaceholder();
+                }
             });
             
             container.addEventListener('drop', function(e) {
@@ -1406,8 +1591,13 @@ Additional Notes:
                     } else {
                         container.insertBefore(draggedElement, afterElement);
                     }
+                    updatePriorityOrder();
                 }
+                removePlaceholder();
             });
+            
+            // Add touch support
+            initializeTouchDragAndDrop();
         }
 
         function getDragAfterElement(container, y) {
@@ -1425,29 +1615,120 @@ Additional Notes:
             }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
 
+        function showPlaceholder(afterElement) {
+            removePlaceholder();
+            const placeholder = document.createElement('div');
+            placeholder.className = 'drag-placeholder';
+            placeholder.textContent = 'Drop here';
+            placeholder.id = 'drag-placeholder';
+            
+            const container = document.getElementById('priority-container');
+            if (afterElement == null) {
+                container.appendChild(placeholder);
+            } else {
+                container.insertBefore(placeholder, afterElement);
+            }
+        }
+
+        function removePlaceholder() {
+            const placeholder = document.getElementById('drag-placeholder');
+            if (placeholder) {
+                placeholder.remove();
+            }
+        }
+
+        function updatePriorityOrder() {
+            const items = document.querySelectorAll('.draggable-item');
+            items.forEach((item, index) => {
+                item.dataset.priority = index + 1;
+            });
+        }
+
+        // Touch drag and drop support
+        function initializeTouchDragAndDrop() {
+            const draggableItems = document.querySelectorAll('.draggable-item');
+            let touchDraggedElement = null;
+            let touchStartY = 0;
+            let touchCurrentY = 0;
+            
+            draggableItems.forEach(item => {
+                item.addEventListener('touchstart', function(e) {
+                    touchDraggedElement = this;
+                    touchStartY = e.touches[0].clientY;
+                    this.classList.add('dragging');
+                });
+                
+                item.addEventListener('touchmove', function(e) {
+                    if (!touchDraggedElement) return;
+                    e.preventDefault();
+                    
+                    touchCurrentY = e.touches[0].clientY;
+                    const container = document.getElementById('priority-container');
+                    const afterElement = getDragAfterElement(container, touchCurrentY);
+                    showPlaceholder(afterElement);
+                });
+                
+                item.addEventListener('touchend', function(e) {
+                    if (!touchDraggedElement) return;
+                    
+                    const container = document.getElementById('priority-container');
+                    const afterElement = getDragAfterElement(container, touchCurrentY);
+                    
+                    if (afterElement == null) {
+                        container.appendChild(touchDraggedElement);
+                    } else {
+                        container.insertBefore(touchDraggedElement, afterElement);
+                    }
+                    
+                    touchDraggedElement.classList.remove('dragging');
+                    touchDraggedElement = null;
+                    removePlaceholder();
+                    updatePriorityOrder();
+                });
+            });
+        }
+
         // Utility functions
         function exportData() {
-            const data = {
-                projects: Array.from(document.querySelectorAll('#projects-table tbody tr')).map(row => ({
-                    name: row.cells[0].textContent,
-                    status: row.cells[1].textContent,
-                    deadline: row.cells[2].textContent,
-                    progress: row.cells[3].textContent
-                })),
-                document: document.getElementById('document-editor').innerHTML,
-                settings: {
-                    budget: document.getElementById('budget-slider').value,
-                    priorities: Array.from(document.querySelectorAll('.draggable-item')).map(item => item.textContent)
-                }
-            };
+            // Add visual feedback
+            const exportBtn = event.target;
+            const originalText = exportBtn.textContent;
+            exportBtn.textContent = 'Exporting...';
+            exportBtn.disabled = true;
             
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'synertech-data-export.json';
-            a.click();
-            URL.revokeObjectURL(url);
+            setTimeout(() => {
+                const data = {
+                    projects: Array.from(document.querySelectorAll('#projects-table tbody tr')).map(row => ({
+                        name: row.cells[0].textContent,
+                        status: row.cells[1].textContent,
+                        deadline: row.cells[2].textContent,
+                        progress: row.cells[3].textContent
+                    })),
+                    document: document.getElementById('document-editor').innerHTML,
+                    settings: {
+                        budget: document.getElementById('budget-slider').value,
+                        priorities: Array.from(document.querySelectorAll('.draggable-item')).map((item, index) => ({
+                            order: index + 1,
+                            task: item.textContent
+                        }))
+                    },
+                    exportDate: new Date().toISOString()
+                };
+                
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `synertech-data-export-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                exportBtn.textContent = 'Exported!';
+                setTimeout(() => {
+                    exportBtn.textContent = originalText;
+                    exportBtn.disabled = false;
+                }, 1000);
+            }, 500);
         }
 
     </script>
