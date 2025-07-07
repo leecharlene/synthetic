@@ -84,6 +84,29 @@
             justify-content: center;
         }
 
+        .clear-filter-btn {
+            position: absolute;
+            right: 3rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #e53e3e;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 1.5rem;
+            height: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .clear-filter-btn:hover {
+            background: #c53030;
+        }
+
         .filter-dropdown {
             position: relative;
         }
@@ -601,6 +624,7 @@
                 <div class="search-container autocomplete-container">
                     <input type="text" class="search-input" placeholder="Search tasks, projects, or team members..." id="searchInput">
                     <button class="search-btn" onclick="performSearch()">🔍</button>
+                    <button class="clear-filter-btn" onclick="clearFilter()" id="clearFilterBtn" style="display: none;">✕</button>
                     <div class="autocomplete-results" id="autocompleteResults"></div>
                 </div>
                 <div class="filter-dropdown">
@@ -1459,6 +1483,8 @@
 
         function selectSearchResult(type, data) {
             if (type === 'task') {
+                // Filter to show only the selected task
+                filterTasksBySearchResult([data]);
                 // Highlight the task
                 const taskElement = document.querySelector(`[data-task-id="${data.id}"]`);
                 if (taskElement) {
@@ -1468,9 +1494,13 @@
                         taskElement.style.transform = '';
                     }, 1000);
                 }
+            } else if (type === 'member') {
+                // Filter to show only tasks assigned to the selected member
+                const memberTasks = tasks.filter(task => task.assignee === data);
+                filterTasksBySearchResult(memberTasks);
             }
             document.getElementById('autocompleteResults').classList.remove('active');
-            document.getElementById('searchInput').value = '';
+            document.getElementById('searchInput').value = data.title || data;
         }
 
         function performSearch() {
@@ -1492,6 +1522,20 @@
                 
                 element.style.display = matches ? 'block' : 'none';
             });
+        }
+
+        function filterTasksBySearchResult(filteredTasks) {
+            const allTaskElements = document.querySelectorAll('.task-card');
+            const filteredTaskIds = filteredTasks.map(task => task.id);
+            
+            allTaskElements.forEach(element => {
+                const taskId = parseInt(element.dataset.taskId);
+                const shouldShow = filteredTaskIds.includes(taskId);
+                element.style.display = shouldShow ? 'block' : 'none';
+            });
+            
+            // Update the clear filter button visibility
+            showClearFilterButton(true);
         }
 
         function handleAssigneeInput(e) {
@@ -1591,6 +1635,25 @@
             document.getElementById('progressCount').textContent = counts['in-progress'];
             document.getElementById('reviewCount').textContent = counts.review;
             document.getElementById('doneCount').textContent = counts.done;
+        }
+
+        function clearFilter() {
+            // Show all tasks
+            const allTaskElements = document.querySelectorAll('.task-card');
+            allTaskElements.forEach(element => {
+                element.style.display = 'block';
+            });
+            
+            // Clear search input
+            document.getElementById('searchInput').value = '';
+            
+            // Hide clear filter button
+            showClearFilterButton(false);
+        }
+
+        function showClearFilterButton(show) {
+            const clearBtn = document.getElementById('clearFilterBtn');
+            clearBtn.style.display = show ? 'flex' : 'none';
         }
 
         // Add event listeners for drag over effects
