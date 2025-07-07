@@ -1600,7 +1600,513 @@ ORDER BY cohort_month;"></textarea>
         </div>
     </div>
 
+    <!-- Save Query Modal -->
+    <div class="dialog-overlay" id="saveQueryModal">
+        <div class="dialog" style="max-width: 600px;">
+            <h3>💾 Save Query</h3>
+            <div style="margin: 20px 0;">
+                <div class="form-group">
+                    <label class="form-label">Query Name *</label>
+                    <input type="text" class="form-input" id="saveQueryName" placeholder="Enter a descriptive name for your query">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-input" id="saveQueryDescription" placeholder="Optional description of what this query does" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select class="form-input" id="saveQueryCategory">
+                        <option value="">Select Category</option>
+                        <option value="analytics">📊 Analytics</option>
+                        <option value="reporting">📋 Reporting</option>
+                        <option value="maintenance">🔧 Maintenance</option>
+                        <option value="development">💻 Development</option>
+                        <option value="monitoring">📈 Monitoring</option>
+                        <option value="testing">🧪 Testing</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tags (comma separated)</label>
+                    <input type="text" class="form-input" id="saveQueryTags" placeholder="e.g., users, revenue, daily">
+                </div>
+            </div>
+            <div style="margin-top: 20px; text-align: right; display: flex; gap: 10px; justify-content: flex-end;">
+                <button class="btn btn-secondary" onclick="closeSaveQueryModal()">Cancel</button>
+                <button class="btn" onclick="confirmSaveQuery()">Save Query</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Query Modal -->
+    <div class="dialog-overlay" id="scheduleQueryModal">
+        <div class="dialog" style="max-width: 700px;">
+            <h3>⏰ Schedule Query</h3>
+            <div style="margin: 20px 0;">
+                <div class="input-row">
+                    <div class="form-group">
+                        <label class="form-label">Schedule Name *</label>
+                        <input type="text" class="form-input" id="scheduleQueryName" placeholder="Schedule name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Frequency *</label>
+                        <select class="form-input" id="scheduleFrequencySelect">
+                            <option value="once">⏰ Run Once</option>
+                            <option value="hourly">🕐 Every Hour</option>
+                            <option value="daily">📅 Daily</option>
+                            <option value="weekly">📆 Weekly</option>
+                            <option value="monthly">🗓️ Monthly</option>
+                            <option value="custom">⚙️ Custom CRON</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="input-row">
+                    <div class="form-group">
+                        <label class="form-label">Start Date & Time *</label>
+                        <input type="datetime-local" class="form-input" id="scheduleDateTime">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Time Zone</label>
+                        <select class="form-input" id="scheduleTimezone">
+                            <option value="UTC">🌍 UTC</option>
+                            <option value="America/New_York">🇺🇸 Eastern Time</option>
+                            <option value="America/Los_Angeles">🇺🇸 Pacific Time</option>
+                            <option value="Europe/London">🇬🇧 London Time</option>
+                            <option value="Europe/Berlin">🇩🇪 Berlin Time</option>
+                            <option value="Asia/Tokyo">🇯🇵 Tokyo Time</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email Recipients (comma separated)</label>
+                    <input type="text" class="form-input" id="scheduleEmailRecipients" placeholder="user1@company.com, user2@company.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Export Format</label>
+                    <select class="form-input" id="scheduleExportFormat">
+                        <option value="csv">📊 CSV</option>
+                        <option value="excel">📈 Excel (.xlsx)</option>
+                        <option value="json">📄 JSON</option>
+                        <option value="pdf">📋 PDF Report</option>
+                    </select>
+                </div>
+            </div>
+            <div style="margin-top: 20px; text-align: right; display: flex; gap: 10px; justify-content: flex-end;">
+                <button class="btn btn-secondary" onclick="closeScheduleQueryModal()">Cancel</button>
+                <button class="btn" onclick="confirmScheduleQuery()">Schedule Query</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Query Modal -->
+    <div class="dialog-overlay" id="shareQueryModal">
+        <div class="dialog" style="max-width: 650px;">
+            <h3>🔗 Share Query</h3>
+            <div style="margin: 20px 0;">
+                <div class="form-group">
+                    <label class="form-label">Share Via</label>
+                    <div style="display: flex; gap: 15px; margin-top: 10px;">
+                        <label style="display: flex; align-items: center; gap: 5px;">
+                            <input type="radio" name="shareMethod" value="link" checked>
+                            🔗 Generate Link
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 5px;">
+                            <input type="radio" name="shareMethod" value="email">
+                            📧 Send Email
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 5px;">
+                            <input type="radio" name="shareMethod" value="export">
+                            📤 Export & Share
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group" id="shareUrlSection">
+                    <label class="form-label">Shareable URL</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" class="form-input" id="shareUrl" readonly style="background: #f8f9fa;">
+                        <button class="btn btn-secondary" onclick="copyShareUrl()">📋 Copy</button>
+                    </div>
+                </div>
+                <div class="form-group" id="shareEmailSection" style="display: none;">
+                    <label class="form-label">Email Recipients</label>
+                    <input type="text" class="form-input" id="shareEmailRecipients" placeholder="Enter email addresses separated by commas">
+                    <div style="margin-top: 10px;">
+                        <label class="form-label">Message (optional)</label>
+                        <textarea class="form-input" id="shareEmailMessage" rows="3" placeholder="Add a message to your shared query..."></textarea>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Access Level</label>
+                    <select class="form-input" id="shareAccessLevel">
+                        <option value="view">👁️ View Only</option>
+                        <option value="execute">▶️ View & Execute</option>
+                        <option value="edit">✏️ View, Execute & Edit</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Expiry Date (optional)</label>
+                    <input type="date" class="form-input" id="shareExpiryDate">
+                </div>
+            </div>
+            <div style="margin-top: 20px; text-align: right; display: flex; gap: 10px; justify-content: flex-end;">
+                <button class="btn btn-secondary" onclick="closeShareQueryModal()">Cancel</button>
+                <button class="btn" onclick="confirmShareQuery()">Share Query</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Global modal functions (available before DOMContentLoaded)
+        function closeSaveQueryModal() {
+            const modal = document.getElementById('saveQueryModal');
+            if (modal) {
+                modal.style.display = 'none';
+                clearSaveQueryForm();
+            }
+        }
+        
+        function closeScheduleQueryModal() {
+            const modal = document.getElementById('scheduleQueryModal');
+            if (modal) {
+                modal.style.display = 'none';
+                clearScheduleQueryForm();
+            }
+        }
+        
+        function closeShareQueryModal() {
+            const modal = document.getElementById('shareQueryModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+        
+        function clearSaveQueryForm() {
+            const nameField = document.getElementById('saveQueryName');
+            const descField = document.getElementById('saveQueryDescription');
+            const categoryField = document.getElementById('saveQueryCategory');
+            const tagsField = document.getElementById('saveQueryTags');
+            
+            if (nameField) nameField.value = '';
+            if (descField) descField.value = '';
+            if (categoryField) categoryField.value = '';
+            if (tagsField) tagsField.value = '';
+        }
+        
+        function clearScheduleQueryForm() {
+            const nameField = document.getElementById('scheduleQueryName');
+            const frequencyField = document.getElementById('scheduleFrequencySelect');
+            const recipientsField = document.getElementById('scheduleEmailRecipients');
+            const formatField = document.getElementById('scheduleExportFormat');
+            
+            if (nameField) nameField.value = '';
+            if (frequencyField) frequencyField.value = 'once';
+            if (recipientsField) recipientsField.value = '';
+            if (formatField) formatField.value = 'csv';
+        }
+        
+        function confirmSaveQuery() {
+            const name = document.getElementById('saveQueryName').value.trim();
+            const description = document.getElementById('saveQueryDescription').value.trim();
+            const category = document.getElementById('saveQueryCategory').value;
+            const tags = document.getElementById('saveQueryTags').value.trim();
+            
+            if (!name) {
+                showDialog('Validation Error', 'Please enter a query name.');
+                return;
+            }
+            
+            // Simulate saving process
+            const savedQuery = {
+                id: 'QRY-' + Date.now(),
+                name,
+                description,
+                category,
+                tags: tags.split(',').map(tag => tag.trim()).filter(tag => tag),
+                query: document.getElementById('longQuery') ? document.getElementById('longQuery').value : '',
+                created_at: new Date().toISOString(),
+                author: 'Current User'
+            };
+            
+            // Close modal first
+            closeSaveQueryModal();
+            
+            // Show success message
+            showDialog('Query Saved', `Query "${name}" has been saved successfully with ID: ${savedQuery.id}`);
+            
+            // Log the saved query (in real app, this would be sent to server)
+            console.log('Saved Query:', savedQuery);
+        }
+        
+        function confirmScheduleQuery() {
+            const name = document.getElementById('scheduleQueryName').value.trim();
+            const frequency = document.getElementById('scheduleFrequencySelect').value;
+            const dateTime = document.getElementById('scheduleDateTime').value;
+            const timezone = document.getElementById('scheduleTimezone').value;
+            const recipients = document.getElementById('scheduleEmailRecipients').value.trim();
+            const exportFormat = document.getElementById('scheduleExportFormat').value;
+            
+            if (!name) {
+                showDialog('Validation Error', 'Please enter a schedule name.');
+                return;
+            }
+            
+            if (!dateTime) {
+                showDialog('Validation Error', 'Please select a date and time.');
+                return;
+            }
+            
+            const schedule = {
+                id: 'SCH-' + Date.now(),
+                name,
+                frequency,
+                dateTime,
+                timezone,
+                recipients: recipients.split(',').map(email => email.trim()).filter(email => email),
+                exportFormat,
+                query: document.getElementById('longQuery') ? document.getElementById('longQuery').value : '',
+                created_at: new Date().toISOString()
+            };
+            
+            // Close modal
+            closeScheduleQueryModal();
+            
+            // Show success message
+            const formattedDate = new Date(dateTime).toLocaleString();
+            const frequencyText = frequency === 'once' ? 'once' : `${frequency}`;
+            showDialog('Query Scheduled', `Query "${name}" has been scheduled to run ${frequencyText} starting ${formattedDate} (${timezone})`);
+            
+            console.log('Scheduled Query:', schedule);
+        }
+        
+        function confirmShareQuery() {
+            const shareMethod = document.querySelector('input[name="shareMethod"]:checked').value;
+            const accessLevel = document.getElementById('shareAccessLevel').value;
+            const expiryDate = document.getElementById('shareExpiryDate').value;
+            
+            let shareData = {
+                method: shareMethod,
+                accessLevel,
+                expiryDate,
+                query: document.getElementById('longQuery') ? document.getElementById('longQuery').value : '',
+                shared_at: new Date().toISOString()
+            };
+            
+            if (shareMethod === 'email') {
+                const recipients = document.getElementById('shareEmailRecipients').value.trim();
+                const message = document.getElementById('shareEmailMessage').value.trim();
+                
+                if (!recipients) {
+                    showDialog('Validation Error', 'Please enter at least one email recipient.');
+                    return;
+                }
+                
+                shareData.recipients = recipients.split(',').map(email => email.trim());
+                shareData.message = message;
+                
+                closeShareQueryModal();
+                showDialog('Query Shared', `Query has been shared via email to ${shareData.recipients.length} recipient(s).`);
+            } else if (shareMethod === 'link') {
+                const shareUrl = document.getElementById('shareUrl').value;
+                shareData.shareUrl = shareUrl;
+                
+                closeShareQueryModal();
+                showDialog('Share Link Created', `Query share link has been generated. The link has been copied to your clipboard.`);
+                
+                // Copy URL again
+                copyShareUrl();
+            } else if (shareMethod === 'export') {
+                closeShareQueryModal();
+                showDialog('Export & Share', 'Query will be exported and shared according to your settings.');
+                
+                // Trigger export process
+                setTimeout(() => {
+                    handleExportResults();
+                }, 1000);
+            }
+            
+            console.log('Share Data:', shareData);
+        }
+        
+        function copyShareUrl() {
+            const shareUrl = document.getElementById('shareUrl');
+            shareUrl.select();
+            shareUrl.setSelectionRange(0, 99999); // For mobile devices
+            
+            try {
+                document.execCommand('copy');
+                showDialog('URL Copied', 'Share URL has been copied to your clipboard!');
+            } catch (err) {
+                showDialog('Copy Failed', 'Failed to copy URL. Please copy manually.');
+            }
+        }
+        
+        function showDialog(title, message) {
+            const dialogOverlay = document.getElementById('dialogOverlay');
+            const dialogTitle = document.getElementById('dialogTitle');
+            const dialogMessage = document.getElementById('dialogMessage');
+            
+            if (dialogTitle) dialogTitle.textContent = title;
+            if (dialogMessage) dialogMessage.textContent = message;
+            if (dialogOverlay) dialogOverlay.style.display = 'flex';
+        }
+        
+        // Export Results Functionality
+        function handleExportResults() {
+            const format = document.getElementById('exportFormat').value;
+            const emailRecipient = document.getElementById('emailRecipient').value;
+            
+            // Simulate export process
+            const progressFill = document.getElementById('progressFill');
+            let progress = 0;
+            
+            showDialog('Export Started', `Starting export in ${format.toUpperCase()} format...`);
+            
+            const interval = setInterval(() => {
+                progress += 15;
+                progressFill.style.width = progress + '%';
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    
+                    // Simulate file download
+                    const fileName = `query_results_${new Date().toISOString().split('T')[0]}.${format === 'excel' ? 'xlsx' : format}`;
+                    
+                    // Create a download link simulation
+                    const downloadMessage = emailRecipient ? 
+                        `Export completed! File sent to ${emailRecipient} and download started.` :
+                        `Export completed! Download started: ${fileName}`;
+                    
+                    setTimeout(() => {
+                        showDialog('Export Successful', downloadMessage);
+                        progressFill.style.width = '0%';
+                        
+                        // Simulate file download
+                        if (!emailRecipient) {
+                            simulateFileDownload(fileName, format);
+                        }
+                    }, 1000);
+                }
+            }, 300);
+        }
+
+        function simulateFileDownload(fileName, format) {
+            // Create sample data based on the table
+            const sampleData = generateSampleExportData(format);
+            
+            if (format === 'json') {
+                downloadFile(JSON.stringify(sampleData, null, 2), fileName, 'application/json');
+            } else if (format === 'csv') {
+                const csvContent = convertToCSV(sampleData);
+                downloadFile(csvContent, fileName, 'text/csv');
+            } else {
+                // For Excel, PDF, XML - show download notification
+                console.log(`${format.toUpperCase()} file would be downloaded: ${fileName}`);
+            }
+        }
+
+        function generateSampleExportData(format) {
+            return [
+                {
+                    id: 'PRJ-001',
+                    project_name: 'Enterprise License Platform',
+                    category: 'Software',
+                    amount: 12500.00,
+                    date: '2024-01-15',
+                    status: 'Active',
+                    region: 'US-West',
+                    customer: 'TechCorp Inc.',
+                    priority: 'High',
+                    progress: '85%'
+                },
+                {
+                    id: 'PRJ-002',
+                    project_name: 'Analytics Platform Deployment',
+                    category: 'Analytics',
+                    amount: 8750.00,
+                    date: '2024-01-14',
+                    status: 'Processing',
+                    region: 'EU-Central',
+                    customer: 'DataSolutions Ltd',
+                    priority: 'Medium',
+                    progress: '67%'
+                }
+                // Add more sample data as needed
+            ];
+        }
+
+        function convertToCSV(data) {
+            if (!data.length) return '';
+            
+            const headers = Object.keys(data[0]);
+            const csvContent = [
+                headers.join(','),
+                ...data.map(row => headers.map(header => `"${row[header]}"`).join(','))
+            ].join('\\n');
+            
+            return csvContent;
+        }
+
+        function downloadFile(content, fileName, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        function openSaveQueryModal() {
+            document.getElementById('saveQueryModal').style.display = 'flex';
+            
+            // Auto-populate query name based on query type if possible
+            const queryType = document.getElementById('queryType');
+            const queryName = document.getElementById('queryNameInput');
+            
+            if (queryName && queryName.value) {
+                document.getElementById('saveQueryName').value = queryName.value;
+            } else if (queryType && queryType.value) {
+                const typeName = document.querySelector(`#queryType option[value="${queryType.value}"]`).textContent;
+                document.getElementById('saveQueryName').value = typeName;
+            }
+        }
+
+        function openScheduleQueryModal() {
+            document.getElementById('scheduleQueryModal').style.display = 'flex';
+            
+            // Set default datetime to tomorrow at 9 AM
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            tomorrow.setHours(9, 0, 0, 0);
+            document.getElementById('scheduleDateTime').value = tomorrow.toISOString().slice(0, 16);
+        }
+
+        function openShareQueryModal() {
+            document.getElementById('shareQueryModal').style.display = 'flex';
+            generateShareUrl();
+        }
+
+        function generateShareUrl() {
+            // Generate a unique share URL
+            const queryId = 'QRY-' + Date.now();
+            const shareUrl = `https://dataflow.enterprise.com/shared/query/${queryId}?token=${Math.random().toString(36).substr(2, 9)}`;
+            document.getElementById('shareUrl').value = shareUrl;
+        }
+
+        function handleShareMethodChange(method) {
+            const urlSection = document.getElementById('shareUrlSection');
+            const emailSection = document.getElementById('shareEmailSection');
+            
+            if (method === 'email') {
+                urlSection.style.display = 'none';
+                emailSection.style.display = 'block';
+            } else {
+                urlSection.style.display = 'block';
+                emailSection.style.display = 'none';
+            }
+        }
+
         // Interactive functionality
         document.addEventListener('DOMContentLoaded', function() {
             // Filter tags functionality
@@ -1639,8 +2145,36 @@ ORDER BY cohort_month;"></textarea>
             const dialogOverlay = document.getElementById('dialogOverlay');
             const dialogClose = document.getElementById('dialogClose');
             
-            dialogClose.addEventListener('click', function() {
-                dialogOverlay.style.display = 'none';
+            if (dialogClose) {
+                dialogClose.addEventListener('click', function() {
+                    dialogOverlay.style.display = 'none';
+                });
+            }
+            
+            // Close modals when clicking outside
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('dialog-overlay')) {
+                    e.target.style.display = 'none';
+                }
+            });
+            
+            // Prevent modal from closing when clicking inside
+            document.querySelectorAll('.dialog').forEach(dialog => {
+                dialog.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            });
+            
+            // Close modals with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const openModals = document.querySelectorAll('.dialog-overlay');
+                    openModals.forEach(modal => {
+                        if (modal.style.display === 'flex') {
+                            modal.style.display = 'none';
+                        }
+                    });
+                }
             });
 
             // Button functionality
@@ -1661,6 +2195,30 @@ ORDER BY cohort_month;"></textarea>
             // Result filtering
             document.getElementById('resultFilter').addEventListener('input', function() {
                 filterResults(this.value);
+            });
+
+            // Export & Actions functionality
+            document.getElementById('exportResults').addEventListener('click', function() {
+                handleExportResults();
+            });
+
+            document.getElementById('saveQuery').addEventListener('click', function() {
+                openSaveQueryModal();
+            });
+
+            document.getElementById('scheduleQuery').addEventListener('click', function() {
+                openScheduleQueryModal();
+            });
+
+            document.getElementById('shareQuery').addEventListener('click', function() {
+                openShareQueryModal();
+            });
+
+            // Share method radio buttons
+            document.addEventListener('change', function(e) {
+                if (e.target.name === 'shareMethod') {
+                    handleShareMethodChange(e.target.value);
+                }
             });
 
             // Pagination functionality
@@ -1793,11 +2351,6 @@ ORDER BY cohort_month;"></textarea>
                 });
             }
 
-            function showDialog(title, message) {
-                document.getElementById('dialogTitle').textContent = title;
-                document.getElementById('dialogMessage').textContent = message;
-                dialogOverlay.style.display = 'flex';
-            }
 
             function generateCalendar() {
                 const grid = document.getElementById('calendarGrid');
@@ -1821,6 +2374,7 @@ ORDER BY cohort_month;"></textarea>
                     row.style.display = text.includes(query.toLowerCase()) ? '' : 'none';
                 });
             }
+
         });
     </script>
 </body>
