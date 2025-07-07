@@ -464,6 +464,53 @@
             }
         }
 
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #2196f3;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        }
+
+        .task-modal-content {
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: background-color 0.2s ease;
+        }
+
+        .checkbox-label:hover {
+            background-color: #f8f9fa;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            margin: 0;
+        }
+
         .scrollbar-custom::-webkit-scrollbar {
             width: 8px;
         }
@@ -1074,7 +1121,7 @@
 
             <div class="widget">
                 <h4>Quick Actions</h4>
-                <button class="btn" onclick="openModal()" style="width: 100%; margin-bottom: 1rem;">
+                <button class="btn" onclick="openTaskModal()" style="width: 100%; margin-bottom: 1rem;">
                     Add New Task
                 </button>
                 <button class="btn btn-secondary" onclick="generateReport()" style="width: 100%; margin-bottom: 1rem;">
@@ -1344,7 +1391,124 @@
         </aside>
     </div>
 
-    <!-- Modal Dialog -->
+    <!-- Task Creation Modal -->
+    <div class="modal" id="taskModal">
+        <div class="modal-content" style="max-width: 600px; max-height: 90vh; overflow-y: auto;">
+            <button class="close-modal" onclick="closeTaskModal()">&times;</button>
+            <h3>Create New Task</h3>
+            <form id="taskCreationForm" onsubmit="submitTask(event)">
+                <div class="form-group">
+                    <label class="form-label" for="taskTitle">Task Title *</label>
+                    <input type="text" class="form-input" id="taskTitle" name="taskTitle" required placeholder="Enter task title...">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="taskDescription">Description</label>
+                    <textarea class="form-input" id="taskDescription" name="taskDescription" rows="3" placeholder="Describe the task in detail..."></textarea>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label" for="taskPriority">Priority Level *</label>
+                        <select class="form-select" id="taskPriority" name="taskPriority" required>
+                            <option value="">Select Priority</option>
+                            <option value="low">🟢 Low</option>
+                            <option value="medium">🟡 Medium</option>
+                            <option value="high">🟠 High</option>
+                            <option value="critical">🔴 Critical</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="taskCategory">Category</label>
+                        <select class="form-select" id="taskCategory" name="taskCategory">
+                            <option value="">Select Category</option>
+                            <option value="development">💻 Development</option>
+                            <option value="design">🎨 Design</option>
+                            <option value="testing">🧪 Testing</option>
+                            <option value="documentation">📚 Documentation</option>
+                            <option value="research">🔍 Research</option>
+                            <option value="meeting">👥 Meeting</option>
+                            <option value="review">📋 Review</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label" for="taskAssignee">Assign To</label>
+                        <select class="form-select" id="taskAssignee" name="taskAssignee">
+                            <option value="">Select Team Member</option>
+                            <option value="sarah-chen">Sarah Chen - Tech Lead</option>
+                            <option value="marcus-johnson">Marcus Johnson - Backend Dev</option>
+                            <option value="elena-rodriguez">Elena Rodriguez - Frontend Dev</option>
+                            <option value="david-kim">David Kim - Data Scientist</option>
+                            <option value="amanda-foster">Amanda Foster - UX Designer</option>
+                            <option value="robert-chang">Robert Chang - DevOps Engineer</option>
+                            <option value="lisa-thompson">Lisa Thompson - QA Engineer</option>
+                            <option value="james-wilson">James Wilson - Product Manager</option>
+                            <option value="michael-torres">Michael Torres - Senior Architect</option>
+                            <option value="jennifer-liu">Jennifer Liu - Security Specialist</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="taskProject">Related Project</label>
+                        <select class="form-select" id="taskProject" name="taskProject">
+                            <option value="">Select Project</option>
+                            <option value="ecommerce">E-commerce Platform Upgrade</option>
+                            <option value="mobile-audit">Mobile App Security Audit</option>
+                            <option value="ai-engine">AI Recommendation Engine</option>
+                            <option value="portal-redesign">Customer Portal Redesign</option>
+                            <option value="api-gateway">API Gateway Implementation</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label" for="taskDueDate">Due Date</label>
+                        <input type="date" class="form-input" id="taskDueDate" name="taskDueDate">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="taskEstimate">Time Estimate (hours)</label>
+                        <input type="number" class="form-input" id="taskEstimate" name="taskEstimate" min="0.5" step="0.5" placeholder="e.g., 8">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="taskTags">Tags (comma separated)</label>
+                    <input type="text" class="form-input" id="taskTags" name="taskTags" placeholder="e.g., frontend, urgent, bug-fix">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Task Dependencies</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="dependencies" value="design-approval"> 🎨 Design Approval
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="dependencies" value="api-ready"> 🔌 API Ready
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="dependencies" value="testing-env"> 🧪 Testing Environment
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="dependencies" value="stakeholder-approval"> ✅ Stakeholder Approval
+                        </label>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeTaskModal()">Cancel</button>
+                    <button type="submit" class="btn">Create Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Project Creation Modal -->
     <div class="modal" id="modal">
         <div class="modal-content">
             <button class="close-modal" onclick="closeModal()">&times;</button>
@@ -2215,6 +2379,162 @@
 
         function exportData() {
             alert('Exporting project data to CSV...');
+        }
+
+        // Task Creation Modal Functions
+        function openTaskModal() {
+            document.getElementById('taskModal').classList.add('active');
+            // Set default due date to tomorrow
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('taskDueDate').value = formatDate(tomorrow);
+        }
+
+        function closeTaskModal() {
+            document.getElementById('taskModal').classList.remove('active');
+            document.getElementById('taskCreationForm').reset();
+            clearValidationErrors();
+        }
+
+        function submitTask(event) {
+            event.preventDefault();
+            
+            if (validateTaskForm()) {
+                const formData = new FormData(event.target);
+                const taskData = {
+                    title: formData.get('taskTitle'),
+                    description: formData.get('taskDescription'),
+                    priority: formData.get('taskPriority'),
+                    category: formData.get('taskCategory'),
+                    assignee: formData.get('taskAssignee'),
+                    project: formData.get('taskProject'),
+                    dueDate: formData.get('taskDueDate'),
+                    estimate: formData.get('taskEstimate'),
+                    tags: formData.get('taskTags').split(',').map(tag => tag.trim()).filter(tag => tag),
+                    dependencies: Array.from(document.querySelectorAll('input[name="dependencies"]:checked')).map(cb => cb.value)
+                };
+                
+                showTaskSuccess(taskData);
+                closeTaskModal();
+            }
+        }
+
+        function validateTaskForm() {
+            clearValidationErrors();
+            let isValid = true;
+            
+            // Required field validation
+            const requiredFields = ['taskTitle', 'taskPriority'];
+            requiredFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (!field.value.trim()) {
+                    showFieldError(field, 'This field is required');
+                    isValid = false;
+                }
+            });
+            
+            // Title length validation
+            const title = document.getElementById('taskTitle').value.trim();
+            if (title.length > 0 && title.length < 3) {
+                showFieldError(document.getElementById('taskTitle'), 'Title must be at least 3 characters');
+                isValid = false;
+            }
+            
+            // Due date validation (not in the past)
+            const dueDate = document.getElementById('taskDueDate').value;
+            if (dueDate) {
+                const due = new Date(dueDate);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                if (due < today) {
+                    showFieldError(document.getElementById('taskDueDate'), 'Due date cannot be in the past');
+                    isValid = false;
+                }
+            }
+            
+            // Time estimate validation
+            const estimate = document.getElementById('taskEstimate').value;
+            if (estimate && (estimate < 0.5 || estimate > 200)) {
+                showFieldError(document.getElementById('taskEstimate'), 'Estimate must be between 0.5 and 200 hours');
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+
+        function showFieldError(field, message) {
+            field.style.borderColor = '#f56565';
+            field.style.backgroundColor = '#fed7d7';
+            
+            // Remove existing error message
+            const existingError = field.parentNode.querySelector('.error-message');
+            if (existingError) {
+                existingError.remove();
+            }
+            
+            // Add error message
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.style.color = '#c53030';
+            errorDiv.style.fontSize = '0.8rem';
+            errorDiv.style.marginTop = '0.25rem';
+            errorDiv.textContent = message;
+            field.parentNode.appendChild(errorDiv);
+        }
+
+        function clearValidationErrors() {
+            const formInputs = document.querySelectorAll('#taskCreationForm .form-input, #taskCreationForm .form-select');
+            formInputs.forEach(input => {
+                input.style.borderColor = '#ddd';
+                input.style.backgroundColor = '';
+            });
+            
+            const errorMessages = document.querySelectorAll('#taskCreationForm .error-message');
+            errorMessages.forEach(error => error.remove());
+        }
+
+        function showTaskSuccess(taskData) {
+            // Create a success notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #48bb78;
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 8px;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+                z-index: 2000;
+                max-width: 400px;
+                animation: slideIn 0.3s ease;
+            `;
+            
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 1.2rem;">✅</span>
+                    <div>
+                        <strong>Task Created Successfully!</strong>
+                        <div style="font-size: 0.9rem; margin-top: 0.25rem;">
+                            "${taskData.title}" has been added to the project.
+                        </div>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" 
+                            style="background: none; border: none; color: white; cursor: pointer; font-size: 1.2rem; margin-left: auto;">×</button>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 5000);
+            
+            // Log task data (in real app, this would be sent to server)
+            console.log('New task created:', taskData);
         }
 
         // Add some dynamic behavior to simulate real application
