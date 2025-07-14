@@ -215,6 +215,18 @@
             color: #667eea;
         }
 
+        .performance-rating-text {
+            text-align: center;
+            margin-top: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            display: inline-block;
+            min-width: 150px;
+        }
+
         .file-upload {
             border: 2px dashed #ccc;
             border-radius: 6px;
@@ -505,6 +517,7 @@
                     <div class="slider-container">
                         <input type="range" id="performance-rating" name="performance-rating" min="1" max="10" value="7" class="slider" data-action="change" data-subtask="slider-interaction">
                         <div class="slider-value" id="performance-value">7/10</div>
+                        <div class="performance-rating-text" id="performance-rating-text">Good Performance</div>
                     </div>
                 </div>
 
@@ -1030,6 +1043,8 @@
                         displayValue = '$' + parseInt(value).toLocaleString();
                     } else if (slider.id === 'performance-rating') {
                         displayValue = value + '/10';
+                        // Update performance rating text
+                        updatePerformanceRatingText(parseInt(value));
                     } else if (slider.id === 'report-frequency') {
                         displayValue = 'Every ' + value + ' days';
                     }
@@ -1039,7 +1054,76 @@
                     }
                 });
             });
+            
+            // Initialize performance rating text on page load
+            const performanceSlider = document.getElementById('performance-rating');
+            if (performanceSlider) {
+                updatePerformanceRatingText(parseInt(performanceSlider.value));
+            }
         });
+
+        // Performance rating text update function
+        function updatePerformanceRatingText(rating) {
+            const ratingElement = document.getElementById('performance-rating-text');
+            if (!ratingElement) return;
+            
+            let text = '';
+            let backgroundColor = '';
+            let textColor = '#fff';
+            
+            switch(rating) {
+                case 1:
+                    text = 'Poor Performance';
+                    backgroundColor = '#dc3545';
+                    break;
+                case 2:
+                    text = 'Below Average';
+                    backgroundColor = '#fd7e14';
+                    break;
+                case 3:
+                    text = 'Needs Improvement';
+                    backgroundColor = '#ffc107';
+                    textColor = '#212529';
+                    break;
+                case 4:
+                    text = 'Fair Performance';
+                    backgroundColor = '#ffc107';
+                    textColor = '#212529';
+                    break;
+                case 5:
+                    text = 'Average Performance';
+                    backgroundColor = '#6c757d';
+                    break;
+                case 6:
+                    text = 'Above Average';
+                    backgroundColor = '#0dcaf0';
+                    textColor = '#212529';
+                    break;
+                case 7:
+                    text = 'Good Performance';
+                    backgroundColor = '#198754';
+                    break;
+                case 8:
+                    text = 'Very Good';
+                    backgroundColor = '#198754';
+                    break;
+                case 9:
+                    text = 'Excellent Performance';
+                    backgroundColor = '#0d6efd';
+                    break;
+                case 10:
+                    text = 'Outstanding Performance';
+                    backgroundColor = '#6f42c1';
+                    break;
+                default:
+                    text = 'Good Performance';
+                    backgroundColor = '#198754';
+            }
+            
+            ratingElement.textContent = text;
+            ratingElement.style.backgroundColor = backgroundColor;
+            ratingElement.style.color = textColor;
+        }
 
         // Form submission handling
         document.addEventListener('DOMContentLoaded', function() {
