@@ -1,0 +1,1568 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Resource Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .header p {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 15px 20px;
+            background: #ecf0f1;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            data-action: "tab_click";
+        }
+
+        .nav-tab:hover {
+            background: #d5dbdb;
+        }
+
+        .nav-tab.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-col {
+            flex: 1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ecf0f1;
+            border-radius: 5px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .btn {
+            background: #3498db;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .file-upload {
+            border: 2px dashed #bdc3c7;
+            padding: 40px;
+            text-align: center;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload:hover {
+            border-color: #3498db;
+            background: #f8f9fa;
+        }
+
+        .slider-container {
+            margin: 20px 0;
+        }
+
+        .slider {
+            width: 100%;
+            height: 10px;
+            border-radius: 5px;
+            background: #ecf0f1;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3498db;
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3498db;
+            cursor: pointer;
+            border: none;
+        }
+
+        .slider-value {
+            text-align: center;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .data-table th, .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .data-table th:hover {
+            background: #e9ecef;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .search-container {
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 300px;
+            padding: 10px;
+            border: 2px solid #ecf0f1;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .filter-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #ecf0f1;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #3498db;
+            transition: width 0.3s ease;
+        }
+
+        .notification {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .notification.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .notification.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .drag-drop-area {
+            border: 2px dashed #bdc3c7;
+            padding: 40px;
+            text-align: center;
+            border-radius: 10px;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+        }
+
+        .drag-drop-area:hover {
+            border-color: #3498db;
+            background: #f8f9fa;
+        }
+
+        .drag-drop-area.dragover {
+            border-color: #27ae60;
+            background: #d5f4e6;
+        }
+
+        .subtabs {
+            display: flex;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .subtab {
+            flex: 1;
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .subtab:hover {
+            background: #e9ecef;
+        }
+
+        .subtab.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .subtab-content {
+            display: none;
+        }
+
+        .subtab-content.active {
+            display: block;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .date-picker {
+            position: relative;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .expense-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+        }
+
+        .project-card {
+            background: #fff;
+            border: 1px solid #ecf0f1;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 10px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .filter-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Enterprise Resource Management System</h1>
+            <p>Comprehensive business management solution for modern enterprises</p>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" data-action="tab_click" data-subtask="navigation" onclick="showTab('employee')">Employee Management</button>
+            <button class="nav-tab" data-action="tab_click" data-subtask="navigation" onclick="showTab('expense')">Expense Reports</button>
+            <button class="nav-tab" data-action="tab_click" data-subtask="navigation" onclick="showTab('project')">Project Management</button>
+            <button class="nav-tab" data-action="tab_click" data-subtask="navigation" onclick="showTab('analytics')">Analytics Dashboard</button>
+        </div>
+
+        <!-- Employee Management Tab -->
+        <div id="employee" class="tab-content active">
+            <h2>Employee Management</h2>
+            
+            <div class="subtabs">
+                <button class="subtab active" data-action="subtab_click" data-subtask="navigation" onclick="showSubtab('employee', 'profile')">Employee Profile</button>
+                <button class="subtab" data-action="subtab_click" data-subtask="navigation" onclick="showSubtab('employee', 'directory')">Employee Directory</button>
+                <button class="subtab" data-action="subtab_click" data-subtask="navigation" onclick="showSubtab('employee', 'performance')">Performance Review</button>
+            </div>
+
+            <div id="employee-profile" class="subtab-content active">
+                <form id="employeeForm" data-action="form_submit" data-subtask="form_completion">
+                    <div class="form-row">
+                        <div class="form-col">
+                            <label for="firstName">First Name *</label>
+                            <input type="text" id="firstName" name="firstName" data-action="text_input" data-subtask="form_fill" required>
+                        </div>
+                        <div class="form-col">
+                            <label for="lastName">Last Name *</label>
+                            <input type="text" id="lastName" name="lastName" data-action="text_input" data-subtask="form_fill" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-col">
+                            <label for="email">Email Address *</label>
+                            <input type="email" id="email" name="email" data-action="text_input" data-subtask="form_fill" required>
+                        </div>
+                        <div class="form-col">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" data-action="text_input" data-subtask="form_fill">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-col">
+                            <label for="department">Department *</label>
+                            <select id="department" name="department" data-action="dropdown_select" data-subtask="form_fill" required>
+                                <option value="">Select Department</option>
+                                <option value="engineering">Engineering</option>
+                                <option value="marketing">Marketing</option>
+                                <option value="sales">Sales</option>
+                                <option value="hr">Human Resources</option>
+                                <option value="finance">Finance</option>
+                                <option value="operations">Operations</option>
+                            </select>
+                        </div>
+                        <div class="form-col">
+                            <label for="position">Position *</label>
+                            <select id="position" name="position" data-action="dropdown_select" data-subtask="form_fill" required>
+                                <option value="">Select Position</option>
+                                <option value="manager">Manager</option>
+                                <option value="senior">Senior</option>
+                                <option value="junior">Junior</option>
+                                <option value="intern">Intern</option>
+                                <option value="director">Director</option>
+                                <option value="vp">Vice President</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-col">
+                            <label for="startDate">Start Date *</label>
+                            <input type="date" id="startDate" name="startDate" data-action="date_select" data-subtask="form_fill" required>
+                        </div>
+                        <div class="form-col">
+                            <label for="salary">Annual Salary</label>
+                            <input type="number" id="salary" name="salary" data-action="number_input" data-subtask="form_fill" min="0">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Employment Type *</label>
+                        <div class="radio-group">
+                            <div class="radio-item">
+                                <input type="radio" id="fullTime" name="employmentType" value="fullTime" data-action="radio_select" data-subtask="form_fill" required>
+                                <label for="fullTime">Full-time</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="partTime" name="employmentType" value="partTime" data-action="radio_select" data-subtask="form_fill" required>
+                                <label for="partTime">Part-time</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="contract" name="employmentType" value="contract" data-action="radio_select" data-subtask="form_fill" required>
+                                <label for="contract">Contract</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Skills & Certifications</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="javascript" name="skills" value="javascript" data-action="checkbox_select" data-subtask="form_fill">
+                                <label for="javascript">JavaScript</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="python" name="skills" value="python" data-action="checkbox_select" data-subtask="form_fill">
+                                <label for="python">Python</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="projectManagement" name="skills" value="projectManagement" data-action="checkbox_select" data-subtask="form_fill">
+                                <label for="projectManagement">Project Management</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="dataAnalysis" name="skills" value="dataAnalysis" data-action="checkbox_select" data-subtask="form_fill">
+                                <label for="dataAnalysis">Data Analysis</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="workloadCapacity">Workload Capacity (Hours per week)</label>
+                        <div class="slider-container">
+                            <input type="range" id="workloadCapacity" name="workloadCapacity" min="20" max="60" value="40" class="slider" data-action="slider_drag" data-subtask="form_fill" oninput="updateSliderValue('workloadCapacity', this.value)">
+                            <div class="slider-value" id="workloadCapacityValue">40 hours</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notes">Additional Notes</label>
+                        <textarea id="notes" name="notes" rows="4" data-action="textarea_input" data-subtask="form_fill" placeholder="Enter any additional notes about the employee..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Profile Picture</label>
+                        <div class="file-upload" onclick="document.getElementById('profilePicture').click()" data-action="file_upload_click" data-subtask="file_upload">
+                            <input type="file" id="profilePicture" name="profilePicture" accept="image/*" style="display: none;" data-action="file_select" data-subtask="file_upload">
+                            <p>Click to upload profile picture</p>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn" data-action="form_submit" data-subtask="form_completion">Save Employee</button>
+                    <button type="button" class="btn btn-secondary" data-action="form_reset" data-subtask="form_action" onclick="resetForm('employeeForm')">Reset Form</button>
+                </form>
+            </div>
+
+            <div id="employee-directory" class="subtab-content">
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Search employees..." id="employeeSearch" data-action="search_input" data-subtask="search_filter" onkeyup="filterEmployees()">
+                </div>
+
+                <div class="filter-container">
+                    <select id="departmentFilter" data-action="dropdown_select" data-subtask="search_filter" onchange="filterEmployees()">
+                        <option value="">All Departments</option>
+                        <option value="engineering">Engineering</option>
+                        <option value="marketing">Marketing</option>
+                        <option value="sales">Sales</option>
+                        <option value="hr">Human Resources</option>
+                        <option value="finance">Finance</option>
+                    </select>
+
+                    <select id="positionFilter" data-action="dropdown_select" data-subtask="search_filter" onchange="filterEmployees()">
+                        <option value="">All Positions</option>
+                        <option value="manager">Manager</option>
+                        <option value="senior">Senior</option>
+                        <option value="junior">Junior</option>
+                        <option value="director">Director</option>
+                    </select>
+                </div>
+
+                <table class="data-table" id="employeeTable">
+                    <thead>
+                        <tr>
+                            <th data-action="column_sort" data-subtask="table_sort" onclick="sortTable('employeeTable', 0)">Name</th>
+                            <th data-action="column_sort" data-subtask="table_sort" onclick="sortTable('employeeTable', 1)">Email</th>
+                            <th data-action="column_sort" data-subtask="table_sort" onclick="sortTable('employeeTable', 2)">Department</th>
+                            <th data-action="column_sort" data-subtask="table_sort" onclick="sortTable('employeeTable', 3)">Position</th>
+                            <th data-action="column_sort" data-subtask="table_sort" onclick="sortTable('employeeTable', 4)">Start Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>John Smith</td>
+                            <td>john.smith@company.com</td>
+                            <td>Engineering</td>
+                            <td>Senior</td>
+                            <td>2022-01-15</td>
+                            <td>
+                                <button class="btn btn-secondary" data-action="row_edit" data-subtask="table_action">Edit</button>
+                                <button class="btn btn-danger" data-action="row_delete" data-subtask="table_action">Delete</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Sarah Johnson</td>
+                            <td>sarah.johnson@company.com</td>
+                            <td>Marketing</td>
+                            <td>Manager</td>
+                            <td>2021-08-20</td>
+                            <td>
+                                <button class="btn btn-secondary" data-action="row_edit" data-subtask="table_action">Edit</button>
+                                <button class="btn btn-danger" data-action="row_delete" data-subtask="table_action">Delete</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Michael Chen</td>
+                            <td>michael.chen@company.com</td>
+                            <td>Sales</td>
+                            <td>Director</td>
+                            <td>2020-03-10</td>
+                            <td>
+                                <button class="btn btn-secondary" data-action="row_edit" data-subtask="table_action">Edit</button>
+                                <button class="btn btn-danger" data-action="row_delete" data-subtask="table_action">Delete</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="employee-performance" class="subtab-content">
+                <h3>Performance Review</h3>
+                <form id="performanceForm">
+                    <div class="form-row">
+                        <div class="form-col">
+                            <label for="reviewEmployee">Select Employee</label>
+                            <select id="reviewEmployee" data-action="dropdown_select" data-subtask="form_fill">
+                                <option value="">Select Employee</option>
+                                <option value="john">John Smith</option>
+                                <option value="sarah">Sarah Johnson</option>
+                                <option value="michael">Michael Chen</option>
+                            </select>
+                        </div>
+                        <div class="form-col">
+                            <label for="reviewPeriod">Review Period</label>
+                            <select id="reviewPeriod" data-action="dropdown_select" data-subtask="form_fill">
+                                <option value="">Select Period</option>
+                                <option value="q1-2024">Q1 2024</option>
+                                <option value="q2-2024">Q2 2024</option>
+                                <option value="q3-2024">Q3 2024</option>
+                                <option value="q4-2024">Q4 2024</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="overallRating">Overall Performance Rating</label>
+                        <div class="slider-container">
+                            <input type="range" id="overallRating" min="1" max="5" value="3" class="slider" data-action="slider_drag" data-subtask="form_fill" oninput="updateSliderValue('overallRating', this.value)">
+                            <div class="slider-value" id="overallRatingValue">3 out of 5</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reviewComments">Review Comments</label>
+                        <textarea id="reviewComments" rows="6" data-action="textarea_input" data-subtask="form_fill" placeholder="Enter detailed performance review comments..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn" data-action="form_submit" data-subtask="form_completion">Save Review</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Expense Reports Tab -->
+        <div id="expense" class="tab-content">
+            <h2>Expense Reports</h2>
+            
+            <div class="subtabs">
+                <button class="subtab active" data-action="subtab_click" data-subtask="navigation" onclick="showSubtab('expense', 'create')">Create Expense</button>
+                <button class="subtab" data-action="subtab_click" data-subtask="navigation" onclick="showSubtab('expense', 'reports')">View Reports</button>
+                <button class="subtab" data-action="subtab_click" data-subtask="navigation" onclick="showSubtab('expense', 'approval')">Approval Queue</button>
+            </div>
+
+            <div id="expense-create" class="subtab-content active">
+                <form id="expenseForm">
+                    <div class="form-row">
+                        <div class="form-col">
+                            <label for="expenseTitle">Expense Title *</label>
+                            <input type="text" id="expenseTitle" data-action="text_input" data-subtask="form_fill" required>
+                        </div>
+                        <div class="form-col">
+                            <label for="expenseDate">Date *</label>
+                            <input type="date" id="expenseDate" data-action="date_select" data-subtask="form_fill" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-col">
+                            <label for="expenseCategory">Category *</label>
+                            <select id="expenseCategory" data-action="dropdown_select" data-subtask="form_fill" required>
+                                <option value="">Select Category</option>
+                                <option value="travel">Travel</option>
+                                <option value="meals">Meals & Entertainment</option>
+                                <option value="office">Office Supplies</option>
+                                <option value="software">Software & Subscriptions</option>
+                                <option value="training">Training & Development</option>
+                                <option value="equipment">Equipment</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-col">
+                            <label for="expenseAmount">Amount *</label>
+                            <input type="number" id="expenseAmount" data-action="number_input" data-subtask="form_fill" step="0.01" min="0" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="expenseDescription">Description</label>
+                        <textarea id="expenseDescription" rows="3" data-action="textarea_input" data-subtask="form_fill" placeholder="Describe the expense..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Payment Method</label>
+                        <div class="radio-group">
+                            <div class="radio-item">
+                                <input type="radio" id="personalCard" name="paymentMethod" value="personal" data-action="radio_select" data-subtask="form_fill">
+                                <label for="personalCard">Personal Card</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="companyCard" name="paymentMethod" value="company" data-action="radio_select" data-subtask="form_fill">
+                                <label for="companyCard">Company Card</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="cash" name="paymentMethod" value="cash" data-action="radio_select" data-subtask="form_fill">
+                                <label for="cash">Cash</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Expense Urgency</label>
+                        <div class="slider-container">
+                            <input type="range" id="expenseUrgency" min="1" max="5" value="3" class="slider" data-action="slider_drag" data-subtask="form_fill" oninput="updateSliderValue('expenseUrgency', this.value)">
+                            <div class="slider-value" id="expenseUrgencyValue">3 - Normal</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Receipt Upload</label>
+                        <div class="drag-drop-area" id="receiptDropArea" data-action="drag_drop" data-subtask="file_upload">
+                            <input type="file" id="receiptFile" accept="image/*,.pdf" style="display: none;" data-action="file_select" data-subtask="file_upload">
+                            <p>Drag and drop receipt here or click to browse</p>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn" data-action="form_submit" data-subtask="form_completion">Submit Expense</button>
+                    <button type="button" class="btn btn-secondary" data-action="form_reset" data-subtask="form_action" onclick="resetForm('expenseForm')">Reset</button>
+                </form>
+            </div>
+
+            <div id="expense-reports" class="subtab-content">
+                <div class="filter-container">
+                    <input type="text" class="search-input" placeholder="Search expenses..." id="expenseSearch" data-action="search_input" data-subtask="search_filter">
+                    <select id="categoryFilter" data-action="dropdown_select" data-subtask="search_filter">
+                        <option value="">All Categories</option>
+                        <option value="travel">Travel</option>
+                        <option value="meals">Meals</option>
+                        <option value="office">Office Supplies</option>
+                        <option value="software">Software</option>
+                    </select>
+                    <select id="statusFilter" data-action="dropdown_select" data-subtask="search_filter">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+
+                <div class="expense-item">
+                    <h4>Business Travel - NYC Conference</h4>
+                    <p><strong>Date:</strong> 2024-01-15 | <strong>Amount:</strong> $1,250.00 | <strong>Category:</strong> Travel</p>
+                    <p><strong>Status:</strong> <span style="color: #f39c12;">Pending</span></p>
+                    <button class="btn btn-secondary" data-action="expense_view" data-subtask="item_action">View Details</button>
+                    <button class="btn btn-danger" data-action="expense_delete" data-subtask="item_action">Delete</button>
+                </div>
+
+                <div class="expense-item">
+                    <h4>Office Supplies - Q4 2023</h4>
+                    <p><strong>Date:</strong> 2023-12-20 | <strong>Amount:</strong> $350.75 | <strong>Category:</strong> Office Supplies</p>
+                    <p><strong>Status:</strong> <span style="color: #27ae60;">Approved</span></p>
+                    <button class="btn btn-secondary" data-action="expense_view" data-subtask="item_action">View Details</button>
+                    <button class="btn btn-danger" data-action="expense_delete" data-subtask="item_action">Delete</button>
+                </div>
+
+                <div class="expense-item">
+                    <h4>Client Dinner - Project Kickoff</h4>
+                    <p><strong>Date:</strong> 2024-01-10 | <strong>Amount:</strong> $180.50 | <strong>Category:</strong> Meals</p>
+                    <p><strong>Status:</strong> <span style="color: #e74c3c;">Rejected</span></p>
+                    <button class="btn btn-secondary" data-action="expense_view" data-subtask="item_action">View Details</button>
+                    <button class="btn btn-danger" data-action="expense_delete" data-subtask="item_action">Delete</button>
+                </div>
+            </div>
+
+            <div id="expense-approval" class="subtab-content">
+                <h3>Expense Approval Queue</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th data-action="column_sort" data-subtask="table_sort">Employee</th>
+                            <th data-action="column_sort" data-subtask="table_sort">Expense Title</th>
+                            <th data-action="column_sort" data-subtask="table_sort">Amount</th>
+                            <th data-action="column_sort" data-subtask="table_sort">Date</th>
+                            <th data-action="column_sort" data-subtask="table_sort">Category</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>John Smith</td>
+                            <td>Software License Renewal</td>
+                            <td>$500.00</td>
+                            <td>2024-01-22</td>
+                            <td>Software</td>
+                            <td>
+                                <button class="btn" data-action="approve_expense" data-subtask="approval_action">Approve</button>
+                                <button class="btn btn-danger" data-action="reject_expense" data-subtask="approval_action">Reject</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Sarah Johnson</td>
+                            <td>Marketing Conference</td>
+                            <td>$890.00</td>
+                            <td>2024-01-20</td>
+                            <td>Training</td>
+                            <td>
+                                <button class="btn" data-action="approve_expense" data-subtask="approval_action">Approve</button>
+                                <button class="btn btn-danger" data-action="reject_expense" data-subtask="approval_action">Reject</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Project Management Tab -->
+        <div id="project" class="tab-content">
+            <h2>Project Management</h2>
+            
+            <div class="subtabs">
+                <button class="subtab active" data-action="subtab_click" data-subtask="navigation" onclick="showSubtab('project', 'create')">Create Project</button>
+                <button class="subtab" data-action="subtab_click" data-subtask="navigation" onclick="showSubtab('project', 'dashboard')">Project Dashboard</button>
+                <button class="subtab" data-action="subtab_click" data-subtask="navigation" onclick="showSubtab('project', 'tasks')">Task Management</button>
+            </div>
+
+            <div id="project-create" class="subtab-content active">
+                <form id="projectForm">
+                    <div class="form-row">
+                        <div class="form-col">
+                            <label for="projectName">Project Name *</label>
+                            <input type="text" id="projectName" data-action="text_input" data-subtask="form_fill" required>
+                        </div>
+                        <div class="form-col">
+                            <label for="projectManager">Project Manager *</label>
+                            <select id="projectManager" data-action="dropdown_select" data-subtask="form_fill" required>
+                                <option value="">Select Manager</option>
+                                <option value="john">John Smith</option>
+                                <option value="sarah">Sarah Johnson</option>
+                                <option value="michael">Michael Chen</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-col">
+                            <label for="startDate">Start Date *</label>
+                            <input type="date" id="startDate" data-action="date_select" data-subtask="form_fill" required>
+                        </div>
+                        <div class="form-col">
+                            <label for="endDate">End Date *</label>
+                            <input type="date" id="endDate" data-action="date_select" data-subtask="form_fill" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-col">
+                            <label for="projectBudget">Budget ($)</label>
+                            <input type="number" id="projectBudget" data-action="number_input" data-subtask="form_fill" min="0" step="100">
+                        </div>
+                        <div class="form-col">
+                            <label for="projectPriority">Priority</label>
+                            <select id="projectPriority" data-action="dropdown_select" data-subtask="form_fill">
+                                <option value="low">Low</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="high">High</option>
+                                <option value="critical">Critical</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="projectDescription">Project Description</label>
+                        <textarea id="projectDescription" rows="4" data-action="textarea_input" data-subtask="form_fill" placeholder="Describe the project objectives and scope..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Project Type</label>
+                        <div class="radio-group">
+                            <div class="radio-item">
+                                <input type="radio" id="internal" name="projectType" value="internal" data-action="radio_select" data-subtask="form_fill">
+                                <label for="internal">Internal</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="client" name="projectType" value="client" data-action="radio_select" data-subtask="form_fill">
+                                <label for="client">Client Project</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="research" name="projectType" value="research" data-action="radio_select" data-subtask="form_fill">
+                                <label for="research">Research & Development</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Required Skills</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="webDev" name="skills" value="webDev" data-action="checkbox_select" data-subtask="form_fill">
+                                <label for="webDev">Web Development</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="uiDesign" name="skills" value="uiDesign" data-action="checkbox_select" data-subtask="form_fill">
+                                <label for="uiDesign">UI/UX Design</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="dataScience" name="skills" value="dataScience" data-action="checkbox_select" data-subtask="form_fill">
+                                <label for="dataScience">Data Science</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="marketing" name="skills" value="marketing" data-action="checkbox_select" data-subtask="form_fill">
+                                <label for="marketing">Marketing</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="projectComplexity">Project Complexity</label>
+                        <div class="slider-container">
+                            <input type="range" id="projectComplexity" min="1" max="10" value="5" class="slider" data-action="slider_drag" data-subtask="form_fill" oninput="updateSliderValue('projectComplexity', this.value)">
+                            <div class="slider-value" id="projectComplexityValue">5 - Medium</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Project Documents</label>
+                        <div class="drag-drop-area" id="projectDocsArea" data-action="drag_drop" data-subtask="file_upload">
+                            <input type="file" id="projectDocs" multiple accept=".pdf,.doc,.docx,.xls,.xlsx" style="display: none;" data-action="file_select" data-subtask="file_upload">
+                            <p>Drag and drop project documents here or click to browse</p>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn" data-action="form_submit" data-subtask="form_completion">Create Project</button>
+                    <button type="button" class="btn btn-secondary" data-action="form_reset" data-subtask="form_action" onclick="resetForm('projectForm')">Reset</button>
+                </form>
+            </div>
+
+            <div id="project-dashboard" class="subtab-content">
+                <div class="filter-container">
+                    <input type="text" class="search-input" placeholder="Search projects..." id="projectSearch" data-action="search_input" data-subtask="search_filter">
+                    <select id="projectStatusFilter" data-action="dropdown_select" data-subtask="search_filter">
+                        <option value="">All Status</option>
+                        <option value="planning">Planning</option>
+                        <option value="active">Active</option>
+                        <option value="completed">Completed</option>
+                        <option value="on-hold">On Hold</option>
+                    </select>
+                    <select id="priorityFilter" data-action="dropdown_select" data-subtask="search_filter">
+                        <option value="">All Priorities</option>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                        <option value="critical">Critical</option>
+                    </select>
+                </div>
+
+                <div class="project-card">
+                    <h4>E-commerce Platform Redesign</h4>
+                    <p><strong>Manager:</strong> Sarah Johnson | <strong>Status:</strong> <span style="color: #27ae60;">Active</span></p>
+                    <p><strong>Progress:</strong></p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 65%"></div>
+                    </div>
+                    <p>65% Complete | Budget: $50,000 | Due: March 15, 2024</p>
+                    <button class="btn btn-secondary" data-action="project_view" data-subtask="item_action">View Details</button>
+                    <button class="btn" data-action="project_edit" data-subtask="item_action">Edit</button>
+                </div>
+
+                <div class="project-card">
+                    <h4>Customer Analytics Dashboard</h4>
+                    <p><strong>Manager:</strong> Michael Chen | <strong>Status:</strong> <span style="color: #f39c12;">Planning</span></p>
+                    <p><strong>Progress:</strong></p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 25%"></div>
+                    </div>
+                    <p>25% Complete | Budget: $35,000 | Due: April 30, 2024</p>
+                    <button class="btn btn-secondary" data-action="project_view" data-subtask="item_action">View Details</button>
+                    <button class="btn" data-action="project_edit" data-subtask="item_action">Edit</button>
+                </div>
+
+                <div class="project-card">
+                    <h4>Mobile App Development</h4>
+                    <p><strong>Manager:</strong> John Smith | <strong>Status:</strong> <span style="color: #3498db;">Completed</span></p>
+                    <p><strong>Progress:</strong></p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%"></div>
+                    </div>
+                    <p>100% Complete | Budget: $75,000 | Completed: January 20, 2024</p>
+                    <button class="btn btn-secondary" data-action="project_view" data-subtask="item_action">View Details</button>
+                    <button class="btn" data-action="project_edit" data-subtask="item_action">Edit</button>
+                </div>
+            </div>
+
+            <div id="project-tasks" class="subtab-content">
+                <h3>Task Management</h3>
+                
+                <div class="form-row">
+                    <div class="form-col">
+                        <label for="taskProject">Select Project</label>
+                        <select id="taskProject" data-action="dropdown_select" data-subtask="form_fill">
+                            <option value="">Select Project</option>
+                            <option value="ecommerce">E-commerce Platform Redesign</option>
+                            <option value="analytics">Customer Analytics Dashboard</option>
+                            <option value="mobile">Mobile App Development</option>
+                        </select>
+                    </div>
+                    <div class="form-col">
+                        <label for="taskStatus">Task Status</label>
+                        <select id="taskStatus" data-action="dropdown_select" data-subtask="search_filter">
+                            <option value="">All Tasks</option>
+                            <option value="todo">To Do</option>
+                            <option value="inprogress">In Progress</option>
+                            <option value="review">In Review</option>
+                            <option value="done">Done</option>
+                        </select>
+                    </div>
+                </div>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th data-action="column_sort" data-subtask="table_sort">Task Name</th>
+                            <th data-action="column_sort" data-subtask="table_sort">Assigned To</th>
+                            <th data-action="column_sort" data-subtask="table_sort">Priority</th>
+                            <th data-action="column_sort" data-subtask="table_sort">Due Date</th>
+                            <th data-action="column_sort" data-subtask="table_sort">Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Design Homepage Mockup</td>
+                            <td>Sarah Johnson</td>
+                            <td>High</td>
+                            <td>2024-02-15</td>
+                            <td>In Progress</td>
+                            <td>
+                                <button class="btn btn-secondary" data-action="task_edit" data-subtask="table_action">Edit</button>
+                                <button class="btn btn-danger" data-action="task_delete" data-subtask="table_action">Delete</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Implement User Authentication</td>
+                            <td>John Smith</td>
+                            <td>Critical</td>
+                            <td>2024-02-20</td>
+                            <td>To Do</td>
+                            <td>
+                                <button class="btn btn-secondary" data-action="task_edit" data-subtask="table_action">Edit</button>
+                                <button class="btn btn-danger" data-action="task_delete" data-subtask="table_action">Delete</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Database Schema Design</td>
+                            <td>Michael Chen</td>
+                            <td>Medium</td>
+                            <td>2024-02-10</td>
+                            <td>Done</td>
+                            <td>
+                                <button class="btn btn-secondary" data-action="task_edit" data-subtask="table_action">Edit</button>
+                                <button class="btn btn-danger" data-action="task_delete" data-subtask="table_action">Delete</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Analytics Dashboard Tab -->
+        <div id="analytics" class="tab-content">
+            <h2>Analytics Dashboard</h2>
+            
+            <div class="subtabs">
+                <button class="subtab active" data-action="subtab_click" data-subtask="navigation" onclick="showSubtab('analytics', 'overview')">Overview</button>
+                <button class="subtab" data-action="subtab_click" data-subtask="navigation" onclick="showSubtab('analytics', 'reports')">Reports</button>
+                <button class="subtab" data-action="subtab_click" data-subtask="navigation" onclick="showSubtab('analytics', 'export')">Data Export</button>
+            </div>
+
+            <div id="analytics-overview" class="subtab-content active">
+                <div class="filter-container">
+                    <label for="dateRange">Date Range:</label>
+                    <select id="dateRange" data-action="dropdown_select" data-subtask="filter_selection">
+                        <option value="7days">Last 7 Days</option>
+                        <option value="30days">Last 30 Days</option>
+                        <option value="90days">Last 90 Days</option>
+                        <option value="1year">Last Year</option>
+                        <option value="custom">Custom Range</option>
+                    </select>
+                    
+                    <label for="department">Department:</label>
+                    <select id="department" data-action="dropdown_select" data-subtask="filter_selection">
+                        <option value="all">All Departments</option>
+                        <option value="engineering">Engineering</option>
+                        <option value="marketing">Marketing</option>
+                        <option value="sales">Sales</option>
+                        <option value="hr">Human Resources</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="budgetThreshold">Budget Alert Threshold</label>
+                    <div class="slider-container">
+                        <input type="range" id="budgetThreshold" min="10000" max="100000" value="50000" step="5000" class="slider" data-action="slider_drag" data-subtask="analytics_config" oninput="updateSliderValue('budgetThreshold', this.value)">
+                        <div class="slider-value" id="budgetThresholdValue">$50,000</div>
+                    </div>
+                </div>
+
+                <div class="project-card">
+                    <h4>Key Performance Indicators</h4>
+                    <p><strong>Total Projects:</strong> 12 | <strong>Active Projects:</strong> 8 | <strong>Completed This Month:</strong> 3</p>
+                    <p><strong>Total Budget Allocated:</strong> $450,000 | <strong>Budget Used:</strong> $298,750 (66.4%)</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 66.4%"></div>
+                    </div>
+                </div>
+
+                <div class="project-card">
+                    <h4>Employee Performance Summary</h4>
+                    <p><strong>Total Employees:</strong> 45 | <strong>Performance Reviews Completed:</strong> 38</p>
+                    <p><strong>Average Performance Rating:</strong> 4.2/5.0</p>
+                    <button class="btn btn-secondary" data-action="analytics_drill" data-subtask="analytics_action">View Detailed Report</button>
+                </div>
+            </div>
+
+            <div id="analytics-reports" class="subtab-content">
+                <h3>Generate Reports</h3>
+                <form id="reportForm">
+                    <div class="form-row">
+                        <div class="form-col">
+                            <label for="reportType">Report Type</label>
+                            <select id="reportType" data-action="dropdown_select" data-subtask="form_fill">
+                                <option value="">Select Report Type</option>
+                                <option value="employee">Employee Performance</option>
+                                <option value="project">Project Status</option>
+                                <option value="expense">Expense Analysis</option>
+                                <option value="budget">Budget Overview</option>
+                                <option value="productivity">Productivity Metrics</option>
+                            </select>
+                        </div>
+                        <div class="form-col">
+                            <label for="reportFormat">Format</label>
+                            <select id="reportFormat" data-action="dropdown_select" data-subtask="form_fill">
+                                <option value="pdf">PDF</option>
+                                <option value="excel">Excel</option>
+                                <option value="csv">CSV</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-col">
+                            <label for="reportStartDate">Start Date</label>
+                            <input type="date" id="reportStartDate" data-action="date_select" data-subtask="form_fill">
+                        </div>
+                        <div class="form-col">
+                            <label for="reportEndDate">End Date</label>
+                            <input type="date" id="reportEndDate" data-action="date_select" data-subtask="form_fill">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Include Sections</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="summary" name="sections" value="summary" data-action="checkbox_select" data-subtask="form_fill" checked>
+                                <label for="summary">Executive Summary</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="details" name="sections" value="details" data-action="checkbox_select" data-subtask="form_fill" checked>
+                                <label for="details">Detailed Analysis</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="charts" name="sections" value="charts" data-action="checkbox_select" data-subtask="form_fill">
+                                <label for="charts">Charts & Graphs</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="recommendations" name="sections" value="recommendations" data-action="checkbox_select" data-subtask="form_fill">
+                                <label for="recommendations">Recommendations</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn" data-action="report_generate" data-subtask="form_completion">Generate Report</button>
+                    <button type="button" class="btn btn-secondary" data-action="report_preview" data-subtask="form_action">Preview Report</button>
+                </form>
+            </div>
+
+            <div id="analytics-export" class="subtab-content">
+                <h3>Data Export</h3>
+                
+                <div class="form-group">
+                    <label for="exportTable">Select Data to Export</label>
+                    <select id="exportTable" data-action="dropdown_select" data-subtask="form_fill">
+                        <option value="">Select Data Table</option>
+                        <option value="employees">Employee Directory</option>
+                        <option value="projects">Project List</option>
+                        <option value="expenses">Expense Reports</option>
+                        <option value="tasks">Task Management</option>
+                        <option value="performance">Performance Reviews</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="exportFormat">Export Format</label>
+                    <select id="exportFormat" data-action="dropdown_select" data-subtask="form_fill">
+                        <option value="csv">CSV</option>
+                        <option value="excel">Excel (XLSX)</option>
+                        <option value="json">JSON</option>
+                        <option value="xml">XML</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Export Options</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="includeHeaders" name="exportOptions" value="headers" data-action="checkbox_select" data-subtask="form_fill" checked>
+                            <label for="includeHeaders">Include Column Headers</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="includeTimestamp" name="exportOptions" value="timestamp" data-action="checkbox_select" data-subtask="form_fill">
+                            <label for="includeTimestamp">Include Timestamp</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="compressFile" name="exportOptions" value="compress" data-action="checkbox_select" data-subtask="form_fill">
+                            <label for="compressFile">Compress File</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="maxRecords">Maximum Records to Export</label>
+                    <div class="slider-container">
+                        <input type="range" id="maxRecords" min="100" max="10000" value="1000" step="100" class="slider" data-action="slider_drag" data-subtask="form_fill" oninput="updateSliderValue('maxRecords', this.value)">
+                        <div class="slider-value" id="maxRecordsValue">1,000 records</div>
+                    </div>
+                </div>
+
+                <button type="button" class="btn" data-action="data_export" data-subtask="export_action">Export Data</button>
+                <button type="button" class="btn btn-secondary" data-action="export_schedule" data-subtask="export_action">Schedule Export</button>
+            </div>
+        </div>
+
+        <!-- Notifications -->
+        <div id="notification" class="notification"></div>
+
+        <!-- Loading Indicator -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Processing your request...</p>
+        </div>
+    </div>
+
+    <script>
+        // Tab Management
+        function showTab(tabName) {
+            // Hide all tab contents
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Remove active class from all nav tabs
+            const navTabs = document.querySelectorAll('.nav-tab');
+            navTabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked nav tab
+            event.target.classList.add('active');
+        }
+
+        // Subtab Management
+        function showSubtab(parentTab, subtabName) {
+            // Hide all subtab contents for this parent tab
+            const subtabs = document.querySelectorAll(`#${parentTab} .subtab-content`);
+            subtabs.forEach(subtab => subtab.classList.remove('active'));
+            
+            // Remove active class from all subtabs
+            const subtabButtons = document.querySelectorAll(`#${parentTab} .subtab`);
+            subtabButtons.forEach(button => button.classList.remove('active'));
+            
+            // Show selected subtab
+            document.getElementById(`${parentTab}-${subtabName}`).classList.add('active');
+            
+            // Add active class to clicked subtab
+            event.target.classList.add('active');
+        }
+
+        // Slider Value Updates
+        function updateSliderValue(sliderId, value) {
+            const valueElement = document.getElementById(sliderId + 'Value');
+            switch(sliderId) {
+                case 'workloadCapacity':
+                    valueElement.textContent = `${value} hours`;
+                    break;
+                case 'overallRating':
+                    valueElement.textContent = `${value} out of 5`;
+                    break;
+                case 'expenseUrgency':
+                    const urgencyLabels = ['', 'Very Low', 'Low', 'Normal', 'High', 'Critical'];
+                    valueElement.textContent = `${value} - ${urgencyLabels[value]}`;
+                    break;
+                case 'projectComplexity':
+                    const complexityLabels = ['', 'Very Simple', 'Simple', 'Easy', 'Medium-Easy', 'Medium', 'Medium-Hard', 'Hard', 'Complex', 'Very Complex', 'Extremely Complex'];
+                    valueElement.textContent = `${value} - ${complexityLabels[value]}`;
+                    break;
+                case 'budgetThreshold':
+                    valueElement.textContent = `$${parseInt(value).toLocaleString()}`;
+                    break;
+                case 'maxRecords':
+                    valueElement.textContent = `${parseInt(value).toLocaleString()} records`;
+                    break;
+            }
+        }
+
+        // Form Reset
+        function resetForm(formId) {
+            const form = document.getElementById(formId);
+            form.reset();
+            // Reset slider values
+            const sliders = form.querySelectorAll('.slider');
+            sliders.forEach(slider => {
+                slider.value = slider.getAttribute('value') || slider.min;
+                updateSliderValue(slider.id, slider.value);
+            });
+        }
+
+        // Table Sorting
+        function sortTable(tableId, columnIndex) {
+            const table = document.getElementById(tableId);
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            // Toggle sort direction
+            const isAscending = table.getAttribute('data-sort-direction') !== 'asc';
+            table.setAttribute('data-sort-direction', isAscending ? 'asc' : 'desc');
+            
+            rows.sort((a, b) => {
+                const aValue = a.cells[columnIndex].textContent.trim();
+                const bValue = b.cells[columnIndex].textContent.trim();
+                
+                if (isAscending) {
+                    return aValue.localeCompare(bValue, undefined, { numeric: true });
+                } else {
+                    return bValue.localeCompare(aValue, undefined, { numeric: true });
+                }
+            });
+            
+            // Rebuild tbody
+            tbody.innerHTML = '';
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        // Search/Filter Functions
+        function filterEmployees() {
+            const searchTerm = document.getElementById('employeeSearch').value.toLowerCase();
+            const departmentFilter = document.getElementById('departmentFilter').value;
+            const positionFilter = document.getElementById('positionFilter').value;
+            
+            const table = document.getElementById('employeeTable');
+            const rows = table.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                const name = row.cells[0].textContent.toLowerCase();
+                const email = row.cells[1].textContent.toLowerCase();
+                const department = row.cells[2].textContent.toLowerCase();
+                const position = row.cells[3].textContent.toLowerCase();
+                
+                const matchesSearch = name.includes(searchTerm) || email.includes(searchTerm);
+                const matchesDepartment = !departmentFilter || department === departmentFilter;
+                const matchesPosition = !positionFilter || position === positionFilter;
+                
+                if (matchesSearch && matchesDepartment && matchesPosition) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // File Upload Handling
+        function setupFileUpload() {
+            const fileUploadAreas = document.querySelectorAll('.file-upload, .drag-drop-area');
+            
+            fileUploadAreas.forEach(area => {
+                area.addEventListener('click', function() {
+                    const input = this.querySelector('input[type="file"]');
+                    if (input) input.click();
+                });
+                
+                area.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.classList.add('dragover');
+                });
+                
+                area.addEventListener('dragleave', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('dragover');
+                });
+                
+                area.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('dragover');
+                    const files = e.dataTransfer.files;
+                    handleFiles(files);
+                });
+            });
+        }
+
+        function handleFiles(files) {
+            for (let file of files) {
+                console.log('File uploaded:', file.name);
+                showNotification('File uploaded successfully: ' + file.name, 'success');
+            }
+        }
+
+        // Notification System
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+
+        // Loading State
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        // Form Submissions
+        document.addEventListener('DOMContentLoaded', function() {
+            setupFileUpload();
+            
+            // Handle form submissions
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    showLoading();
+                    
+                    setTimeout(() => {
+                        hideLoading();
+                        showNotification('Form submitted successfully!', 'success');
+                        
+                        // Reset form after submission
+                        if (this.id !== 'reportForm') {
+                            resetForm(this.id);
+                        }
+                    }, 1500);
+                });
+            });
+            
+            // Handle button clicks
+            document.addEventListener('click', function(e) {
+                if (e.target.matches('[data-action="approve_expense"]')) {
+                    showNotification('Expense approved successfully!', 'success');
+                    e.target.closest('tr').style.opacity = '0.6';
+                }
+                
+                if (e.target.matches('[data-action="reject_expense"]')) {
+                    showNotification('Expense rejected.', 'error');
+                    e.target.closest('tr').style.opacity = '0.6';
+                }
+                
+                if (e.target.matches('[data-action="row_delete"]')) {
+                    if (confirm('Are you sure you want to delete this item?')) {
+                        e.target.closest('tr').remove();
+                        showNotification('Item deleted successfully!', 'success');
+                    }
+                }
+                
+                if (e.target.matches('[data-action="data_export"]')) {
+                    showLoading();
+                    setTimeout(() => {
+                        hideLoading();
+                        showNotification('Data exported successfully!', 'success');
+                    }, 2000);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
