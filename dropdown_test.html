@@ -1,0 +1,1454 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Resource Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .tab-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .tab-nav {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 1rem 2rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #6c757d;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tab-btn:hover {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            background: white;
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 2rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .dropdown-container {
+            position: relative;
+        }
+
+        .dropdown-search {
+            position: relative;
+        }
+
+        .dropdown-search input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .dropdown-options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .dropdown-option {
+            padding: 0.75rem;
+            cursor: pointer;
+            border-bottom: 1px solid #f8f9fa;
+            transition: background-color 0.2s ease;
+        }
+
+        .dropdown-option:hover {
+            background-color: #f8f9fa;
+        }
+
+        .dropdown-option:last-child {
+            border-bottom: none;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .data-table th:hover {
+            background: #e9ecef;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .search-filter {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .checkbox-group,
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .checkbox-item,
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .file-upload {
+            border: 2px dashed #e9ecef;
+            border-radius: 6px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #667eea;
+            transition: width 0.3s ease;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .dynamic-row {
+            display: flex;
+            gap: 1rem;
+            align-items: end;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .remove-row {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .add-row {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #495057;
+        }
+
+        .date-picker {
+            position: relative;
+        }
+
+        .date-picker input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .multi-select {
+            position: relative;
+        }
+
+        .multi-select-display {
+            min-height: 45px;
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .multi-select-tag {
+            background: #667eea;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .multi-select-tag .remove {
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .multi-select-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .multi-select-option {
+            padding: 0.75rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .multi-select-option:hover {
+            background: #f8f9fa;
+        }
+
+        .cascading-dropdown {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .help-text {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+
+        .required {
+            color: #dc3545;
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .form-section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Enterprise Resource Management System</h1>
+    </div>
+
+    <div class="container">
+        <div class="tab-container">
+            <div class="tab-nav">
+                <button class="tab-btn active" data-action="tab-click" data-subtask="navigation" onclick="switchTab('employee')">Employee Management</button>
+                <button class="tab-btn" data-action="tab-click" data-subtask="navigation" onclick="switchTab('expense')">Expense Reports</button>
+                <button class="tab-btn" data-action="tab-click" data-subtask="navigation" onclick="switchTab('project')">Project Management</button>
+                <button class="tab-btn" data-action="tab-click" data-subtask="navigation" onclick="switchTab('analytics')">Analytics Dashboard</button>
+            </div>
+
+            <!-- Employee Management Tab -->
+            <div id="employee" class="tab-content active">
+                <div class="card">
+                    <div class="card-header">Employee Information Form</div>
+                    
+                    <form id="employeeForm" data-action="form-submit" data-subtask="employee-management">
+                        <div class="form-section">
+                            <div class="section-title">Personal Information</div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="firstName">First Name <span class="required">*</span></label>
+                                    <input type="text" id="firstName" name="firstName" class="form-control" data-action="text-input" data-subtask="form-fill" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="lastName">Last Name <span class="required">*</span></label>
+                                    <input type="text" id="lastName" name="lastName" class="form-control" data-action="text-input" data-subtask="form-fill" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="email">Email Address <span class="required">*</span></label>
+                                    <input type="email" id="email" name="email" class="form-control" data-action="text-input" data-subtask="form-fill" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="phone">Phone Number</label>
+                                    <input type="tel" id="phone" name="phone" class="form-control" data-action="text-input" data-subtask="form-fill">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="section-title">Employment Details</div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="department">Department <span class="required">*</span></label>
+                                    <div class="dropdown-container">
+                                        <div class="dropdown-search">
+                                            <input type="text" id="department" name="department" class="form-control" placeholder="Search departments..." data-action="dropdown-search" data-subtask="department-selection" autocomplete="off" onclick="showDropdown('department')" oninput="filterDropdown('department', this.value)">
+                                            <div id="department-options" class="dropdown-options">
+                                                <div class="dropdown-option" onclick="selectOption('department', 'Human Resources')">Human Resources</div>
+                                                <div class="dropdown-option" onclick="selectOption('department', 'Information Technology')">Information Technology</div>
+                                                <div class="dropdown-option" onclick="selectOption('department', 'Finance & Accounting')">Finance & Accounting</div>
+                                                <div class="dropdown-option" onclick="selectOption('department', 'Marketing & Sales')">Marketing & Sales</div>
+                                                <div class="dropdown-option" onclick="selectOption('department', 'Operations')">Operations</div>
+                                                <div class="dropdown-option" onclick="selectOption('department', 'Research & Development')">Research & Development</div>
+                                                <div class="dropdown-option" onclick="selectOption('department', 'Customer Service')">Customer Service</div>
+                                                <div class="dropdown-option" onclick="selectOption('department', 'Legal & Compliance')">Legal & Compliance</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="position">Position <span class="required">*</span></label>
+                                    <div class="dropdown-container">
+                                        <div class="dropdown-search">
+                                            <input type="text" id="position" name="position" class="form-control" placeholder="Search positions..." data-action="dropdown-search" data-subtask="position-selection" autocomplete="off" onclick="showDropdown('position')" oninput="filterDropdown('position', this.value)">
+                                            <div id="position-options" class="dropdown-options">
+                                                <div class="dropdown-option" onclick="selectOption('position', 'Software Engineer')">Software Engineer</div>
+                                                <div class="dropdown-option" onclick="selectOption('position', 'Senior Developer')">Senior Developer</div>
+                                                <div class="dropdown-option" onclick="selectOption('position', 'Project Manager')">Project Manager</div>
+                                                <div class="dropdown-option" onclick="selectOption('position', 'Business Analyst')">Business Analyst</div>
+                                                <div class="dropdown-option" onclick="selectOption('position', 'Data Scientist')">Data Scientist</div>
+                                                <div class="dropdown-option" onclick="selectOption('position', 'UX Designer')">UX Designer</div>
+                                                <div class="dropdown-option" onclick="selectOption('position', 'DevOps Engineer')">DevOps Engineer</div>
+                                                <div class="dropdown-option" onclick="selectOption('position', 'Quality Assurance')">Quality Assurance</div>
+                                                <div class="dropdown-option" onclick="selectOption('position', 'Technical Lead')">Technical Lead</div>
+                                                <div class="dropdown-option" onclick="selectOption('position', 'Product Manager')">Product Manager</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="manager">Direct Manager</label>
+                                    <div class="dropdown-container">
+                                        <div class="dropdown-search">
+                                            <input type="text" id="manager" name="manager" class="form-control" placeholder="Search managers..." data-action="dropdown-search" data-subtask="manager-selection" autocomplete="off" onclick="showDropdown('manager')" oninput="filterDropdown('manager', this.value)">
+                                            <div id="manager-options" class="dropdown-options">
+                                                <div class="dropdown-option" onclick="selectOption('manager', 'Sarah Johnson - VP Engineering')">Sarah Johnson - VP Engineering</div>
+                                                <div class="dropdown-option" onclick="selectOption('manager', 'Michael Chen - Director of IT')">Michael Chen - Director of IT</div>
+                                                <div class="dropdown-option" onclick="selectOption('manager', 'Emily Rodriguez - HR Director')">Emily Rodriguez - HR Director</div>
+                                                <div class="dropdown-option" onclick="selectOption('manager', 'David Kim - Finance Manager')">David Kim - Finance Manager</div>
+                                                <div class="dropdown-option" onclick="selectOption('manager', 'Lisa Thompson - Operations Lead')">Lisa Thompson - Operations Lead</div>
+                                                <div class="dropdown-option" onclick="selectOption('manager', 'James Wilson - Marketing Director')">James Wilson - Marketing Director</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="startDate">Start Date</label>
+                                    <input type="date" id="startDate" name="startDate" class="form-control" data-action="date-select" data-subtask="date-input">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="section-title">Skills & Certifications</div>
+                            <div class="form-group">
+                                <label for="skills">Technical Skills</label>
+                                <div class="multi-select" data-action="multi-select" data-subtask="skills-selection">
+                                    <div class="multi-select-display" id="skills-display" onclick="toggleMultiSelect('skills')">
+                                        <span class="placeholder">Select skills...</span>
+                                    </div>
+                                    <div class="multi-select-dropdown" id="skills-dropdown">
+                                        <div class="multi-select-option" onclick="toggleSkill('JavaScript')">
+                                            <input type="checkbox" id="skill-javascript"> JavaScript
+                                        </div>
+                                        <div class="multi-select-option" onclick="toggleSkill('Python')">
+                                            <input type="checkbox" id="skill-python"> Python
+                                        </div>
+                                        <div class="multi-select-option" onclick="toggleSkill('Java')">
+                                            <input type="checkbox" id="skill-java"> Java
+                                        </div>
+                                        <div class="multi-select-option" onclick="toggleSkill('React')">
+                                            <input type="checkbox" id="skill-react"> React
+                                        </div>
+                                        <div class="multi-select-option" onclick="toggleSkill('Node.js')">
+                                            <input type="checkbox" id="skill-nodejs"> Node.js
+                                        </div>
+                                        <div class="multi-select-option" onclick="toggleSkill('SQL')">
+                                            <input type="checkbox" id="skill-sql"> SQL
+                                        </div>
+                                        <div class="multi-select-option" onclick="toggleSkill('AWS')">
+                                            <input type="checkbox" id="skill-aws"> AWS
+                                        </div>
+                                        <div class="multi-select-option" onclick="toggleSkill('Docker')">
+                                            <input type="checkbox" id="skill-docker"> Docker
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="section-title">Employment Type</div>
+                            <div class="radio-group" data-action="radio-select" data-subtask="employment-type">
+                                <div class="radio-item">
+                                    <input type="radio" id="fulltime" name="employmentType" value="fulltime">
+                                    <label for="fulltime">Full-time</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="parttime" name="employmentType" value="parttime">
+                                    <label for="parttime">Part-time</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="contract" name="employmentType" value="contract">
+                                    <label for="contract">Contract</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="intern" name="employmentType" value="intern">
+                                    <label for="intern">Intern</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="section-title">Document Upload</div>
+                            <div class="form-group">
+                                <label for="resume">Resume/CV</label>
+                                <div class="file-upload" onclick="document.getElementById('resume').click()" data-action="file-upload" data-subtask="document-upload">
+                                    <input type="file" id="resume" name="resume" style="display: none;" accept=".pdf,.doc,.docx" onchange="handleFileUpload(this, 'resume-status')">
+                                    <p>Click to upload resume or drag and drop</p>
+                                    <p class="help-text">Supported formats: PDF, DOC, DOCX (Max 5MB)</p>
+                                    <div id="resume-status"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary" data-action="form-submit" data-subtask="employee-form">Save Employee</button>
+                            <button type="button" class="btn btn-secondary" onclick="resetForm('employeeForm')" data-action="form-reset" data-subtask="form-actions">Reset Form</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Employee Directory -->
+                <div class="card">
+                    <div class="card-header">Employee Directory</div>
+                    <div class="search-filter">
+                        <input type="text" id="employeeSearch" placeholder="Search employees..." class="form-control" style="max-width: 300px;" data-action="search-input" data-subtask="employee-search" oninput="filterEmployees(this.value)">
+                        <select id="departmentFilter" class="form-control" style="max-width: 200px;" data-action="filter-select" data-subtask="department-filter" onchange="filterEmployeesByDepartment(this.value)">
+                            <option value="">All Departments</option>
+                            <option value="IT">Information Technology</option>
+                            <option value="HR">Human Resources</option>
+                            <option value="Finance">Finance & Accounting</option>
+                            <option value="Marketing">Marketing & Sales</option>
+                        </select>
+                        <button class="btn btn-success" onclick="exportEmployeeData()" data-action="export-click" data-subtask="data-export">Export Data</button>
+                    </div>
+                    <table class="data-table" id="employeeTable">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable(0)" data-action="column-sort" data-subtask="table-sort">Name ↕</th>
+                                <th onclick="sortTable(1)" data-action="column-sort" data-subtask="table-sort">Department ↕</th>
+                                <th onclick="sortTable(2)" data-action="column-sort" data-subtask="table-sort">Position ↕</th>
+                                <th onclick="sortTable(3)" data-action="column-sort" data-subtask="table-sort">Status ↕</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>John Smith</td>
+                                <td>Information Technology</td>
+                                <td>Senior Developer</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;" data-action="edit-click" data-subtask="employee-edit">Edit</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Sarah Johnson</td>
+                                <td>Human Resources</td>
+                                <td>HR Director</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;" data-action="edit-click" data-subtask="employee-edit">Edit</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Michael Chen</td>
+                                <td>Finance & Accounting</td>
+                                <td>Financial Analyst</td>
+                                <td><span class="status-badge status-pending">Pending</span></td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;" data-action="edit-click" data-subtask="employee-edit">Edit</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Expense Reports Tab -->
+            <div id="expense" class="tab-content">
+                <div class="card">
+                    <div class="card-header">Expense Report Form</div>
+                    
+                    <form id="expenseForm" data-action="form-submit" data-subtask="expense-management">
+                        <div class="form-section">
+                            <div class="section-title">Report Details</div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="reportTitle">Report Title <span class="required">*</span></label>
+                                    <input type="text" id="reportTitle" name="reportTitle" class="form-control" data-action="text-input" data-subtask="form-fill" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="expenseCategory">Expense Category <span class="required">*</span></label>
+                                    <div class="dropdown-container">
+                                        <div class="dropdown-search">
+                                            <input type="text" id="expenseCategory" name="expenseCategory" class="form-control" placeholder="Search categories..." data-action="dropdown-search" data-subtask="category-selection" autocomplete="off" onclick="showDropdown('expenseCategory')" oninput="filterDropdown('expenseCategory', this.value)">
+                                            <div id="expenseCategory-options" class="dropdown-options">
+                                                <div class="dropdown-option" onclick="selectOption('expenseCategory', 'Travel & Transportation')">Travel & Transportation</div>
+                                                <div class="dropdown-option" onclick="selectOption('expenseCategory', 'Meals & Entertainment')">Meals & Entertainment</div>
+                                                <div class="dropdown-option" onclick="selectOption('expenseCategory', 'Office Supplies')">Office Supplies</div>
+                                                <div class="dropdown-option" onclick="selectOption('expenseCategory', 'Software & Subscriptions')">Software & Subscriptions</div>
+                                                <div class="dropdown-option" onclick="selectOption('expenseCategory', 'Training & Education')">Training & Education</div>
+                                                <div class="dropdown-option" onclick="selectOption('expenseCategory', 'Marketing & Advertising')">Marketing & Advertising</div>
+                                                <div class="dropdown-option" onclick="selectOption('expenseCategory', 'Equipment & Hardware')">Equipment & Hardware</div>
+                                                <div class="dropdown-option" onclick="selectOption('expenseCategory', 'Professional Services')">Professional Services</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="reportPeriod">Report Period</label>
+                                    <div class="cascading-dropdown">
+                                        <select id="reportYear" class="form-control" data-action="select-change" data-subtask="year-selection" onchange="updateMonths()">
+                                            <option value="">Select Year</option>
+                                            <option value="2024">2024</option>
+                                            <option value="2023">2023</option>
+                                            <option value="2022">2022</option>
+                                        </select>
+                                        <select id="reportMonth" class="form-control" data-action="select-change" data-subtask="month-selection" onchange="updateDays()">
+                                            <option value="">Select Month</option>
+                                        </select>
+                                        <select id="reportDay" class="form-control" data-action="select-change" data-subtask="day-selection">
+                                            <option value="">Select Day</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="section-title">Expense Items</div>
+                            <div id="expenseItems">
+                                <div class="dynamic-row">
+                                    <div class="form-group" style="margin-bottom: 0; flex: 1;">
+                                        <input type="text" placeholder="Description" class="form-control" data-action="text-input" data-subtask="expense-description">
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0; flex: 1;">
+                                        <input type="number" placeholder="Amount" class="form-control" data-action="number-input" data-subtask="expense-amount">
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0; flex: 1;">
+                                        <input type="date" class="form-control" data-action="date-select" data-subtask="expense-date">
+                                    </div>
+                                    <button type="button" class="remove-row" onclick="removeExpenseRow(this)" data-action="remove-row" data-subtask="dynamic-form">×</button>
+                                </div>
+                            </div>
+                            <button type="button" class="add-row" onclick="addExpenseRow()" data-action="add-row" data-subtask="dynamic-form">+ Add Expense Item</button>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="section-title">Approval Workflow</div>
+                            <div class="checkbox-group" data-action="checkbox-select" data-subtask="approval-options">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="managerApproval" name="approvals" value="manager">
+                                    <label for="managerApproval">Requires Manager Approval</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="financeApproval" name="approvals" value="finance">
+                                    <label for="financeApproval">Requires Finance Approval</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="urgentProcessing" name="approvals" value="urgent">
+                                    <label for="urgentProcessing">Urgent Processing</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary" data-action="form-submit" data-subtask="expense-form">Submit Report</button>
+                            <button type="button" class="btn btn-secondary" onclick="saveAsDraft()" data-action="save-draft" data-subtask="form-actions">Save as Draft</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Project Management Tab -->
+            <div id="project" class="tab-content">
+                <div class="card">
+                    <div class="card-header">Project Management Dashboard</div>
+                    
+                    <div class="form-section">
+                        <div class="section-title">Create New Project</div>
+                        <form id="projectForm" data-action="form-submit" data-subtask="project-management">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="projectName">Project Name <span class="required">*</span></label>
+                                    <input type="text" id="projectName" name="projectName" class="form-control" data-action="text-input" data-subtask="form-fill" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="projectType">Project Type</label>
+                                    <div class="dropdown-container">
+                                        <div class="dropdown-search">
+                                            <input type="text" id="projectType" name="projectType" class="form-control" placeholder="Search project types..." data-action="dropdown-search" data-subtask="project-type-selection" autocomplete="off" onclick="showDropdown('projectType')" oninput="filterDropdown('projectType', this.value)">
+                                            <div id="projectType-options" class="dropdown-options">
+                                                <div class="dropdown-option" onclick="selectOption('projectType', 'Web Development')">Web Development</div>
+                                                <div class="dropdown-option" onclick="selectOption('projectType', 'Mobile Application')">Mobile Application</div>
+                                                <div class="dropdown-option" onclick="selectOption('projectType', 'Data Analytics')">Data Analytics</div>
+                                                <div class="dropdown-option" onclick="selectOption('projectType', 'Infrastructure')">Infrastructure</div>
+                                                <div class="dropdown-option" onclick="selectOption('projectType', 'Marketing Campaign')">Marketing Campaign</div>
+                                                <div class="dropdown-option" onclick="selectOption('projectType', 'Research & Development')">Research & Development</div>
+                                                <div class="dropdown-option" onclick="selectOption('projectType', 'Process Improvement')">Process Improvement</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="projectPriority">Priority Level</label>
+                                    <select id="projectPriority" name="projectPriority" class="form-control" data-action="select-change" data-subtask="priority-selection">
+                                        <option value="">Select Priority</option>
+                                        <option value="low">Low</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="high">High</option>
+                                        <option value="critical">Critical</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="projectBudget">Budget Range</label>
+                                    <select id="projectBudget" name="projectBudget" class="form-control" data-action="select-change" data-subtask="budget-selection">
+                                        <option value="">Select Budget Range</option>
+                                        <option value="under-10k">Under $10,000</option>
+                                        <option value="10k-50k">$10,000 - $50,000</option>
+                                        <option value="50k-100k">$50,000 - $100,000</option>
+                                        <option value="100k-500k">$100,000 - $500,000</option>
+                                        <option value="over-500k">Over $500,000</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="projectDescription">Project Description</label>
+                                <textarea id="projectDescription" name="projectDescription" class="form-control" rows="4" data-action="textarea-input" data-subtask="form-fill"></textarea>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary" data-action="form-submit" data-subtask="project-form">Create Project</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="section-title">Project Status Overview</div>
+                        <div class="search-filter">
+                            <input type="text" id="projectSearch" placeholder="Search projects..." class="form-control" style="max-width: 300px;" data-action="search-input" data-subtask="project-search" oninput="filterProjects(this.value)">
+                            <select id="statusFilter" class="form-control" style="max-width: 200px;" data-action="filter-select" data-subtask="status-filter" onchange="filterProjectsByStatus(this.value)">
+                                <option value="">All Statuses</option>
+                                <option value="planning">Planning</option>
+                                <option value="active">Active</option>
+                                <option value="on-hold">On Hold</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                        </div>
+                        
+                        <table class="data-table" id="projectTable">
+                            <thead>
+                                <tr>
+                                    <th onclick="sortProjectTable(0)" data-action="column-sort" data-subtask="table-sort">Project Name ↕</th>
+                                    <th onclick="sortProjectTable(1)" data-action="column-sort" data-subtask="table-sort">Type ↕</th>
+                                    <th onclick="sortProjectTable(2)" data-action="column-sort" data-subtask="table-sort">Priority ↕</th>
+                                    <th onclick="sortProjectTable(3)" data-action="column-sort" data-subtask="table-sort">Status ↕</th>
+                                    <th>Progress</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Customer Portal Redesign</td>
+                                    <td>Web Development</td>
+                                    <td>High</td>
+                                    <td><span class="status-badge status-active">Active</span></td>
+                                    <td>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 65%"></div>
+                                        </div>
+                                        65%
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;" data-action="view-click" data-subtask="project-view">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Mobile App Development</td>
+                                    <td>Mobile Application</td>
+                                    <td>Critical</td>
+                                    <td><span class="status-badge status-active">Active</span></td>
+                                    <td>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 40%"></div>
+                                        </div>
+                                        40%
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;" data-action="view-click" data-subtask="project-view">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Data Migration Project</td>
+                                    <td>Infrastructure</td>
+                                    <td>Medium</td>
+                                    <td><span class="status-badge status-pending">Planning</span></td>
+                                    <td>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 15%"></div>
+                                        </div>
+                                        15%
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;" data-action="view-click" data-subtask="project-view">View</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Dashboard Tab -->
+            <div id="analytics" class="tab-content">
+                <div class="card">
+                    <div class="card-header">Analytics Dashboard</div>
+                    
+                    <div class="form-section">
+                        <div class="section-title">Report Filters</div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="analyticsDateRange">Date Range</label>
+                                <select id="analyticsDateRange" class="form-control" data-action="select-change" data-subtask="date-range-selection">
+                                    <option value="last-7-days">Last 7 Days</option>
+                                    <option value="last-30-days">Last 30 Days</option>
+                                    <option value="last-quarter">Last Quarter</option>
+                                    <option value="last-year">Last Year</option>
+                                    <option value="custom">Custom Range</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="analyticsMetric">Primary Metric</label>
+                                <div class="dropdown-container">
+                                    <div class="dropdown-search">
+                                        <input type="text" id="analyticsMetric" name="analyticsMetric" class="form-control" placeholder="Search metrics..." data-action="dropdown-search" data-subtask="metric-selection" autocomplete="off" onclick="showDropdown('analyticsMetric')" oninput="filterDropdown('analyticsMetric', this.value)">
+                                        <div id="analyticsMetric-options" class="dropdown-options">
+                                            <div class="dropdown-option" onclick="selectOption('analyticsMetric', 'Employee Productivity')">Employee Productivity</div>
+                                            <div class="dropdown-option" onclick="selectOption('analyticsMetric', 'Project Completion Rate')">Project Completion Rate</div>
+                                            <div class="dropdown-option" onclick="selectOption('analyticsMetric', 'Budget Utilization')">Budget Utilization</div>
+                                            <div class="dropdown-option" onclick="selectOption('analyticsMetric', 'Resource Allocation')">Resource Allocation</div>
+                                            <div class="dropdown-option" onclick="selectOption('analyticsMetric', 'Time Tracking')">Time Tracking</div>
+                                            <div class="dropdown-option" onclick="selectOption('analyticsMetric', 'Cost Analysis')">Cost Analysis</div>
+                                            <div class="dropdown-option" onclick="selectOption('analyticsMetric', 'Performance Metrics')">Performance Metrics</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="analyticsDepartment">Department Filter</label>
+                                <div class="multi-select" data-action="multi-select" data-subtask="department-filter">
+                                    <div class="multi-select-display" id="analyticsDepartment-display" onclick="toggleMultiSelect('analyticsDepartment')">
+                                        <span class="placeholder">Select departments...</span>
+                                    </div>
+                                    <div class="multi-select-dropdown" id="analyticsDepartment-dropdown">
+                                        <div class="multi-select-option" onclick="toggleDepartment('IT')">
+                                            <input type="checkbox" id="dept-it"> Information Technology
+                                        </div>
+                                        <div class="multi-select-option" onclick="toggleDepartment('HR')">
+                                            <input type="checkbox" id="dept-hr"> Human Resources
+                                        </div>
+                                        <div class="multi-select-option" onclick="toggleDepartment('Finance')">
+                                            <input type="checkbox" id="dept-finance"> Finance & Accounting
+                                        </div>
+                                        <div class="multi-select-option" onclick="toggleDepartment('Marketing')">
+                                            <input type="checkbox" id="dept-marketing"> Marketing & Sales
+                                        </div>
+                                        <div class="multi-select-option" onclick="toggleDepartment('Operations')">
+                                            <input type="checkbox" id="dept-operations"> Operations
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button class="btn btn-primary" onclick="generateReport()" data-action="generate-report" data-subtask="analytics-generation">Generate Report</button>
+                            <button class="btn btn-secondary" onclick="exportAnalytics()" data-action="export-analytics" data-subtask="data-export">Export Data</button>
+                        </div>
+                    </div>
+
+                    <div class="loading" id="analyticsLoading">
+                        <div class="spinner"></div>
+                        <p>Generating analytics report...</p>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="section-title">Quick Stats</div>
+                        <div class="form-grid">
+                            <div class="card" style="text-align: center;">
+                                <h3 style="color: #667eea;">142</h3>
+                                <p>Active Employees</p>
+                            </div>
+                            <div class="card" style="text-align: center;">
+                                <h3 style="color: #28a745;">23</h3>
+                                <p>Active Projects</p>
+                            </div>
+                            <div class="card" style="text-align: center;">
+                                <h3 style="color: #ffc107;">$2.4M</h3>
+                                <p>Total Budget</p>
+                            </div>
+                            <div class="card" style="text-align: center;">
+                                <h3 style="color: #dc3545;">87%</h3>
+                                <p>Completion Rate</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching functionality
+        function switchTab(tabName) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Remove active class from all tab buttons
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            tabBtns.forEach(btn => btn.classList.remove('active'));
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab button
+            event.target.classList.add('active');
+        }
+
+        // Dropdown functionality with search
+        function showDropdown(dropdownId) {
+            const dropdown = document.getElementById(dropdownId + '-options');
+            dropdown.style.display = 'block';
+            
+            // Close other dropdowns
+            const allDropdowns = document.querySelectorAll('.dropdown-options');
+            allDropdowns.forEach(dd => {
+                if (dd.id !== dropdownId + '-options') {
+                    dd.style.display = 'none';
+                }
+            });
+        }
+
+        function filterDropdown(dropdownId, searchTerm) {
+            const options = document.querySelectorAll('#' + dropdownId + '-options .dropdown-option');
+            options.forEach(option => {
+                const text = option.textContent.toLowerCase();
+                if (text.includes(searchTerm.toLowerCase())) {
+                    option.style.display = 'block';
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+        }
+
+        function selectOption(dropdownId, value) {
+            document.getElementById(dropdownId).value = value;
+            document.getElementById(dropdownId + '-options').style.display = 'none';
+        }
+
+        // Multi-select functionality
+        let selectedSkills = [];
+        let selectedDepartments = [];
+
+        function toggleMultiSelect(selectId) {
+            const dropdown = document.getElementById(selectId + '-dropdown');
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function toggleSkill(skill) {
+            const index = selectedSkills.indexOf(skill);
+            if (index > -1) {
+                selectedSkills.splice(index, 1);
+            } else {
+                selectedSkills.push(skill);
+            }
+            updateSkillsDisplay();
+        }
+
+        function updateSkillsDisplay() {
+            const display = document.getElementById('skills-display');
+            if (selectedSkills.length === 0) {
+                display.innerHTML = '<span class="placeholder">Select skills...</span>';
+            } else {
+                display.innerHTML = selectedSkills.map(skill => 
+                    `<span class="multi-select-tag">${skill} <span class="remove" onclick="removeSkill('${skill}')">×</span></span>`
+                ).join('');
+            }
+        }
+
+        function removeSkill(skill) {
+            const index = selectedSkills.indexOf(skill);
+            if (index > -1) {
+                selectedSkills.splice(index, 1);
+                updateSkillsDisplay();
+            }
+        }
+
+        function toggleDepartment(dept) {
+            const index = selectedDepartments.indexOf(dept);
+            if (index > -1) {
+                selectedDepartments.splice(index, 1);
+            } else {
+                selectedDepartments.push(dept);
+            }
+            updateDepartmentsDisplay();
+        }
+
+        function updateDepartmentsDisplay() {
+            const display = document.getElementById('analyticsDepartment-display');
+            if (selectedDepartments.length === 0) {
+                display.innerHTML = '<span class="placeholder">Select departments...</span>';
+            } else {
+                display.innerHTML = selectedDepartments.map(dept => 
+                    `<span class="multi-select-tag">${dept} <span class="remove" onclick="removeDepartment('${dept}')">×</span></span>`
+                ).join('');
+            }
+        }
+
+        function removeDepartment(dept) {
+            const index = selectedDepartments.indexOf(dept);
+            if (index > -1) {
+                selectedDepartments.splice(index, 1);
+                updateDepartmentsDisplay();
+            }
+        }
+
+        // Dynamic form rows
+        function addExpenseRow() {
+            const container = document.getElementById('expenseItems');
+            const newRow = document.createElement('div');
+            newRow.className = 'dynamic-row';
+            newRow.innerHTML = `
+                <div class="form-group" style="margin-bottom: 0; flex: 1;">
+                    <input type="text" placeholder="Description" class="form-control" data-action="text-input" data-subtask="expense-description">
+                </div>
+                <div class="form-group" style="margin-bottom: 0; flex: 1;">
+                    <input type="number" placeholder="Amount" class="form-control" data-action="number-input" data-subtask="expense-amount">
+                </div>
+                <div class="form-group" style="margin-bottom: 0; flex: 1;">
+                    <input type="date" class="form-control" data-action="date-select" data-subtask="expense-date">
+                </div>
+                <button type="button" class="remove-row" onclick="removeExpenseRow(this)" data-action="remove-row" data-subtask="dynamic-form">×</button>
+            `;
+            container.appendChild(newRow);
+        }
+
+        function removeExpenseRow(button) {
+            button.parentElement.remove();
+        }
+
+        // Table sorting
+        function sortTable(columnIndex) {
+            const table = document.getElementById('employeeTable');
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            rows.sort((a, b) => {
+                const aText = a.cells[columnIndex].textContent.trim();
+                const bText = b.cells[columnIndex].textContent.trim();
+                return aText.localeCompare(bText);
+            });
+            
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        function sortProjectTable(columnIndex) {
+            const table = document.getElementById('projectTable');
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            rows.sort((a, b) => {
+                const aText = a.cells[columnIndex].textContent.trim();
+                const bText = b.cells[columnIndex].textContent.trim();
+                return aText.localeCompare(bText);
+            });
+            
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        // Search and filter functionality
+        function filterEmployees(searchTerm) {
+            const table = document.getElementById('employeeTable');
+            const rows = table.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm.toLowerCase())) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function filterEmployeesByDepartment(department) {
+            const table = document.getElementById('employeeTable');
+            const rows = table.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                if (department === '' || row.cells[1].textContent.includes(department)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function filterProjects(searchTerm) {
+            const table = document.getElementById('projectTable');
+            const rows = table.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm.toLowerCase())) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function filterProjectsByStatus(status) {
+            const table = document.getElementById('projectTable');
+            const rows = table.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                if (status === '' || row.cells[3].textContent.toLowerCase().includes(status)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // Cascading dropdowns
+        function updateMonths() {
+            const year = document.getElementById('reportYear').value;
+            const monthSelect = document.getElementById('reportMonth');
+            
+            if (year) {
+                monthSelect.innerHTML = `
+                    <option value="">Select Month</option>
+                    <option value="01">January</option>
+                    <option value="02">February</option>
+                    <option value="03">March</option>
+                    <option value="04">April</option>
+                    <option value="05">May</option>
+                    <option value="06">June</option>
+                    <option value="07">July</option>
+                    <option value="08">August</option>
+                    <option value="09">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                `;
+            } else {
+                monthSelect.innerHTML = '<option value="">Select Month</option>';
+            }
+            
+            document.getElementById('reportDay').innerHTML = '<option value="">Select Day</option>';
+        }
+
+        function updateDays() {
+            const year = document.getElementById('reportYear').value;
+            const month = document.getElementById('reportMonth').value;
+            const daySelect = document.getElementById('reportDay');
+            
+            if (year && month) {
+                const daysInMonth = new Date(year, month, 0).getDate();
+                let options = '<option value="">Select Day</option>';
+                
+                for (let i = 1; i <= daysInMonth; i++) {
+                    options += `<option value="${i.toString().padStart(2, '0')}">${i}</option>`;
+                }
+                
+                daySelect.innerHTML = options;
+            } else {
+                daySelect.innerHTML = '<option value="">Select Day</option>';
+            }
+        }
+
+        // File upload handling
+        function handleFileUpload(input, statusId) {
+            const file = input.files[0];
+            const statusDiv = document.getElementById(statusId);
+            
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                    statusDiv.innerHTML = '<p style="color: #dc3545;">File size exceeds 5MB limit</p>';
+                    input.value = '';
+                } else {
+                    statusDiv.innerHTML = `<p style="color: #28a745;">File uploaded: ${file.name}</p>`;
+                }
+            }
+        }
+
+        // Form actions
+        function resetForm(formId) {
+            document.getElementById(formId).reset();
+            selectedSkills = [];
+            selectedDepartments = [];
+            updateSkillsDisplay();
+            updateDepartmentsDisplay();
+        }
+
+        function saveAsDraft() {
+            showAlert('Draft saved successfully!', 'success');
+        }
+
+        function exportEmployeeData() {
+            showAlert('Employee data exported successfully!', 'success');
+        }
+
+        function exportAnalytics() {
+            showAlert('Analytics data exported successfully!', 'success');
+        }
+
+        function generateReport() {
+            const loading = document.getElementById('analyticsLoading');
+            loading.style.display = 'block';
+            
+            setTimeout(() => {
+                loading.style.display = 'none';
+                showAlert('Analytics report generated successfully!', 'success');
+            }, 2000);
+        }
+
+        // Alert system
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            
+            document.body.insertBefore(alertDiv, document.body.firstChild);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
+        }
+
+        // Form submission handlers
+        document.getElementById('employeeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            showAlert('Employee information saved successfully!', 'success');
+        });
+
+        document.getElementById('expenseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            showAlert('Expense report submitted successfully!', 'success');
+        });
+
+        document.getElementById('projectForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            showAlert('Project created successfully!', 'success');
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.dropdown-container') && !e.target.closest('.multi-select')) {
+                const dropdowns = document.querySelectorAll('.dropdown-options, .multi-select-dropdown');
+                dropdowns.forEach(dropdown => {
+                    dropdown.style.display = 'none';
+                });
+            }
+        });
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Enterprise Resource Management System loaded successfully');
+        });
+    </script>
+</body>
+</html>
