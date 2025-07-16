@@ -1,0 +1,1581 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Project Management Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .tab-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .tab-nav {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 15px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tab-button:hover {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .tab-button.active {
+            color: #667eea;
+            background: white;
+        }
+
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Kanban Board Styles */
+        .kanban-board {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .kanban-column {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 500px;
+            border: 2px solid #e9ecef;
+        }
+
+        .kanban-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .kanban-title {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #495057;
+        }
+
+        .task-count {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .kanban-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: move;
+            transition: all 0.3s ease;
+            border-left: 4px solid #667eea;
+        }
+
+        .kanban-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+
+        .kanban-card.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+
+        .card-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #343a40;
+        }
+
+        .card-description {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8em;
+            color: #868e96;
+        }
+
+        .card-priority {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .priority-high { background: #ffe6e6; color: #dc3545; }
+        .priority-medium { background: #fff3cd; color: #ffc107; }
+        .priority-low { background: #d4edda; color: #28a745; }
+
+        .add-task-btn {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+
+        .add-task-btn:hover {
+            background: #5a6fd8;
+        }
+
+        /* Form Styles */
+        .form-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #495057;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        /* Data Table Styles */
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .table-header {
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-filter {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .search-input {
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            width: 250px;
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .data-table th:hover {
+            background: #e9ecef;
+        }
+
+        .data-table th.sortable::after {
+            content: '↕';
+            position: absolute;
+            right: 10px;
+            opacity: 0.5;
+        }
+
+        .data-table th.sort-asc::after {
+            content: '↑';
+            opacity: 1;
+        }
+
+        .data-table th.sort-desc::after {
+            content: '↓';
+            opacity: 1;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-active { background: #d4edda; color: #28a745; }
+        .status-pending { background: #fff3cd; color: #ffc107; }
+        .status-completed { background: #cce5ff; color: #007bff; }
+
+        .file-upload {
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            background: #f8f9ff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload:hover {
+            background: #f0f4ff;
+            border-color: #5a6fd8;
+        }
+
+        .file-upload.dragover {
+            background: #e6f0ff;
+            border-color: #4c63d2;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #6c757d;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-color: #28a745;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border-color: #dc3545;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Enterprise Project Management Dashboard</h1>
+            <p>Comprehensive project tracking, team management, and business operations platform</p>
+        </div>
+
+        <div class="tab-container">
+            <div class="tab-nav">
+                <button class="tab-button active" data-action="tab-switch" data-subtask="navigation" onclick="switchTab('kanban')">Kanban Board</button>
+                <button class="tab-button" data-action="tab-switch" data-subtask="navigation" onclick="switchTab('projects')">Project Management</button>
+                <button class="tab-button" data-action="tab-switch" data-subtask="navigation" onclick="switchTab('employees')">Employee Management</button>
+                <button class="tab-button" data-action="tab-switch" data-subtask="navigation" onclick="switchTab('reports')">Reports & Analytics</button>
+            </div>
+
+            <!-- Kanban Board Tab -->
+            <div id="kanban" class="tab-content active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="total-tasks">12</div>
+                        <div class="stat-label">Total Tasks</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="completed-tasks">4</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="in-progress-tasks">5</div>
+                        <div class="stat-label">In Progress</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="pending-tasks">3</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Quick Task Creation</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="quick-task-title">Task Title</label>
+                            <input type="text" id="quick-task-title" data-action="input" data-subtask="task-creation" placeholder="Enter task title">
+                        </div>
+                        <div class="form-group">
+                            <label for="quick-task-priority">Priority</label>
+                            <select id="quick-task-priority" data-action="select" data-subtask="task-creation">
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="quick-task-assignee">Assignee</label>
+                            <select id="quick-task-assignee" data-action="select" data-subtask="task-creation">
+                                <option value="john-doe">John Doe</option>
+                                <option value="jane-smith">Jane Smith</option>
+                                <option value="mike-johnson">Mike Johnson</option>
+                                <option value="sarah-wilson">Sarah Wilson</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" data-action="create-task" data-subtask="task-creation" onclick="createQuickTask()">Create Task</button>
+                </div>
+
+                <div class="kanban-board">
+                    <div class="kanban-column" data-status="todo">
+                        <div class="kanban-header">
+                            <span class="kanban-title">To Do</span>
+                            <span class="task-count">3</span>
+                        </div>
+                        <div class="kanban-card" draggable="true" data-action="drag-task" data-subtask="task-management">
+                            <div class="card-title">Implement user authentication</div>
+                            <div class="card-description">Set up JWT-based authentication system with role-based access control</div>
+                            <div class="card-meta">
+                                <span class="card-priority priority-high">High</span>
+                                <span>John Doe</span>
+                            </div>
+                        </div>
+                        <div class="kanban-card" draggable="true" data-action="drag-task" data-subtask="task-management">
+                            <div class="card-title">Database optimization</div>
+                            <div class="card-description">Optimize database queries and add proper indexing</div>
+                            <div class="card-meta">
+                                <span class="card-priority priority-medium">Medium</span>
+                                <span>Jane Smith</span>
+                            </div>
+                        </div>
+                        <div class="kanban-card" draggable="true" data-action="drag-task" data-subtask="task-management">
+                            <div class="card-title">API documentation</div>
+                            <div class="card-description">Create comprehensive API documentation using Swagger</div>
+                            <div class="card-meta">
+                                <span class="card-priority priority-low">Low</span>
+                                <span>Mike Johnson</span>
+                            </div>
+                        </div>
+                        <button class="add-task-btn" data-action="add-task" data-subtask="task-creation" onclick="openTaskModal('todo')">+ Add Task</button>
+                    </div>
+
+                    <div class="kanban-column" data-status="in-progress">
+                        <div class="kanban-header">
+                            <span class="kanban-title">In Progress</span>
+                            <span class="task-count">5</span>
+                        </div>
+                        <div class="kanban-card" draggable="true" data-action="drag-task" data-subtask="task-management">
+                            <div class="card-title">Frontend redesign</div>
+                            <div class="card-description">Modernize the user interface with new design system</div>
+                            <div class="card-meta">
+                                <span class="card-priority priority-high">High</span>
+                                <span>Sarah Wilson</span>
+                            </div>
+                        </div>
+                        <div class="kanban-card" draggable="true" data-action="drag-task" data-subtask="task-management">
+                            <div class="card-title">Payment integration</div>
+                            <div class="card-description">Integrate Stripe payment gateway for subscriptions</div>
+                            <div class="card-meta">
+                                <span class="card-priority priority-high">High</span>
+                                <span>John Doe</span>
+                            </div>
+                        </div>
+                        <div class="kanban-card" draggable="true" data-action="drag-task" data-subtask="task-management">
+                            <div class="card-title">Mobile responsiveness</div>
+                            <div class="card-description">Ensure all pages work properly on mobile devices</div>
+                            <div class="card-meta">
+                                <span class="card-priority priority-medium">Medium</span>
+                                <span>Jane Smith</span>
+                            </div>
+                        </div>
+                        <div class="kanban-card" draggable="true" data-action="drag-task" data-subtask="task-management">
+                            <div class="card-title">Email notifications</div>
+                            <div class="card-description">Set up automated email notifications for key events</div>
+                            <div class="card-meta">
+                                <span class="card-priority priority-medium">Medium</span>
+                                <span>Mike Johnson</span>
+                            </div>
+                        </div>
+                        <div class="kanban-card" draggable="true" data-action="drag-task" data-subtask="task-management">
+                            <div class="card-title">Performance monitoring</div>
+                            <div class="card-description">Implement application performance monitoring tools</div>
+                            <div class="card-meta">
+                                <span class="card-priority priority-low">Low</span>
+                                <span>Sarah Wilson</span>
+                            </div>
+                        </div>
+                        <button class="add-task-btn" data-action="add-task" data-subtask="task-creation" onclick="openTaskModal('in-progress')">+ Add Task</button>
+                    </div>
+
+                    <div class="kanban-column" data-status="done">
+                        <div class="kanban-header">
+                            <span class="kanban-title">Done</span>
+                            <span class="task-count">4</span>
+                        </div>
+                        <div class="kanban-card" draggable="true" data-action="drag-task" data-subtask="task-management">
+                            <div class="card-title">Project setup</div>
+                            <div class="card-description">Initialize project structure and development environment</div>
+                            <div class="card-meta">
+                                <span class="card-priority priority-high">High</span>
+                                <span>John Doe</span>
+                            </div>
+                        </div>
+                        <div class="kanban-card" draggable="true" data-action="drag-task" data-subtask="task-management">
+                            <div class="card-title">User registration</div>
+                            <div class="card-description">Complete user registration and profile management</div>
+                            <div class="card-meta">
+                                <span class="card-priority priority-high">High</span>
+                                <span>Jane Smith</span>
+                            </div>
+                        </div>
+                        <div class="kanban-card" draggable="true" data-action="drag-task" data-subtask="task-management">
+                            <div class="card-title">Basic CRUD operations</div>
+                            <div class="card-description">Implement create, read, update, delete functionality</div>
+                            <div class="card-meta">
+                                <span class="card-priority priority-medium">Medium</span>
+                                <span>Mike Johnson</span>
+                            </div>
+                        </div>
+                        <div class="kanban-card" draggable="true" data-action="drag-task" data-subtask="task-management">
+                            <div class="card-title">Security audit</div>
+                            <div class="card-description">Conduct comprehensive security review and testing</div>
+                            <div class="card-meta">
+                                <span class="card-priority priority-high">High</span>
+                                <span>Sarah Wilson</span>
+                            </div>
+                        </div>
+                        <button class="add-task-btn" data-action="add-task" data-subtask="task-creation" onclick="openTaskModal('done')">+ Add Task</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Management Tab -->
+            <div id="projects" class="tab-content">
+                <div class="form-section">
+                    <h3>Create New Project</h3>
+                    <form id="project-form" data-action="form-submit" data-subtask="project-management">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="project-name">Project Name *</label>
+                                <input type="text" id="project-name" data-action="input" data-subtask="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="project-manager">Project Manager</label>
+                                <select id="project-manager" data-action="select" data-subtask="form-input">
+                                    <option value="">Select Manager</option>
+                                    <option value="john-doe">John Doe</option>
+                                    <option value="jane-smith">Jane Smith</option>
+                                    <option value="mike-johnson">Mike Johnson</option>
+                                    <option value="sarah-wilson">Sarah Wilson</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="start-date">Start Date</label>
+                                <input type="date" id="start-date" data-action="date-select" data-subtask="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label for="end-date">End Date</label>
+                                <input type="date" id="end-date" data-action="date-select" data-subtask="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label for="budget">Budget ($)</label>
+                                <input type="number" id="budget" data-action="input" data-subtask="form-input" min="0" step="100">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="project-description">Project Description</label>
+                            <textarea id="project-description" data-action="textarea" data-subtask="form-input" placeholder="Describe the project objectives and scope"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Project Type</label>
+                            <div class="radio-group">
+                                <div class="radio-item">
+                                    <input type="radio" id="type-web" name="project-type" value="web" data-action="radio-select" data-subtask="form-input">
+                                    <label for="type-web">Web Development</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="type-mobile" name="project-type" value="mobile" data-action="radio-select" data-subtask="form-input">
+                                    <label for="type-mobile">Mobile App</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="type-desktop" name="project-type" value="desktop" data-action="radio-select" data-subtask="form-input">
+                                    <label for="type-desktop">Desktop Application</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="type-other" name="project-type" value="other" data-action="radio-select" data-subtask="form-input">
+                                    <label for="type-other">Other</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Required Technologies</label>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="tech-react" value="react" data-action="checkbox" data-subtask="form-input">
+                                    <label for="tech-react">React</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="tech-nodejs" value="nodejs" data-action="checkbox" data-subtask="form-input">
+                                    <label for="tech-nodejs">Node.js</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="tech-python" value="python" data-action="checkbox" data-subtask="form-input">
+                                    <label for="tech-python">Python</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="tech-java" value="java" data-action="checkbox" data-subtask="form-input">
+                                    <label for="tech-java">Java</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="tech-aws" value="aws" data-action="checkbox" data-subtask="form-input">
+                                    <label for="tech-aws">AWS</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="tech-docker" value="docker" data-action="checkbox" data-subtask="form-input">
+                                    <label for="tech-docker">Docker</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="project-files">Project Files</label>
+                            <div class="file-upload" data-action="file-upload" data-subtask="file-management" onclick="document.getElementById('project-files').click()">
+                                <input type="file" id="project-files" multiple style="display: none;">
+                                <p>Click to upload files or drag and drop</p>
+                                <p style="font-size: 0.9em; color: #6c757d;">Supported formats: PDF, DOC, XLS, PNG, JPG</p>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 15px;">
+                            <button type="submit" class="btn btn-primary" data-action="form-submit" data-subtask="form-submission">Create Project</button>
+                            <button type="button" class="btn btn-secondary" data-action="form-reset" data-subtask="form-management" onclick="resetForm('project-form')">Reset Form</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>Active Projects</h3>
+                        <div class="search-filter">
+                            <input type="text" class="search-input" placeholder="Search projects..." data-action="search" data-subtask="data-filtering" onkeyup="filterTable('projects-table', this.value)">
+                            <select class="filter-select" data-action="filter" data-subtask="data-filtering" onchange="filterTableByStatus('projects-table', this.value)">
+                                <option value="">All Status</option>
+                                <option value="active">Active</option>
+                                <option value="pending">Pending</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                        </div>
+                    </div>
+                    <table class="data-table" id="projects-table">
+                        <thead>
+                            <tr>
+                                <th class="sortable" data-action="sort" data-subtask="data-sorting" onclick="sortTable('projects-table', 0)">Project Name</th>
+                                <th class="sortable" data-action="sort" data-subtask="data-sorting" onclick="sortTable('projects-table', 1)">Manager</th>
+                                <th class="sortable" data-action="sort" data-subtask="data-sorting" onclick="sortTable('projects-table', 2)">Start Date</th>
+                                <th class="sortable" data-action="sort" data-subtask="data-sorting" onclick="sortTable('projects-table', 3)">Status</th>
+                                <th class="sortable" data-action="sort" data-subtask="data-sorting" onclick="sortTable('projects-table', 4)">Budget</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>E-commerce Platform</td>
+                                <td>John Doe</td>
+                                <td>2024-01-15</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>$50,000</td>
+                                <td>
+                                    <button class="btn btn-primary" style="padding: 6px 12px; font-size: 0.8em;" data-action="edit" data-subtask="data-management">Edit</button>
+                                    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8em;" data-action="view" data-subtask="data-management">View</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Mobile Banking App</td>
+                                <td>Jane Smith</td>
+                                <td>2024-02-01</td>
+                                <td><span class="status-badge status-pending">Pending</span></td>
+                                <td>$75,000</td>
+                                <td>
+                                    <button class="btn btn-primary" style="padding: 6px 12px; font-size: 0.8em;" data-action="edit" data-subtask="data-management">Edit</button>
+                                    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8em;" data-action="view" data-subtask="data-management">View</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>CRM System</td>
+                                <td>Mike Johnson</td>
+                                <td>2023-11-20</td>
+                                <td><span class="status-badge status-completed">Completed</span></td>
+                                <td>$35,000</td>
+                                <td>
+                                    <button class="btn btn-primary" style="padding: 6px 12px; font-size: 0.8em;" data-action="edit" data-subtask="data-management">Edit</button>
+                                    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8em;" data-action="view" data-subtask="data-management">View</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Inventory Management</td>
+                                <td>Sarah Wilson</td>
+                                <td>2024-03-10</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>$42,000</td>
+                                <td>
+                                    <button class="btn btn-primary" style="padding: 6px 12px; font-size: 0.8em;" data-action="edit" data-subtask="data-management">Edit</button>
+                                    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8em;" data-action="view" data-subtask="data-management">View</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Employee Management Tab -->
+            <div id="employees" class="tab-content">
+                <div class="form-section">
+                    <h3>Employee Information Form</h3>
+                    <form id="employee-form" data-action="form-submit" data-subtask="employee-management">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="first-name">First Name *</label>
+                                <input type="text" id="first-name" data-action="input" data-subtask="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="last-name">Last Name *</label>
+                                <input type="text" id="last-name" data-action="input" data-subtask="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="employee-id">Employee ID</label>
+                                <input type="text" id="employee-id" data-action="input" data-subtask="form-input" placeholder="EMP-001">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="email">Email Address *</label>
+                                <input type="email" id="email" data-action="input" data-subtask="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Phone Number</label>
+                                <input type="tel" id="phone" data-action="input" data-subtask="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label for="hire-date">Hire Date</label>
+                                <input type="date" id="hire-date" data-action="date-select" data-subtask="form-input">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="department">Department</label>
+                                <select id="department" data-action="select" data-subtask="form-input">
+                                    <option value="">Select Department</option>
+                                    <option value="engineering">Engineering</option>
+                                    <option value="marketing">Marketing</option>
+                                    <option value="sales">Sales</option>
+                                    <option value="hr">Human Resources</option>
+                                    <option value="finance">Finance</option>
+                                    <option value="operations">Operations</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="position">Position</label>
+                                <input type="text" id="position" data-action="input" data-subtask="form-input" placeholder="Software Engineer">
+                            </div>
+                            <div class="form-group">
+                                <label for="salary">Annual Salary ($)</label>
+                                <input type="number" id="salary" data-action="input" data-subtask="form-input" min="0" step="1000">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Employment Type</label>
+                            <div class="radio-group">
+                                <div class="radio-item">
+                                    <input type="radio" id="full-time" name="employment-type" value="full-time" data-action="radio-select" data-subtask="form-input">
+                                    <label for="full-time">Full-time</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="part-time" name="employment-type" value="part-time" data-action="radio-select" data-subtask="form-input">
+                                    <label for="part-time">Part-time</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="contract" name="employment-type" value="contract" data-action="radio-select" data-subtask="form-input">
+                                    <label for="contract">Contract</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="intern" name="employment-type" value="intern" data-action="radio-select" data-subtask="form-input">
+                                    <label for="intern">Intern</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Skills & Certifications</label>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="skill-javascript" value="javascript" data-action="checkbox" data-subtask="form-input">
+                                    <label for="skill-javascript">JavaScript</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="skill-python" value="python" data-action="checkbox" data-subtask="form-input">
+                                    <label for="skill-python">Python</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="skill-project-management" value="project-management" data-action="checkbox" data-subtask="form-input">
+                                    <label for="skill-project-management">Project Management</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="skill-data-analysis" value="data-analysis" data-action="checkbox" data-subtask="form-input">
+                                    <label for="skill-data-analysis">Data Analysis</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="skill-design" value="design" data-action="checkbox" data-subtask="form-input">
+                                    <label for="skill-design">UI/UX Design</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="skill-marketing" value="marketing" data-action="checkbox" data-subtask="form-input">
+                                    <label for="skill-marketing">Digital Marketing</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="notes">Additional Notes</label>
+                            <textarea id="notes" data-action="textarea" data-subtask="form-input" placeholder="Any additional information about the employee"></textarea>
+                        </div>
+                        <div style="display: flex; gap: 15px;">
+                            <button type="submit" class="btn btn-success" data-action="form-submit" data-subtask="form-submission">Save Employee</button>
+                            <button type="button" class="btn btn-secondary" data-action="form-reset" data-subtask="form-management" onclick="resetForm('employee-form')">Clear Form</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Reports & Analytics Tab -->
+            <div id="reports" class="tab-content">
+                <div class="form-section">
+                    <h3>Generate Custom Report</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="report-type">Report Type</label>
+                            <select id="report-type" data-action="select" data-subtask="report-generation">
+                                <option value="">Select Report Type</option>
+                                <option value="project-summary">Project Summary</option>
+                                <option value="employee-performance">Employee Performance</option>
+                                <option value="financial-overview">Financial Overview</option>
+                                <option value="task-completion">Task Completion</option>
+                                <option value="resource-utilization">Resource Utilization</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="date-range-start">Start Date</label>
+                            <input type="date" id="date-range-start" data-action="date-select" data-subtask="report-generation">
+                        </div>
+                        <div class="form-group">
+                            <label for="date-range-end">End Date</label>
+                            <input type="date" id="date-range-end" data-action="date-select" data-subtask="report-generation">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="report-format">Export Format</label>
+                            <select id="report-format" data-action="select" data-subtask="report-generation">
+                                <option value="pdf">PDF</option>
+                                <option value="excel">Excel</option>
+                                <option value="csv">CSV</option>
+                                <option value="json">JSON</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="report-email">Email Report To</label>
+                            <input type="email" id="report-email" data-action="input" data-subtask="report-generation" placeholder="recipient@company.com">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Include Sections</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="include-summary" value="summary" data-action="checkbox" data-subtask="report-generation" checked>
+                                <label for="include-summary">Executive Summary</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="include-charts" value="charts" data-action="checkbox" data-subtask="report-generation" checked>
+                                <label for="include-charts">Charts & Graphs</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="include-details" value="details" data-action="checkbox" data-subtask="report-generation">
+                                <label for="include-details">Detailed Data</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="include-recommendations" value="recommendations" data-action="checkbox" data-subtask="report-generation">
+                                <label for="include-recommendations">Recommendations</label>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" data-action="generate-report" data-subtask="report-generation" onclick="generateReport()">Generate Report</button>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>Recent Reports</h3>
+                        <div class="search-filter">
+                            <input type="text" class="search-input" placeholder="Search reports..." data-action="search" data-subtask="data-filtering">
+                            <select class="filter-select" data-action="filter" data-subtask="data-filtering">
+                                <option value="">All Types</option>
+                                <option value="project-summary">Project Summary</option>
+                                <option value="employee-performance">Employee Performance</option>
+                                <option value="financial-overview">Financial Overview</option>
+                            </select>
+                        </div>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th class="sortable" data-action="sort" data-subtask="data-sorting">Report Name</th>
+                                <th class="sortable" data-action="sort" data-subtask="data-sorting">Type</th>
+                                <th class="sortable" data-action="sort" data-subtask="data-sorting">Generated</th>
+                                <th class="sortable" data-action="sort" data-subtask="data-sorting">Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Q1 2024 Project Summary</td>
+                                <td>Project Summary</td>
+                                <td>2024-04-01</td>
+                                <td><span class="status-badge status-completed">Completed</span></td>
+                                <td>
+                                    <button class="btn btn-primary" style="padding: 6px 12px; font-size: 0.8em;" data-action="download" data-subtask="file-management">Download</button>
+                                    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8em;" data-action="view" data-subtask="data-management">View</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Employee Performance Review</td>
+                                <td>Employee Performance</td>
+                                <td>2024-03-28</td>
+                                <td><span class="status-badge status-completed">Completed</span></td>
+                                <td>
+                                    <button class="btn btn-primary" style="padding: 6px 12px; font-size: 0.8em;" data-action="download" data-subtask="file-management">Download</button>
+                                    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8em;" data-action="view" data-subtask="data-management">View</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Financial Overview March</td>
+                                <td>Financial Overview</td>
+                                <td>2024-03-25</td>
+                                <td><span class="status-badge status-pending">Processing</span></td>
+                                <td>
+                                    <button class="btn btn-primary" style="padding: 6px 12px; font-size: 0.8em;" data-action="download" data-subtask="file-management" disabled>Download</button>
+                                    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8em;" data-action="view" data-subtask="data-management">View</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Modal -->
+    <div id="task-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Task</h3>
+                <button class="close-btn" data-action="close-modal" data-subtask="modal-management" onclick="closeModal('task-modal')">&times;</button>
+            </div>
+            <form id="task-form">
+                <div class="form-group">
+                    <label for="modal-task-title">Task Title *</label>
+                    <input type="text" id="modal-task-title" data-action="input" data-subtask="task-creation" required>
+                </div>
+                <div class="form-group">
+                    <label for="modal-task-description">Description</label>
+                    <textarea id="modal-task-description" data-action="textarea" data-subtask="task-creation"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="modal-task-priority">Priority</label>
+                        <select id="modal-task-priority" data-action="select" data-subtask="task-creation">
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="modal-task-assignee">Assignee</label>
+                        <select id="modal-task-assignee" data-action="select" data-subtask="task-creation">
+                            <option value="john-doe">John Doe</option>
+                            <option value="jane-smith">Jane Smith</option>
+                            <option value="mike-johnson">Mike Johnson</option>
+                            <option value="sarah-wilson">Sarah Wilson</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 15px; margin-top: 20px;">
+                    <button type="submit" class="btn btn-primary" data-action="create-task" data-subtask="task-creation">Create Task</button>
+                    <button type="button" class="btn btn-secondary" data-action="cancel" data-subtask="modal-management" onclick="closeModal('task-modal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching functionality
+        function switchTab(tabName) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Remove active class from all tab buttons
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(button => button.classList.remove('active'));
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+
+        // Kanban drag and drop functionality
+        let draggedElement = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.kanban-card');
+            const columns = document.querySelectorAll('.kanban-column');
+
+            cards.forEach(card => {
+                card.addEventListener('dragstart', function(e) {
+                    draggedElement = this;
+                    this.classList.add('dragging');
+                });
+
+                card.addEventListener('dragend', function(e) {
+                    this.classList.remove('dragging');
+                    draggedElement = null;
+                });
+            });
+
+            columns.forEach(column => {
+                column.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                });
+
+                column.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    if (draggedElement) {
+                        this.appendChild(draggedElement);
+                        updateTaskCounts();
+                    }
+                });
+            });
+
+            // File upload drag and drop
+            const fileUpload = document.querySelector('.file-upload');
+            if (fileUpload) {
+                fileUpload.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.classList.add('dragover');
+                });
+
+                fileUpload.addEventListener('dragleave', function(e) {
+                    this.classList.remove('dragover');
+                });
+
+                fileUpload.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('dragover');
+                    const files = e.dataTransfer.files;
+                    handleFileUpload(files);
+                });
+            }
+        });
+
+        // Update task counts
+        function updateTaskCounts() {
+            const columns = document.querySelectorAll('.kanban-column');
+            columns.forEach(column => {
+                const cards = column.querySelectorAll('.kanban-card');
+                const countElement = column.querySelector('.task-count');
+                countElement.textContent = cards.length - 1; // Subtract 1 for the add button
+            });
+
+            // Update stats
+            const todoCount = document.querySelector('[data-status="todo"]').querySelectorAll('.kanban-card').length - 1;
+            const inProgressCount = document.querySelector('[data-status="in-progress"]').querySelectorAll('.kanban-card').length - 1;
+            const doneCount = document.querySelector('[data-status="done"]').querySelectorAll('.kanban-card').length - 1;
+            const totalCount = todoCount + inProgressCount + doneCount;
+
+            document.getElementById('total-tasks').textContent = totalCount;
+            document.getElementById('completed-tasks').textContent = doneCount;
+            document.getElementById('in-progress-tasks').textContent = inProgressCount;
+            document.getElementById('pending-tasks').textContent = todoCount;
+        }
+
+        // Quick task creation
+        function createQuickTask() {
+            const title = document.getElementById('quick-task-title').value;
+            const priority = document.getElementById('quick-task-priority').value;
+            const assignee = document.getElementById('quick-task-assignee').value;
+
+            if (!title) {
+                alert('Please enter a task title');
+                return;
+            }
+
+            const assigneeNames = {
+                'john-doe': 'John Doe',
+                'jane-smith': 'Jane Smith',
+                'mike-johnson': 'Mike Johnson',
+                'sarah-wilson': 'Sarah Wilson'
+            };
+
+            const card = document.createElement('div');
+            card.className = 'kanban-card';
+            card.draggable = true;
+            card.setAttribute('data-action', 'drag-task');
+            card.setAttribute('data-subtask', 'task-management');
+            
+            card.innerHTML = `
+                <div class="card-title">${title}</div>
+                <div class="card-description">New task created via quick form</div>
+                <div class="card-meta">
+                    <span class="card-priority priority-${priority}">${priority.charAt(0).toUpperCase() + priority.slice(1)}</span>
+                    <span>${assigneeNames[assignee]}</span>
+                </div>
+            `;
+
+            // Add drag event listeners
+            card.addEventListener('dragstart', function(e) {
+                draggedElement = this;
+                this.classList.add('dragging');
+            });
+
+            card.addEventListener('dragend', function(e) {
+                this.classList.remove('dragging');
+                draggedElement = null;
+            });
+
+            const todoColumn = document.querySelector('[data-status="todo"]');
+            const addButton = todoColumn.querySelector('.add-task-btn');
+            todoColumn.insertBefore(card, addButton);
+
+            // Clear form
+            document.getElementById('quick-task-title').value = '';
+            document.getElementById('quick-task-priority').value = 'low';
+            document.getElementById('quick-task-assignee').value = 'john-doe';
+
+            updateTaskCounts();
+            showAlert('Task created successfully!', 'success');
+        }
+
+        // Modal functionality
+        function openTaskModal(status) {
+            document.getElementById('task-modal').style.display = 'block';
+            document.getElementById('task-modal').setAttribute('data-status', status);
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Task form submission
+        document.getElementById('task-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('modal-task-title').value;
+            const description = document.getElementById('modal-task-description').value;
+            const priority = document.getElementById('modal-task-priority').value;
+            const assignee = document.getElementById('modal-task-assignee').value;
+            const status = document.getElementById('task-modal').getAttribute('data-status');
+
+            if (!title) {
+                alert('Please enter a task title');
+                return;
+            }
+
+            const assigneeNames = {
+                'john-doe': 'John Doe',
+                'jane-smith': 'Jane Smith',
+                'mike-johnson': 'Mike Johnson',
+                'sarah-wilson': 'Sarah Wilson'
+            };
+
+            const card = document.createElement('div');
+            card.className = 'kanban-card';
+            card.draggable = true;
+            card.setAttribute('data-action', 'drag-task');
+            card.setAttribute('data-subtask', 'task-management');
+            
+            card.innerHTML = `
+                <div class="card-title">${title}</div>
+                <div class="card-description">${description || 'No description provided'}</div>
+                <div class="card-meta">
+                    <span class="card-priority priority-${priority}">${priority.charAt(0).toUpperCase() + priority.slice(1)}</span>
+                    <span>${assigneeNames[assignee]}</span>
+                </div>
+            `;
+
+            // Add drag event listeners
+            card.addEventListener('dragstart', function(e) {
+                draggedElement = this;
+                this.classList.add('dragging');
+            });
+
+            card.addEventListener('dragend', function(e) {
+                this.classList.remove('dragging');
+                draggedElement = null;
+            });
+
+            const targetColumn = document.querySelector(`[data-status="${status}"]`);
+            const addButton = targetColumn.querySelector('.add-task-btn');
+            targetColumn.insertBefore(card, addButton);
+
+            updateTaskCounts();
+            closeModal('task-modal');
+            this.reset();
+            showAlert('Task created successfully!', 'success');
+        });
+
+        // Form reset functionality
+        function resetForm(formId) {
+            document.getElementById(formId).reset();
+            showAlert('Form has been reset', 'success');
+        }
+
+        // Table sorting functionality
+        function sortTable(tableId, columnIndex) {
+            const table = document.getElementById(tableId);
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            const header = table.querySelectorAll('th')[columnIndex];
+            
+            // Remove sort classes from all headers
+            table.querySelectorAll('th').forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+            });
+            
+            // Determine sort direction
+            const isAscending = !header.classList.contains('sort-asc');
+            
+            // Sort rows
+            rows.sort((a, b) => {
+                const aText = a.cells[columnIndex].textContent.trim();
+                const bText = b.cells[columnIndex].textContent.trim();
+                
+                if (isAscending) {
+                    return aText.localeCompare(bText);
+                } else {
+                    return bText.localeCompare(aText);
+                }
+            });
+            
+            // Update header class
+            header.classList.add(isAscending ? 'sort-asc' : 'sort-desc');
+            
+            // Reorder rows in table
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        // Table filtering functionality
+        function filterTable(tableId, searchTerm) {
+            const table = document.getElementById(tableId);
+            const rows = table.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm.toLowerCase())) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function filterTableByStatus(tableId, status) {
+            const table = document.getElementById(tableId);
+            const rows = table.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                if (!status) {
+                    row.style.display = '';
+                } else {
+                    const statusCell = row.querySelector('.status-badge');
+                    if (statusCell && statusCell.textContent.toLowerCase().includes(status)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        // File upload handling
+        function handleFileUpload(files) {
+            Array.from(files).forEach(file => {
+                console.log('File uploaded:', file.name);
+                showAlert(`File "${file.name}" uploaded successfully!`, 'success');
+            });
+        }
+
+        // Report generation
+        function generateReport() {
+            const reportType = document.getElementById('report-type').value;
+            const startDate = document.getElementById('date-range-start').value;
+            const endDate = document.getElementById('date-range-end').value;
+            const format = document.getElementById('report-format').value;
+
+            if (!reportType) {
+                alert('Please select a report type');
+                return;
+            }
+
+            // Show loading state
+            const button = event.target;
+            const originalText = button.textContent;
+            button.innerHTML = '<span class="loading"></span> Generating...';
+            button.disabled = true;
+
+            // Simulate report generation
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.disabled = false;
+                showAlert(`${reportType.replace('-', ' ').toUpperCase()} report generated successfully!`, 'success');
+            }, 2000);
+        }
+
+        // Alert system
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            
+            document.body.insertBefore(alertDiv, document.body.firstChild);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
+        }
+
+        // Form submissions
+        document.getElementById('project-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            showAlert('Project created successfully!', 'success');
+        });
+
+        document.getElementById('employee-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            showAlert('Employee information saved successfully!', 'success');
+        });
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTaskCounts();
+            
+            // Set default dates
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('hire-date').value = today;
+            document.getElementById('start-date').value = today;
+            
+            const nextMonth = new Date();
+            nextMonth.setMonth(nextMonth.getMonth() + 1);
+            document.getElementById('end-date').value = nextMonth.toISOString().split('T')[0];
+        });
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(e) {
+            const modal = document.getElementById('task-modal');
+            if (e.target === modal) {
+                closeModal('task-modal');
+            }
+        });
+    </script>
+</body>
+</html>
