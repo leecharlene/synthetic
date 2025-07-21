@@ -1,0 +1,1410 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Data Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .tab-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .tab-nav {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .tab-btn {
+            padding: 1rem 2rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #6c757d;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-btn:hover {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            background: white;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 2rem;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Spreadsheet Styles */
+        .spreadsheet-container {
+            overflow: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .spreadsheet-toolbar {
+            background: #f8f9fa;
+            padding: 0.5rem;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .toolbar-btn {
+            padding: 0.25rem 0.5rem;
+            border: 1px solid #ccc;
+            background: white;
+            cursor: pointer;
+            border-radius: 3px;
+            font-size: 0.9rem;
+        }
+
+        .toolbar-btn:hover {
+            background: #e9ecef;
+        }
+
+        .toolbar-btn.active {
+            background: #007bff;
+            color: white;
+        }
+
+        .spreadsheet-table {
+            border-collapse: collapse;
+            width: 100%;
+            min-width: 800px;
+        }
+
+        .spreadsheet-table th,
+        .spreadsheet-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            position: relative;
+            min-width: 120px;
+        }
+
+        .spreadsheet-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .spreadsheet-table td {
+            cursor: cell;
+        }
+
+        .spreadsheet-table td:focus {
+            outline: 2px solid #007bff;
+            background: #e3f2fd;
+        }
+
+        .spreadsheet-table td.selected {
+            background: #e3f2fd;
+        }
+
+        .row-header {
+            background: #f8f9fa !important;
+            font-weight: 600;
+            text-align: center;
+            min-width: 50px !important;
+            cursor: pointer;
+        }
+
+        .col-header {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        /* Form Styles */
+        .form-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .form-section h3 {
+            color: #495057;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .file-upload {
+            border: 2px dashed #ced4da;
+            border-radius: 4px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+
+        .file-upload:hover {
+            border-color: #667eea;
+        }
+
+        .file-upload.dragover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .data-table th:hover {
+            background: #e9ecef;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .search-filter {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+
+        .filter-select {
+            padding: 0.5rem;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            min-width: 150px;
+        }
+
+        .alert {
+            padding: 0.75rem 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Enterprise Data Management System</h1>
+    </header>
+
+    <div class="container">
+        <div class="tab-container">
+            <nav class="tab-nav">
+                <button class="tab-btn active" data-action="tab-switch" data-subtask="navigation" onclick="switchTab('spreadsheet')">Data Spreadsheet</button>
+                <button class="tab-btn" data-action="tab-switch" data-subtask="navigation" onclick="switchTab('employee')">Employee Management</button>
+                <button class="tab-btn" data-action="tab-switch" data-subtask="navigation" onclick="switchTab('expenses')">Expense Reports</button>
+                <button class="tab-btn" data-action="tab-switch" data-subtask="navigation" onclick="switchTab('projects')">Project Management</button>
+                <button class="tab-btn" data-action="tab-switch" data-subtask="navigation" onclick="switchTab('analytics')">Analytics Dashboard</button>
+            </nav>
+
+            <!-- Spreadsheet Tab -->
+            <div id="spreadsheet" class="tab-content active">
+                <h3>Interactive Data Spreadsheet</h3>
+                <div class="spreadsheet-container">
+                    <div class="spreadsheet-toolbar">
+                        <button class="toolbar-btn" data-action="format-text" data-subtask="text-formatting" onclick="formatText('bold')" title="Bold"><b>B</b></button>
+                        <button class="toolbar-btn" data-action="format-text" data-subtask="text-formatting" onclick="formatText('italic')" title="Italic"><i>I</i></button>
+                        <button class="toolbar-btn" data-action="format-text" data-subtask="text-formatting" onclick="formatText('underline')" title="Underline"><u>U</u></button>
+                        <span style="border-left: 1px solid #ccc; height: 20px; margin: 0 0.5rem;"></span>
+                        <button class="toolbar-btn" data-action="table-manipulation" data-subtask="table-editing" onclick="addRow()">Add Row</button>
+                        <button class="toolbar-btn" data-action="table-manipulation" data-subtask="table-editing" onclick="addColumn()">Add Column</button>
+                        <button class="toolbar-btn" data-action="table-manipulation" data-subtask="table-editing" onclick="deleteRow()">Delete Row</button>
+                        <button class="toolbar-btn" data-action="table-manipulation" data-subtask="table-editing" onclick="deleteColumn()">Delete Column</button>
+                        <span style="border-left: 1px solid #ccc; height: 20px; margin: 0 0.5rem;"></span>
+                        <button class="toolbar-btn" data-action="data-operation" data-subtask="data-management" onclick="sortColumn()">Sort</button>
+                        <button class="toolbar-btn" data-action="data-operation" data-subtask="data-management" onclick="filterData()">Filter</button>
+                        <button class="toolbar-btn" data-action="data-operation" data-subtask="data-management" onclick="exportData()">Export</button>
+                    </div>
+                    <table class="spreadsheet-table" id="spreadsheetTable">
+                        <thead>
+                            <tr>
+                                <th class="row-header"></th>
+                                <th class="col-header" data-action="column-select" data-subtask="table-navigation" onclick="selectColumn(0)">Employee ID</th>
+                                <th class="col-header" data-action="column-select" data-subtask="table-navigation" onclick="selectColumn(1)">Full Name</th>
+                                <th class="col-header" data-action="column-select" data-subtask="table-navigation" onclick="selectColumn(2)">Department</th>
+                                <th class="col-header" data-action="column-select" data-subtask="table-navigation" onclick="selectColumn(3)">Position</th>
+                                <th class="col-header" data-action="column-select" data-subtask="table-navigation" onclick="selectColumn(4)">Salary</th>
+                                <th class="col-header" data-action="column-select" data-subtask="table-navigation" onclick="selectColumn(5)">Start Date</th>
+                                <th class="col-header" data-action="column-select" data-subtask="table-navigation" onclick="selectColumn(6)">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="spreadsheetBody">
+                            <tr>
+                                <td class="row-header" data-action="row-select" data-subtask="table-navigation" onclick="selectRow(0)">1</td>
+                                <td contenteditable="true" data-action="cell-edit" data-subtask="data-entry" onclick="selectCell(this)">EMP001</td>
+                                <td contenteditable="true" data-action="cell-edit" data-subtask="data-entry" onclick="selectCell(this)">John Smith</td>
+                                <td contenteditable="true" data-action="cell-edit" data-subtask="data-entry" onclick="selectCell(this)">Engineering</td>
+                                <td contenteditable="true" data-action="cell-edit" data-subtask="data-entry" onclick="selectCell(this)">Senior Developer</td>
+                                <td contenteditable="true" data-action="cell-edit" data-subtask="data-entry" onclick="selectCell(this)">$95,000</td>
+                                <td contenteditable="true" data-action="cell-edit" data-subtask="data-entry" onclick="selectCell(this)">2022-01-15</td>
+                                <td contenteditable="true" data-action="cell-edit" data-subtask="data-entry" onclick="selectCell(this)">Active</td>
+                            </tr>
+                            <tr>
+                                <td class="row-header" data-action="row-select" data-subtask="table-navigation" onclick="selectRow(1)">2</td>
+                                <td contenteditable="true" data-action="cell-edit" data-subtask="data-entry" onclick="selectCell(this)">EMP002</td>
+                                <td contenteditable="true" data-action="cell-edit" data-subtask="data-entry" onclick="selectCell(this)">Sarah Johnson</td>
+                                <td contenteditable="true" data-action="cell-edit" data-subtask="data-entry" onclick="selectCell(this)">Marketing</td>
+                                <td contenteditable="true" data-action="cell-edit" data-subtask="data-entry" onclick="selectCell(this)">Marketing Manager</td>
+                                <td contenteditable="true" data-action="cell-edit" data-subtask="data-entry" onclick="selectCell(this)">$78,000</td>
+                                <td contenteditable="true" data-action="cell-edit" data-subtask="data-entry" onclick="selectCell(this)">2021-08-20</td>
+                                <td contenteditable="true" data-action="cell-edit" data-subtask="data-entry" onclick="selectCell(this)">Active</td>
+                            </tr>
+                            <tr>
+                                <td class="row-header" data-action="row-select" data-subtask="table-navigation" onclick="selectRow(2)">3</td>
+                                <td contenteditable="true" data-action="cell-edit" data-subtask="data-entry" onclick="selectCell(this)">EMP003</td>
+                                <td contenteditable="true" data-action="cell-edit" data-subtask="data-entry" onclick="selectCell(this)">Michael Brown</td>
+                                <td contenteditable="true" data-action="cell-edit" data-subtask="data-entry" onclick="selectCell(this)">Finance</td>
+                                <td contenteditable="true" data-action="cell-edit" data-subtask="data-entry" onclick="selectCell(this)">Financial Analyst</td>
+                                <td contenteditable="true" data-action="cell-edit" data-subtask="data-entry" onclick="selectCell(this)">$65,000</td>
+                                <td contenteditable="true" data-action="cell-edit" data-subtask="data-entry" onclick="selectCell(this)">2023-03-10</td>
+                                <td contenteditable="true" data-action="cell-edit" data-subtask="data-entry" onclick="selectCell(this)">Active</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Employee Management Tab -->
+            <div id="employee" class="tab-content">
+                <div class="form-section">
+                    <h3>Employee Information Form</h3>
+                    <form id="employeeForm" data-action="form-submit" data-subtask="form-completion">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="empId">Employee ID</label>
+                                <input type="text" id="empId" class="form-control" data-action="text-input" data-subtask="data-entry" placeholder="EMP001" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="firstName">First Name</label>
+                                <input type="text" id="firstName" class="form-control" data-action="text-input" data-subtask="data-entry" placeholder="John" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName">Last Name</label>
+                                <input type="text" id="lastName" class="form-control" data-action="text-input" data-subtask="data-entry" placeholder="Smith" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email Address</label>
+                                <input type="email" id="email" class="form-control" data-action="text-input" data-subtask="data-entry" placeholder="john.smith@company.com" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Phone Number</label>
+                                <input type="tel" id="phone" class="form-control" data-action="text-input" data-subtask="data-entry" placeholder="(555) 123-4567">
+                            </div>
+                            <div class="form-group">
+                                <label for="department">Department</label>
+                                <select id="department" class="form-control" data-action="dropdown-select" data-subtask="form-selection" required>
+                                    <option value="">Select Department</option>
+                                    <option value="engineering">Engineering</option>
+                                    <option value="marketing">Marketing</option>
+                                    <option value="finance">Finance</option>
+                                    <option value="hr">Human Resources</option>
+                                    <option value="sales">Sales</option>
+                                    <option value="operations">Operations</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="position">Position</label>
+                                <input type="text" id="position" class="form-control" data-action="text-input" data-subtask="data-entry" placeholder="Senior Developer">
+                            </div>
+                            <div class="form-group">
+                                <label for="salary">Annual Salary</label>
+                                <input type="number" id="salary" class="form-control" data-action="number-input" data-subtask="data-entry" placeholder="75000" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="startDate">Start Date</label>
+                                <input type="date" id="startDate" class="form-control" data-action="date-select" data-subtask="date-entry" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="manager">Direct Manager</label>
+                                <select id="manager" class="form-control" data-action="dropdown-select" data-subtask="form-selection">
+                                    <option value="">Select Manager</option>
+                                    <option value="mgr001">Alice Wilson - Engineering Director</option>
+                                    <option value="mgr002">Bob Davis - Marketing Director</option>
+                                    <option value="mgr003">Carol Martinez - Finance Director</option>
+                                    <option value="mgr004">David Lee - HR Director</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Employment Type</label>
+                            <div class="radio-group">
+                                <div class="radio-item">
+                                    <input type="radio" id="fullTime" name="employmentType" value="full-time" data-action="radio-select" data-subtask="form-selection">
+                                    <label for="fullTime">Full-time</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="partTime" name="employmentType" value="part-time" data-action="radio-select" data-subtask="form-selection">
+                                    <label for="partTime">Part-time</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="contract" name="employmentType" value="contract" data-action="radio-select" data-subtask="form-selection">
+                                    <label for="contract">Contract</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="intern" name="employmentType" value="intern" data-action="radio-select" data-subtask="form-selection">
+                                    <label for="intern">Intern</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Benefits Enrollment</label>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="healthInsurance" data-action="checkbox-toggle" data-subtask="form-selection">
+                                    <label for="healthInsurance">Health Insurance</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="dentalInsurance" data-action="checkbox-toggle" data-subtask="form-selection">
+                                    <label for="dentalInsurance">Dental Insurance</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="retirement401k" data-action="checkbox-toggle" data-subtask="form-selection">
+                                    <label for="retirement401k">401(k) Retirement Plan</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="lifeInsurance" data-action="checkbox-toggle" data-subtask="form-selection">
+                                    <label for="lifeInsurance">Life Insurance</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="notes">Additional Notes</label>
+                            <textarea id="notes" class="form-control" rows="4" data-action="textarea-input" data-subtask="data-entry" placeholder="Enter any additional information about the employee..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Document Upload</label>
+                            <div class="file-upload" data-action="file-upload" data-subtask="file-management" onclick="document.getElementById('fileInput').click()">
+                                <input type="file" id="fileInput" style="display: none;" multiple accept=".pdf,.doc,.docx,.jpg,.png">
+                                <p>Click to upload employee documents or drag and drop files here</p>
+                                <p style="font-size: 0.9rem; color: #6c757d;">Supported formats: PDF, DOC, DOCX, JPG, PNG</p>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                            <button type="submit" class="btn btn-primary" data-action="form-submit" data-subtask="form-completion">Save Employee</button>
+                            <button type="button" class="btn btn-secondary" data-action="form-reset" data-subtask="form-management" onclick="resetForm('employeeForm')">Reset Form</button>
+                            <button type="button" class="btn btn-success" data-action="form-preview" data-subtask="form-management" onclick="previewEmployee()">Preview</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Expense Reports Tab -->
+            <div id="expenses" class="tab-content">
+                <div class="form-section">
+                    <h3>Expense Report Submission</h3>
+                    <form id="expenseForm" data-action="form-submit" data-subtask="form-completion">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="expenseId">Report ID</label>
+                                <input type="text" id="expenseId" class="form-control" data-action="text-input" data-subtask="data-entry" placeholder="EXP-2024-001" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="submitter">Submitted By</label>
+                                <select id="submitter" class="form-control" data-action="dropdown-select" data-subtask="form-selection" required>
+                                    <option value="">Select Employee</option>
+                                    <option value="emp001">John Smith - Engineering</option>
+                                    <option value="emp002">Sarah Johnson - Marketing</option>
+                                    <option value="emp003">Michael Brown - Finance</option>
+                                    <option value="emp004">Lisa Davis - Sales</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="expenseDate">Expense Date</label>
+                                <input type="date" id="expenseDate" class="form-control" data-action="date-select" data-subtask="date-entry" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="expenseCategory">Category</label>
+                                <select id="expenseCategory" class="form-control" data-action="dropdown-select" data-subtask="form-selection" required>
+                                    <option value="">Select Category</option>
+                                    <option value="travel">Travel & Transportation</option>
+                                    <option value="meals">Meals & Entertainment</option>
+                                    <option value="office">Office Supplies</option>
+                                    <option value="software">Software & Subscriptions</option>
+                                    <option value="training">Training & Education</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="amount">Amount ($)</label>
+                                <input type="number" id="amount" class="form-control" data-action="number-input" data-subtask="data-entry" placeholder="0.00" step="0.01" min="0" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="currency">Currency</label>
+                                <select id="currency" class="form-control" data-action="dropdown-select" data-subtask="form-selection">
+                                    <option value="USD">USD - US Dollar</option>
+                                    <option value="EUR">EUR - Euro</option>
+                                    <option value="GBP">GBP - British Pound</option>
+                                    <option value="CAD">CAD - Canadian Dollar</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea id="description" class="form-control" rows="3" data-action="textarea-input" data-subtask="data-entry" placeholder="Provide detailed description of the expense..." required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Payment Method</label>
+                            <div class="radio-group">
+                                <div class="radio-item">
+                                    <input type="radio" id="creditCard" name="paymentMethod" value="credit-card" data-action="radio-select" data-subtask="form-selection">
+                                    <label for="creditCard">Corporate Credit Card</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="personalCard" name="paymentMethod" value="personal-card" data-action="radio-select" data-subtask="form-selection">
+                                    <label for="personalCard">Personal Card (Reimbursement)</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="cash" name="paymentMethod" value="cash" data-action="radio-select" data-subtask="form-selection">
+                                    <label for="cash">Cash</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Expense Type</label>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="billable" data-action="checkbox-toggle" data-subtask="form-selection">
+                                    <label for="billable">Billable to Client</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="recurring" data-action="checkbox-toggle" data-subtask="form-selection">
+                                    <label for="recurring">Recurring Expense</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="urgent" data-action="checkbox-toggle" data-subtask="form-selection">
+                                    <label for="urgent">Urgent Processing Required</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Receipt Upload</label>
+                            <div class="file-upload" data-action="file-upload" data-subtask="file-management" onclick="document.getElementById('receiptInput').click()">
+                                <input type="file" id="receiptInput" style="display: none;" multiple accept=".pdf,.jpg,.png,.jpeg">
+                                <p>Upload receipt images or PDFs</p>
+                                <p style="font-size: 0.9rem; color: #6c757d;">Maximum file size: 10MB per file</p>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                            <button type="submit" class="btn btn-primary" data-action="form-submit" data-subtask="form-completion">Submit Expense Report</button>
+                            <button type="button" class="btn btn-secondary" data-action="form-save-draft" data-subtask="form-management" onclick="saveDraft()">Save as Draft</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Project Management Tab -->
+            <div id="projects" class="tab-content">
+                <div class="search-filter">
+                    <input type="text" class="search-input" placeholder="Search projects..." data-action="search-input" data-subtask="search-filter" id="projectSearch">
+                    <select class="filter-select" data-action="filter-select" data-subtask="search-filter" id="statusFilter">
+                        <option value="">All Statuses</option>
+                        <option value="active">Active</option>
+                        <option value="pending">Pending</option>
+                        <option value="completed">Completed</option>
+                        <option value="on-hold">On Hold</option>
+                    </select>
+                    <select class="filter-select" data-action="filter-select" data-subtask="search-filter" id="departmentFilter">
+                        <option value="">All Departments</option>
+                        <option value="engineering">Engineering</option>
+                        <option value="marketing">Marketing</option>
+                        <option value="finance">Finance</option>
+                        <option value="sales">Sales</option>
+                    </select>
+                    <button class="btn btn-primary" data-action="add-project" data-subtask="project-management" onclick="openProjectModal()">Add New Project</button>
+                </div>
+
+                <table class="data-table" id="projectTable">
+                    <thead>
+                        <tr>
+                            <th data-action="sort-column" data-subtask="table-sorting" onclick="sortTable(0)">Project ID</th>
+                            <th data-action="sort-column" data-subtask="table-sorting" onclick="sortTable(1)">Project Name</th>
+                            <th data-action="sort-column" data-subtask="table-sorting" onclick="sortTable(2)">Department</th>
+                            <th data-action="sort-column" data-subtask="table-sorting" onclick="sortTable(3)">Manager</th>
+                            <th data-action="sort-column" data-subtask="table-sorting" onclick="sortTable(4)">Start Date</th>
+                            <th data-action="sort-column" data-subtask="table-sorting" onclick="sortTable(5)">End Date</th>
+                            <th data-action="sort-column" data-subtask="table-sorting" onclick="sortTable(6)">Budget</th>
+                            <th data-action="sort-column" data-subtask="table-sorting" onclick="sortTable(7)">Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="projectTableBody">
+                        <tr>
+                            <td>PRJ001</td>
+                            <td>Website Redesign</td>
+                            <td>Engineering</td>
+                            <td>Alice Wilson</td>
+                            <td>2024-01-15</td>
+                            <td>2024-06-30</td>
+                            <td>$125,000</td>
+                            <td><span class="status-badge status-active">Active</span></td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" data-action="edit-project" data-subtask="project-management" onclick="editProject('PRJ001')">Edit</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>PRJ002</td>
+                            <td>Marketing Campaign Q2</td>
+                            <td>Marketing</td>
+                            <td>Bob Davis</td>
+                            <td>2024-03-01</td>
+                            <td>2024-05-31</td>
+                            <td>$75,000</td>
+                            <td><span class="status-badge status-pending">Pending</span></td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" data-action="edit-project" data-subtask="project-management" onclick="editProject('PRJ002')">Edit</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>PRJ003</td>
+                            <td>Financial System Upgrade</td>
+                            <td>Finance</td>
+                            <td>Carol Martinez</td>
+                            <td>2023-09-01</td>
+                            <td>2024-02-29</td>
+                            <td>$200,000</td>
+                            <td><span class="status-badge status-active">Active</span></td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" data-action="edit-project" data-subtask="project-management" onclick="editProject('PRJ003')">Edit</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Analytics Dashboard Tab -->
+            <div id="analytics" class="tab-content">
+                <h3>Analytics Dashboard</h3>
+                
+                <div class="form-grid" style="margin-bottom: 2rem;">
+                    <div class="form-group">
+                        <label for="dateRange">Date Range</label>
+                        <select id="dateRange" class="form-control" data-action="dropdown-select" data-subtask="analytics-filter">
+                            <option value="7days">Last 7 Days</option>
+                            <option value="30days">Last 30 Days</option>
+                            <option value="90days">Last 90 Days</option>
+                            <option value="1year">Last Year</option>
+                            <option value="custom">Custom Range</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="metricType">Metric Type</label>
+                        <select id="metricType" class="form-control" data-action="dropdown-select" data-subtask="analytics-filter">
+                            <option value="employees">Employee Metrics</option>
+                            <option value="expenses">Expense Analysis</option>
+                            <option value="projects">Project Performance</option>
+                            <option value="departments">Department Overview</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4>Key Performance Indicators</h4>
+                    <div class="form-grid">
+                        <div style="text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                            <h3 style="color: #667eea; margin-bottom: 0.5rem;">247</h3>
+                            <p style="margin: 0; color: #6c757d;">Total Employees</p>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                            <h3 style="color: #28a745; margin-bottom: 0.5rem;">$1.2M</h3>
+                            <p style="margin: 0; color: #6c757d;">Total Budget</p>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                            <h3 style="color: #ffc107; margin-bottom: 0.5rem;">15</h3>
+                            <p style="margin: 0; color: #6c757d;">Active Projects</p>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                            <h3 style="color: #dc3545; margin-bottom: 0.5rem;">$45K</h3>
+                            <p style="margin: 0; color: #6c757d;">Monthly Expenses</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4>Generate Report</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="reportType">Report Type</label>
+                            <select id="reportType" class="form-control" data-action="dropdown-select" data-subtask="report-generation">
+                                <option value="">Select Report Type</option>
+                                <option value="employee-summary">Employee Summary Report</option>
+                                <option value="expense-analysis">Expense Analysis Report</option>
+                                <option value="project-status">Project Status Report</option>
+                                <option value="department-performance">Department Performance Report</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="reportFormat">Format</label>
+                            <select id="reportFormat" class="form-control" data-action="dropdown-select" data-subtask="report-generation">
+                                <option value="pdf">PDF</option>
+                                <option value="excel">Excel</option>
+                                <option value="csv">CSV</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" data-action="generate-report" data-subtask="report-generation" onclick="generateReport()">Generate Report</button>
+                </div>
+
+                <div class="loading" id="loadingIndicator">
+                    <div class="spinner"></div>
+                    <p>Generating report...</p>
+                </div>
+
+                <div class="progress-bar" style="display: none;" id="progressBar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Project Management -->
+    <div id="projectModal" class="modal">
+        <div class="modal-content">
+            <span class="close" data-action="modal-close" data-subtask="modal-management" onclick="closeProjectModal()">&times;</span>
+            <h3>Add New Project</h3>
+            <form id="projectForm">
+                <div class="form-group">
+                    <label for="modalProjectId">Project ID</label>
+                    <input type="text" id="modalProjectId" class="form-control" data-action="text-input" data-subtask="data-entry" placeholder="PRJ004">
+                </div>
+                <div class="form-group">
+                    <label for="modalProjectName">Project Name</label>
+                    <input type="text" id="modalProjectName" class="form-control" data-action="text-input" data-subtask="data-entry" placeholder="Enter project name">
+                </div>
+                <div class="form-group">
+                    <label for="modalProjectDept">Department</label>
+                    <select id="modalProjectDept" class="form-control" data-action="dropdown-select" data-subtask="form-selection">
+                        <option value="">Select Department</option>
+                        <option value="engineering">Engineering</option>
+                        <option value="marketing">Marketing</option>
+                        <option value="finance">Finance</option>
+                        <option value="sales">Sales</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-primary" data-action="save-project" data-subtask="project-management" onclick="saveProject()">Save Project</button>
+                    <button type="button" class="btn btn-secondary" data-action="cancel-project" data-subtask="modal-management" onclick="closeProjectModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentSelectedCell = null;
+        let currentRow = -1;
+        let currentCol = -1;
+
+        // Tab switching functionality
+        function switchTab(tabName) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Remove active class from all tab buttons
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            tabBtns.forEach(btn => btn.classList.remove('active'));
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab button
+            event.target.classList.add('active');
+        }
+
+        // Spreadsheet functionality
+        function selectCell(cell) {
+            // Remove previous selection
+            if (currentSelectedCell) {
+                currentSelectedCell.classList.remove('selected');
+            }
+            
+            // Select new cell
+            currentSelectedCell = cell;
+            cell.classList.add('selected');
+            cell.focus();
+        }
+
+        function selectRow(rowIndex) {
+            const table = document.getElementById('spreadsheetTable');
+            const rows = table.querySelectorAll('tbody tr');
+            
+            // Clear previous selections
+            document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+            
+            // Select entire row
+            if (rows[rowIndex]) {
+                const cells = rows[rowIndex].querySelectorAll('td');
+                cells.forEach(cell => cell.classList.add('selected'));
+                currentRow = rowIndex;
+            }
+        }
+
+        function selectColumn(colIndex) {
+            const table = document.getElementById('spreadsheetTable');
+            const rows = table.querySelectorAll('tr');
+            
+            // Clear previous selections
+            document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+            
+            // Select entire column
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('th, td');
+                if (cells[colIndex + 1]) { // +1 to account for row header
+                    cells[colIndex + 1].classList.add('selected');
+                }
+            });
+            currentCol = colIndex;
+        }
+
+        function formatText(format) {
+            if (currentSelectedCell) {
+                const selection = window.getSelection();
+                if (selection.rangeCount > 0) {
+                    document.execCommand(format, false, null);
+                } else {
+                    // Apply formatting to entire cell
+                    const currentStyle = currentSelectedCell.style;
+                    switch(format) {
+                        case 'bold':
+                            currentStyle.fontWeight = currentStyle.fontWeight === 'bold' ? 'normal' : 'bold';
+                            break;
+                        case 'italic':
+                            currentStyle.fontStyle = currentStyle.fontStyle === 'italic' ? 'normal' : 'italic';
+                            break;
+                        case 'underline':
+                            currentStyle.textDecoration = currentStyle.textDecoration === 'underline' ? 'none' : 'underline';
+                            break;
+                    }
+                }
+            }
+        }
+
+        function addRow() {
+            const tbody = document.getElementById('spreadsheetBody');
+            const newRowIndex = tbody.children.length + 1;
+            const colCount = tbody.children[0].children.length - 1; // -1 for row header
+            
+            const newRow = document.createElement('tr');
+            
+            // Add row header
+            const rowHeader = document.createElement('td');
+            rowHeader.className = 'row-header';
+            rowHeader.textContent = newRowIndex;
+            rowHeader.setAttribute('data-action', 'row-select');
+            rowHeader.setAttribute('data-subtask', 'table-navigation');
+            rowHeader.onclick = () => selectRow(newRowIndex - 1);
+            newRow.appendChild(rowHeader);
+            
+            // Add data cells
+            for (let i = 0; i < colCount; i++) {
+                const cell = document.createElement('td');
+                cell.contentEditable = true;
+                cell.setAttribute('data-action', 'cell-edit');
+                cell.setAttribute('data-subtask', 'data-entry');
+                cell.onclick = () => selectCell(cell);
+                newRow.appendChild(cell);
+            }
+            
+            tbody.appendChild(newRow);
+        }
+
+        function addColumn() {
+            const table = document.getElementById('spreadsheetTable');
+            const headerRow = table.querySelector('thead tr');
+            const bodyRows = table.querySelectorAll('tbody tr');
+            
+            // Add header
+            const newHeader = document.createElement('th');
+            newHeader.className = 'col-header';
+            newHeader.textContent = 'New Column';
+            newHeader.setAttribute('data-action', 'column-select');
+            newHeader.setAttribute('data-subtask', 'table-navigation');
+            const colIndex = headerRow.children.length - 1;
+            newHeader.onclick = () => selectColumn(colIndex);
+            headerRow.appendChild(newHeader);
+            
+            // Add cells to each row
+            bodyRows.forEach(row => {
+                const newCell = document.createElement('td');
+                newCell.contentEditable = true;
+                newCell.setAttribute('data-action', 'cell-edit');
+                newCell.setAttribute('data-subtask', 'data-entry');
+                newCell.onclick = () => selectCell(newCell);
+                row.appendChild(newCell);
+            });
+        }
+
+        function deleteRow() {
+            if (currentRow >= 0) {
+                const tbody = document.getElementById('spreadsheetBody');
+                if (tbody.children[currentRow]) {
+                    tbody.removeChild(tbody.children[currentRow]);
+                    // Update row numbers
+                    Array.from(tbody.children).forEach((row, index) => {
+                        row.querySelector('.row-header').textContent = index + 1;
+                    });
+                    currentRow = -1;
+                }
+            }
+        }
+
+        function deleteColumn() {
+            if (currentCol >= 0) {
+                const table = document.getElementById('spreadsheetTable');
+                const rows = table.querySelectorAll('tr');
+                
+                rows.forEach(row => {
+                    const cells = row.querySelectorAll('th, td');
+                    if (cells[currentCol + 1]) { // +1 to account for row header
+                        row.removeChild(cells[currentCol + 1]);
+                    }
+                });
+                currentCol = -1;
+            }
+        }
+
+        function sortColumn() {
+            if (currentCol >= 0) {
+                const tbody = document.getElementById('spreadsheetBody');
+                const rows = Array.from(tbody.querySelectorAll('tr'));
+                
+                rows.sort((a, b) => {
+                    const aVal = a.children[currentCol + 1].textContent.trim();
+                    const bVal = b.children[currentCol + 1].textContent.trim();
+                    return aVal.localeCompare(bVal);
+                });
+                
+                rows.forEach(row => tbody.appendChild(row));
+                showAlert('Column sorted successfully!', 'success');
+            }
+        }
+
+        function filterData() {
+            const filterValue = prompt('Enter filter value:');
+            if (filterValue && currentCol >= 0) {
+                const tbody = document.getElementById('spreadsheetBody');
+                const rows = tbody.querySelectorAll('tr');
+                
+                rows.forEach(row => {
+                    const cellValue = row.children[currentCol + 1].textContent.trim().toLowerCase();
+                    if (cellValue.includes(filterValue.toLowerCase())) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+                showAlert('Filter applied successfully!', 'success');
+            }
+        }
+
+        function exportData() {
+            const table = document.getElementById('spreadsheetTable');
+            let csv = '';
+            
+            // Export headers
+            const headers = table.querySelectorAll('thead th');
+            const headerRow = Array.from(headers).slice(1).map(th => th.textContent).join(',');
+            csv += headerRow + '\n';
+            
+            // Export data
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const cells = Array.from(row.querySelectorAll('td')).slice(1);
+                const rowData = cells.map(td => td.textContent).join(',');
+                csv += rowData + '\n';
+            });
+            
+            // Download CSV
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'spreadsheet_data.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Form handling
+        function resetForm(formId) {
+            document.getElementById(formId).reset();
+            showAlert('Form reset successfully!', 'success');
+        }
+
+        function previewEmployee() {
+            const form = document.getElementById('employeeForm');
+            const formData = new FormData(form);
+            let preview = 'Employee Preview:\n\n';
+            
+            for (let [key, value] of formData.entries()) {
+                preview += `${key}: ${value}\n`;
+            }
+            
+            alert(preview);
+        }
+
+        function saveDraft() {
+            showAlert('Draft saved successfully!', 'success');
+        }
+
+        // Project management
+        function openProjectModal() {
+            document.getElementById('projectModal').style.display = 'block';
+        }
+
+        function closeProjectModal() {
+            document.getElementById('projectModal').style.display = 'none';
+        }
+
+        function saveProject() {
+            const projectId = document.getElementById('modalProjectId').value;
+            const projectName = document.getElementById('modalProjectName').value;
+            const department = document.getElementById('modalProjectDept').value;
+            
+            if (projectId && projectName && department) {
+                // Add to table (simplified)
+                const tbody = document.getElementById('projectTableBody');
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td>${projectId}</td>
+                    <td>${projectName}</td>
+                    <td>${department}</td>
+                    <td>TBD</td>
+                    <td>${new Date().toISOString().split('T')[0]}</td>
+                    <td>TBD</td>
+                    <td>$0</td>
+                    <td><span class="status-badge status-pending">Pending</span></td>
+                    <td><button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="editProject('${projectId}')">Edit</button></td>
+                `;
+                tbody.appendChild(newRow);
+                
+                closeProjectModal();
+                showAlert('Project added successfully!', 'success');
+            }
+        }
+
+        function editProject(projectId) {
+            alert(`Editing project: ${projectId}`);
+        }
+
+        function sortTable(columnIndex) {
+            const table = document.getElementById('projectTable');
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            rows.sort((a, b) => {
+                const aVal = a.children[columnIndex].textContent.trim();
+                const bVal = b.children[columnIndex].textContent.trim();
+                return aVal.localeCompare(bVal);
+            });
+            
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        // Analytics
+        function generateReport() {
+            const reportType = document.getElementById('reportType').value;
+            const reportFormat = document.getElementById('reportFormat').value;
+            
+            if (!reportType) {
+                showAlert('Please select a report type!', 'error');
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('loadingIndicator').style.display = 'block';
+            document.getElementById('progressBar').style.display = 'block';
+            
+            // Simulate progress
+            let progress = 0;
+            const progressFill = document.getElementById('progressFill');
+            const interval = setInterval(() => {
+                progress += 10;
+                progressFill.style.width = progress + '%';
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        document.getElementById('loadingIndicator').style.display = 'none';
+                        document.getElementById('progressBar').style.display = 'none';
+                        progressFill.style.width = '0%';
+                        showAlert(`${reportType} report generated successfully in ${reportFormat} format!`, 'success');
+                    }, 500);
+                }
+            }, 200);
+        }
+
+        // Utility functions
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type === 'success' ? 'success' : 'error'}`;
+            alertDiv.textContent = message;
+            
+            const container = document.querySelector('.container');
+            container.insertBefore(alertDiv, container.firstChild);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
+        }
+
+        // File upload handling
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle file uploads
+            const fileUploads = document.querySelectorAll('.file-upload');
+            fileUploads.forEach(upload => {
+                upload.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.classList.add('dragover');
+                });
+                
+                upload.addEventListener('dragleave', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('dragover');
+                });
+                
+                upload.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('dragover');
+                    const files = e.dataTransfer.files;
+                    handleFiles(files);
+                });
+            });
+            
+            // Handle form submissions
+            document.getElementById('employeeForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                showAlert('Employee information saved successfully!', 'success');
+            });
+            
+            document.getElementById('expenseForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                showAlert('Expense report submitted successfully!', 'success');
+            });
+            
+            // Search functionality
+            document.getElementById('projectSearch').addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const rows = document.querySelectorAll('#projectTableBody tr');
+                
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(searchTerm) ? '' : 'none';
+                });
+            });
+            
+            // Filter functionality
+            document.getElementById('statusFilter').addEventListener('change', function() {
+                const filterValue = this.value;
+                const rows = document.querySelectorAll('#projectTableBody tr');
+                
+                rows.forEach(row => {
+                    if (!filterValue) {
+                        row.style.display = '';
+                    } else {
+                        const statusCell = row.querySelector('.status-badge');
+                        const status = statusCell.textContent.toLowerCase();
+                        row.style.display = status.includes(filterValue) ? '' : 'none';
+                    }
+                });
+            });
+        });
+
+        function handleFiles(files) {
+            Array.from(files).forEach(file => {
+                console.log('File uploaded:', file.name);
+            });
+            showAlert(`${files.length} file(s) uploaded successfully!`, 'success');
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('projectModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
