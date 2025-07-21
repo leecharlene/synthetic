@@ -117,19 +117,6 @@
             display: none;
         }
 
-        .autocomplete-item {
-            padding: 1rem 2rem;
-            cursor: pointer;
-            border-bottom: 1px solid #f0f0f0;
-            transition: background 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .autocomplete-item:hover {
-            background: #f8f9ff;
-        }
 
         .autocomplete-icon {
             width: 20px;
@@ -241,10 +228,29 @@
         .tab-content {
             padding: 2rem;
             display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
         }
 
         .tab-content.active {
             display: block;
+            opacity: 1;
+        }
+
+        .autocomplete-item {
+            padding: 1rem 2rem;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .autocomplete-item:hover {
+            background: #f8f9ff !important;
+            border-left: 4px solid #667eea !important;
+            transform: translateX(2px);
         }
 
         .form-group {
@@ -1205,40 +1211,170 @@
             
             if (query.length === 0) {
                 autocompleteResults.style.display = 'none';
+                autocompleteResults.innerHTML = '';
                 return;
             }
 
             const filteredResults = searchData.filter(item => 
                 item.title.toLowerCase().includes(query) || 
                 item.description.toLowerCase().includes(query)
-            );
+            ).slice(0, 6); // Limit to 6 results for better performance
 
             if (filteredResults.length > 0) {
-                autocompleteResults.innerHTML = filteredResults.map(item => `
-                    <div class="autocomplete-item" data-target="${item.target}" data-action="autocomplete_select" data-subtask="search_autocomplete">
+                autocompleteResults.innerHTML = filteredResults.map((item, index) => `
+                    <div class="autocomplete-item" data-target="${item.target}" data-index="${index}" data-action="autocomplete_select" data-subtask="search_autocomplete">
                         <div class="autocomplete-icon">${item.icon}</div>
                         <div>
-                            <div style="font-weight: 500;">${item.title}</div>
-                            <div style="font-size: 0.9rem; color: #666;">${item.description}</div>
+                            <div style="font-weight: 500; color: #333;">${highlightMatch(item.title, query)}</div>
+                            <div style="font-size: 0.9rem; color: #666;">${highlightMatch(item.description, query)}</div>
                         </div>
                     </div>
                 `).join('');
                 autocompleteResults.style.display = 'block';
             } else {
-                autocompleteResults.style.display = 'none';
+                autocompleteResults.innerHTML = '<div class="autocomplete-item" style="color: #999; font-style: italic;">No results found</div>';
+                autocompleteResults.style.display = 'block';
             }
         });
+
+        // Helper function to highlight matching text
+        function highlightMatch(text, query) {
+            if (!query) return text;
+            const regex = new RegExp(`(${query})`, 'gi');
+            return text.replace(regex, '<strong style="background: #fff3cd;">$1</strong>');
+        }
 
         // Handle autocomplete item clicks
         autocompleteResults.addEventListener('click', function(e) {
             const item = e.target.closest('.autocomplete-item');
-            if (item) {
+            if (item && item.dataset.target) {
                 const target = item.dataset.target;
+                const titleElement = item.querySelector('div > div');
+                const title = titleElement ? titleElement.textContent.replace(/<[^>]*>/g, '') : target;
+                
                 switchToTab(target);
-                searchInput.value = '';
-                autocompleteResults.style.display = 'none';
-                showNotification('Navigated to ' + item.querySelector('div > div').textContent, 'success');
+                clearSearch();
+                showNotification('Navigated to ' + title, 'success');
             }
+        });
+
+        // Clear search function
+        function clearSearch() {
+            searchInput.value = '';
+            autocompleteResults.style.display = 'none';
+            autocompleteResults.innerHTML = '';
+        }
+
+        // Enhanced search function
+        function performSearch() {
+            const query = searchInput.value.toLowerCase().trim();
+            
+            if (query.length === 0) {
+                showNotification('Please enter a search term', 'error');
+                searchInput.focus();
+                return false;
+            }
+
+            // Find exact matches first, then partial matches
+            const exactMatches = searchData.filter(item => 
+                item.title.toLowerCase() === query
+            );
+            
+            const partialMatches = searchData.filter(item => 
+                item.title.toLowerCase().includes(query) || 
+                item.description.toLowerCase().includes(query)
+            );
+
+            const allMatches = [...exactMatches, ...partialMatches.filter(item => !exactMatches.includes(item))];
+
+            if (allMatches.length > 0) {
+                const bestMatch = allMatches[0];
+                switchToTab(bestMatch.target);
+                clearSearch();
+                showNotification('Navigated to ' + bestMatch.title, 'success');
+                return true;
+            } else {
+                showNotification('No results found for "' + query + '"', 'error');
+                return false;
+            }
+        }
+
+        // Search button click handler
+        document.querySelector('.search-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            performSearch();
+        });
+
+        // Enhanced keyboard navigation
+        let selectedIndex = -1;
+
+        searchInput.addEventListener('keydown', function(e) {
+            const visibleItems = autocompleteResults.querySelectorAll('.autocomplete-item[data-target]');
+            
+            switch(e.key) {
+                case 'Enter':
+                    e.preventDefault();
+                    if (selectedIndex >= 0 && selectedIndex < visibleItems.length) {
+                        // Use selected item
+                        const selectedItem = visibleItems[selectedIndex];
+                        const target = selectedItem.dataset.target;
+                        const titleElement = selectedItem.querySelector('div > div');
+                        const title = titleElement ? titleElement.textContent.replace(/<[^>]*>/g, '') : target;
+                        
+                        switchToTab(target);
+                        clearSearch();
+                        showNotification('Navigated to ' + title, 'success');
+                    } else if (visibleItems.length > 0 && autocompleteResults.style.display !== 'none') {
+                        // Use first visible result
+                        const firstItem = visibleItems[0];
+                        const target = firstItem.dataset.target;
+                        const titleElement = firstItem.querySelector('div > div');
+                        const title = titleElement ? titleElement.textContent.replace(/<[^>]*>/g, '') : target;
+                        
+                        switchToTab(target);
+                        clearSearch();
+                        showNotification('Navigated to ' + title, 'success');
+                    } else {
+                        // Perform search
+                        performSearch();
+                    }
+                    break;
+                    
+                case 'ArrowDown':
+                    e.preventDefault();
+                    selectedIndex = Math.min(selectedIndex + 1, visibleItems.length - 1);
+                    updateSelection(visibleItems, selectedIndex);
+                    break;
+                    
+                case 'ArrowUp':
+                    e.preventDefault();
+                    selectedIndex = Math.max(selectedIndex - 1, -1);
+                    updateSelection(visibleItems, selectedIndex);
+                    break;
+                    
+                case 'Escape':
+                    clearSearch();
+                    selectedIndex = -1;
+                    break;
+            }
+        });
+
+        // Update visual selection
+        function updateSelection(items, index) {
+            items.forEach((item, i) => {
+                if (i === index) {
+                    item.style.background = '#e6f3ff';
+                    item.style.borderLeft = '4px solid #667eea';
+                } else {
+                    item.style.background = '';
+                    item.style.borderLeft = '';
+                }
+            });
+        }
+
+        // Reset selection when typing
+        searchInput.addEventListener('input', function() {
+            selectedIndex = -1;
         });
 
         // Hide autocomplete when clicking outside
@@ -1248,11 +1384,24 @@
             }
         });
 
-        // Tab switching functionality
+        // Enhanced tab switching functionality
         function switchToTab(tabId) {
-            // Hide all tab contents
+            if (!tabId) {
+                console.error('switchToTab: tabId is required');
+                return false;
+            }
+
+            // Add smooth transition effect
+            const tabsContainer = document.querySelector('.tabs-container');
+            if (tabsContainer) {
+                tabsContainer.style.transition = 'opacity 0.2s ease';
+                tabsContainer.style.opacity = '0.7';
+            }
+
+            // Hide all tab contents with smooth transition
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.remove('active');
+                content.style.opacity = '0';
             });
             
             // Remove active class from all tab buttons
@@ -1263,13 +1412,40 @@
             // Show target tab content
             const targetContent = document.getElementById(tabId);
             if (targetContent) {
-                targetContent.classList.add('active');
+                // Smooth reveal of new content
+                setTimeout(() => {
+                    targetContent.classList.add('active');
+                    targetContent.style.opacity = '1';
+                    
+                    // Find and activate corresponding tab button
+                    const targetButton = document.querySelector(`[data-tab="${tabId}"]`);
+                    if (targetButton) {
+                        targetButton.classList.add('active');
+                    }
+
+                    // Restore container opacity
+                    if (tabsContainer) {
+                        tabsContainer.style.opacity = '1';
+                    }
+
+                    // Scroll tab into view if needed
+                    targetContent.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'start',
+                        inline: 'nearest'
+                    });
+                }, 100);
+
+                return true;
+            } else {
+                console.error(`switchToTab: Tab with id "${tabId}" not found`);
                 
-                // Find and activate corresponding tab button
-                const targetButton = document.querySelector(`[data-tab="${tabId}"]`);
-                if (targetButton) {
-                    targetButton.classList.add('active');
+                // Restore container opacity on error
+                if (tabsContainer) {
+                    tabsContainer.style.opacity = '1';
                 }
+                
+                return false;
             }
         }
 
