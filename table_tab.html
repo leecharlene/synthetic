@@ -161,9 +161,24 @@
             cursor: pointer;
         }
 
+        .row-header.selected {
+            background: #007bff !important;
+            color: white !important;
+        }
+
         .col-header {
             cursor: pointer;
             user-select: none;
+        }
+
+        .col-header.selected {
+            background: #007bff !important;
+            color: white !important;
+        }
+
+        .sort-indicator {
+            font-size: 0.8em;
+            margin-left: 5px;
         }
 
         /* Form Styles */
@@ -483,8 +498,25 @@
                         <button class="toolbar-btn" data-action="table-manipulation" data-subtask="table-editing" onclick="deleteRow()">Delete Row</button>
                         <button class="toolbar-btn" data-action="table-manipulation" data-subtask="table-editing" onclick="deleteColumn()">Delete Column</button>
                         <span style="border-left: 1px solid #ccc; height: 20px; margin: 0 0.5rem;"></span>
-                        <button class="toolbar-btn" data-action="data-operation" data-subtask="data-management" onclick="sortColumn()">Sort</button>
-                        <button class="toolbar-btn" data-action="data-operation" data-subtask="data-management" onclick="filterData()">Filter</button>
+                        <select class="toolbar-btn" data-action="data-operation" data-subtask="data-management" id="sortSelect" onchange="sortColumn()">
+                            <option value="">Sort by...</option>
+                            <option value="0-asc">Employee ID (A-Z)</option>
+                            <option value="0-desc">Employee ID (Z-A)</option>
+                            <option value="1-asc">Name (A-Z)</option>
+                            <option value="1-desc">Name (Z-A)</option>
+                            <option value="2-asc">Department (A-Z)</option>
+                            <option value="2-desc">Department (Z-A)</option>
+                            <option value="4-asc">Salary (Low-High)</option>
+                            <option value="4-desc">Salary (High-Low)</option>
+                        </select>
+                        <select class="toolbar-btn" data-action="data-operation" data-subtask="data-management" id="filterSelect" onchange="filterData()">
+                            <option value="">Filter by...</option>
+                            <option value="department-Engineering">Engineering</option>
+                            <option value="department-Marketing">Marketing</option>
+                            <option value="department-Finance">Finance</option>
+                            <option value="status-Active">Active Only</option>
+                        </select>
+                        <button class="toolbar-btn" data-action="data-operation" data-subtask="data-management" onclick="clearFilter()">Clear Filter</button>
                         <button class="toolbar-btn" data-action="data-operation" data-subtask="data-management" onclick="exportData()">Export</button>
                     </div>
                     <table class="spreadsheet-table" id="spreadsheetTable">
@@ -1018,6 +1050,13 @@
                 const cells = rows[rowIndex].querySelectorAll('td');
                 cells.forEach(cell => cell.classList.add('selected'));
                 currentRow = rowIndex;
+                currentCol = -1; // Clear column selection
+                
+                // Highlight row header
+                const rowHeader = rows[rowIndex].querySelector('.row-header');
+                if (rowHeader) rowHeader.classList.add('selected');
+                
+                showAlert(`Row ${rowIndex + 1} selected`, 'success');
             }
         }
 
@@ -1036,6 +1075,14 @@
                 }
             });
             currentCol = colIndex;
+            currentRow = -1; // Clear row selection
+            
+            // Highlight column header
+            const headerRow = table.querySelector('thead tr');
+            const colHeader = headerRow.children[colIndex + 1];
+            if (colHeader) colHeader.classList.add('selected');
+            
+            showAlert(`Column ${colIndex + 1} selected`, 'success');
         }
 
         function formatText(format) {
@@ -1120,63 +1167,138 @@
             if (currentRow >= 0) {
                 const tbody = document.getElementById('spreadsheetBody');
                 if (tbody.children[currentRow]) {
-                    tbody.removeChild(tbody.children[currentRow]);
-                    // Update row numbers
-                    Array.from(tbody.children).forEach((row, index) => {
-                        row.querySelector('.row-header').textContent = index + 1;
-                    });
-                    currentRow = -1;
+                    if (confirm(`Are you sure you want to delete row ${currentRow + 1}?`)) {
+                        tbody.removeChild(tbody.children[currentRow]);
+                        // Update row numbers
+                        Array.from(tbody.children).forEach((row, index) => {
+                            const rowHeader = row.querySelector('.row-header');
+                            rowHeader.textContent = index + 1;
+                            rowHeader.onclick = () => selectRow(index);
+                        });
+                        currentRow = -1;
+                        // Clear all selections
+                        document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+                        showAlert('Row deleted successfully!', 'success');
+                    }
+                } else {
+                    showAlert('No rows available to delete!', 'error');
                 }
+            } else {
+                showAlert('Please select a row first by clicking on the row number!', 'error');
             }
         }
 
         function deleteColumn() {
             if (currentCol >= 0) {
                 const table = document.getElementById('spreadsheetTable');
-                const rows = table.querySelectorAll('tr');
+                const headerRow = table.querySelector('thead tr');
+                const columnName = headerRow.children[currentCol + 1].textContent;
                 
-                rows.forEach(row => {
-                    const cells = row.querySelectorAll('th, td');
-                    if (cells[currentCol + 1]) { // +1 to account for row header
-                        row.removeChild(cells[currentCol + 1]);
-                    }
-                });
-                currentCol = -1;
+                if (confirm(`Are you sure you want to delete the '${columnName}' column?`)) {
+                    const rows = table.querySelectorAll('tr');
+                    
+                    rows.forEach(row => {
+                        const cells = row.querySelectorAll('th, td');
+                        if (cells[currentCol + 1]) { // +1 to account for row header
+                            row.removeChild(cells[currentCol + 1]);
+                        }
+                    });
+                    
+                    // Update column click handlers
+                    const newHeaders = headerRow.querySelectorAll('.col-header');
+                    newHeaders.forEach((header, index) => {
+                        header.onclick = () => selectColumn(index);
+                    });
+                    
+                    currentCol = -1;
+                    // Clear all selections
+                    document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+                    showAlert('Column deleted successfully!', 'success');
+                }
+            } else {
+                showAlert('Please select a column first by clicking on the column header!', 'error');
             }
         }
 
         function sortColumn() {
-            if (currentCol >= 0) {
-                const tbody = document.getElementById('spreadsheetBody');
-                const rows = Array.from(tbody.querySelectorAll('tr'));
-                
-                rows.sort((a, b) => {
-                    const aVal = a.children[currentCol + 1].textContent.trim();
-                    const bVal = b.children[currentCol + 1].textContent.trim();
-                    return aVal.localeCompare(bVal);
-                });
-                
-                rows.forEach(row => tbody.appendChild(row));
-                showAlert('Column sorted successfully!', 'success');
+            const sortSelect = document.getElementById('sortSelect');
+            const sortValue = sortSelect.value;
+            
+            if (!sortValue) {
+                showAlert('Please select a sort option!', 'error');
+                return;
             }
+            
+            const [colIndex, direction] = sortValue.split('-');
+            const tbody = document.getElementById('spreadsheetBody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            // Clear previous sort indicators
+            document.querySelectorAll('.sort-indicator').forEach(el => el.remove());
+            
+            rows.sort((a, b) => {
+                let aVal = a.children[parseInt(colIndex) + 1].textContent.trim();
+                let bVal = b.children[parseInt(colIndex) + 1].textContent.trim();
+                
+                // Handle numeric sorting for salary column
+                if (colIndex === '4') {
+                    aVal = parseFloat(aVal.replace(/[$,]/g, '')) || 0;
+                    bVal = parseFloat(bVal.replace(/[$,]/g, '')) || 0;
+                    return direction === 'asc' ? aVal - bVal : bVal - aVal;
+                }
+                
+                // Text sorting
+                const result = aVal.localeCompare(bVal);
+                return direction === 'asc' ? result : -result;
+            });
+            
+            rows.forEach(row => tbody.appendChild(row));
+            
+            // Add sort indicator
+            const headerRow = document.querySelector('thead tr');
+            const header = headerRow.children[parseInt(colIndex) + 1];
+            const indicator = document.createElement('span');
+            indicator.className = 'sort-indicator';
+            indicator.textContent = direction === 'asc' ? ' ▲' : ' ▼';
+            header.appendChild(indicator);
+            
+            showAlert(`Sorted by ${header.textContent.replace(' ▲', '').replace(' ▼', '')} (${direction === 'asc' ? 'ascending' : 'descending'})!`, 'success');
         }
 
         function filterData() {
-            const filterValue = prompt('Enter filter value:');
-            if (filterValue && currentCol >= 0) {
-                const tbody = document.getElementById('spreadsheetBody');
-                const rows = tbody.querySelectorAll('tr');
-                
-                rows.forEach(row => {
-                    const cellValue = row.children[currentCol + 1].textContent.trim().toLowerCase();
-                    if (cellValue.includes(filterValue.toLowerCase())) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-                showAlert('Filter applied successfully!', 'success');
+            const filterSelect = document.getElementById('filterSelect');
+            const filterValue = filterSelect.value;
+            
+            if (!filterValue) {
+                showAlert('Please select a filter option!', 'error');
+                return;
             }
+            
+            const [filterType, filterText] = filterValue.split('-');
+            const tbody = document.getElementById('spreadsheetBody');
+            const rows = tbody.querySelectorAll('tr');
+            let visibleCount = 0;
+            
+            rows.forEach(row => {
+                let shouldShow = false;
+                
+                if (filterType === 'department') {
+                    const deptCell = row.children[3]; // Department column
+                    shouldShow = deptCell.textContent.trim() === filterText;
+                } else if (filterType === 'status') {
+                    const statusCell = row.children[7]; // Status column
+                    shouldShow = statusCell.textContent.trim() === filterText;
+                }
+                
+                if (shouldShow) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            
+            showAlert(`Filter applied: showing ${visibleCount} of ${rows.length} rows`, 'success');
         }
 
         function exportData() {
@@ -1313,6 +1435,20 @@
                     }, 500);
                 }
             }, 200);
+        }
+
+        function clearFilter() {
+            const tbody = document.getElementById('spreadsheetBody');
+            const rows = tbody.querySelectorAll('tr');
+            
+            rows.forEach(row => {
+                row.style.display = '';
+            });
+            
+            // Reset filter dropdown
+            document.getElementById('filterSelect').value = '';
+            
+            showAlert('Filter cleared - showing all rows', 'success');
         }
 
         // Utility functions
