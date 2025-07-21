@@ -1,0 +1,1324 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Business Hub - Icon Recognition & Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.2em;
+        }
+
+        .tab-navigation {
+            display: flex;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px 25px;
+            border: none;
+            background: transparent;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            min-width: 120px;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+        }
+
+        .tab-content {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Icon Grid Styles */
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 20px;
+            padding: 20px 0;
+        }
+
+        .icon-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            data-action: "icon-click";
+        }
+
+        .icon-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(145deg, #fff, #f1f3f4);
+        }
+
+        .icon-item.selected {
+            background: linear-gradient(145deg, #e3f2fd, #bbdefb);
+            border: 2px solid #2196f3;
+        }
+
+        .icon-symbol {
+            font-size: 2.5em;
+            margin-bottom: 8px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        }
+
+        .icon-label {
+            font-size: 0.8em;
+            font-weight: 500;
+            text-align: center;
+            color: #555;
+        }
+
+        /* Form Styles */
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .form-section h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: #fff;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #229954);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        /* Table Styles */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .data-table th {
+            background: linear-gradient(135deg, #34495e, #2c3e50);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .data-table th:hover {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* Search and Filter */
+        .search-filter-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .filter-dropdown {
+            min-width: 150px;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: linear-gradient(90deg, #3498db, #2980b9);
+            transition: width 0.3s ease;
+        }
+
+        /* File Upload */
+        .file-upload-area {
+            border: 2px dashed #3498db;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .file-upload-area:hover {
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+
+        .file-upload-area.dragover {
+            background: #e3f2fd;
+            border-color: #2196f3;
+            transform: scale(1.02);
+        }
+
+        /* Checkbox and Radio Styles */
+        .checkbox-group,
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item,
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .checkbox-item:hover,
+        .radio-item:hover {
+            background: #f0f0f0;
+        }
+
+        /* Date Picker Enhancement */
+        input[type="date"] {
+            position: relative;
+            cursor: pointer;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-filter-bar {
+                flex-direction: column;
+            }
+            
+            .icon-grid {
+                grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+                gap: 15px;
+            }
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, #27ae60, #229954);
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏢 Enterprise Business Hub</h1>
+            <p>Comprehensive Icon Recognition & Business Management Platform</p>
+        </div>
+
+        <div class="tab-navigation">
+            <button class="tab-btn active" data-action="tab-switch" data-subtask="navigation" onclick="switchTab('icons')">📱 Icon Gallery</button>
+            <button class="tab-btn" data-action="tab-switch" data-subtask="navigation" onclick="switchTab('employee')">👥 Employee Management</button>
+            <button class="tab-btn" data-action="tab-switch" data-subtask="navigation" onclick="switchTab('expenses')">💰 Expense Reports</button>
+            <button class="tab-btn" data-action="tab-switch" data-subtask="navigation" onclick="switchTab('projects')">📊 Project Management</button>
+            <button class="tab-btn" data-action="tab-switch" data-subtask="navigation" onclick="switchTab('data')">📈 Data Analytics</button>
+        </div>
+
+        <!-- Icon Gallery Tab -->
+        <div id="icons" class="tab-content active">
+            <div class="form-section">
+                <h3>🎨 Interactive Icon Gallery</h3>
+                <p style="margin-bottom: 20px; color: #666;">Click on icons to select them. Use the search and filter options to find specific icons.</p>
+                
+                <div class="search-filter-bar">
+                    <div class="search-box">
+                        <input type="text" id="iconSearch" class="form-control" placeholder="🔍 Search icons..." data-action="search" data-subtask="icon-search" oninput="searchIcons()">
+                    </div>
+                    <select id="iconCategory" class="form-control filter-dropdown" data-action="filter" data-subtask="icon-filter" onchange="filterIcons()">
+                        <option value="all">All Categories</option>
+                        <option value="business">Business</option>
+                        <option value="communication">Communication</option>
+                        <option value="technology">Technology</option>
+                        <option value="finance">Finance</option>
+                        <option value="productivity">Productivity</option>
+                    </select>
+                    <button class="btn btn-primary" data-action="clear-selection" data-subtask="icon-management" onclick="clearIconSelection()">Clear Selection</button>
+                </div>
+
+                <div class="icon-grid" id="iconGrid">
+                    <!-- Business Icons -->
+                    <div class="icon-item" data-category="business" data-name="briefcase" data-action="icon-select" data-subtask="icon-interaction" onclick="selectIcon(this)">
+                        <div class="icon-symbol">💼</div>
+                        <div class="icon-label">Briefcase</div>
+                    </div>
+                    <div class="icon-item" data-category="business" data-name="handshake" data-action="icon-select" data-subtask="icon-interaction" onclick="selectIcon(this)">
+                        <div class="icon-symbol">🤝</div>
+                        <div class="icon-label">Handshake</div>
+                    </div>
+                    <div class="icon-item" data-category="business" data-name="building" data-action="icon-select" data-subtask="icon-interaction" onclick="selectIcon(this)">
+                        <div class="icon-symbol">🏢</div>
+                        <div class="icon-label">Building</div>
+                    </div>
+                    <div class="icon-item" data-category="business" data-name="chart" data-action="icon-select" data-subtask="icon-interaction" onclick="selectIcon(this)">
+                        <div class="icon-symbol">📊</div>
+                        <div class="icon-label">Chart</div>
+                    </div>
+                    <div class="icon-item" data-category="business" data-name="target" data-action="icon-select" data-subtask="icon-interaction" onclick="selectIcon(this)">
+                        <div class="icon-symbol">🎯</div>
+                        <div class="icon-label">Target</div>
+                    </div>
+                    
+                    <!-- Communication Icons -->
+                    <div class="icon-item" data-category="communication" data-name="email" data-action="icon-select" data-subtask="icon-interaction" onclick="selectIcon(this)">
+                        <div class="icon-symbol">📧</div>
+                        <div class="icon-label">Email</div>
+                    </div>
+                    <div class="icon-item" data-category="communication" data-name="phone" data-action="icon-select" data-subtask="icon-interaction" onclick="selectIcon(this)">
+                        <div class="icon-symbol">📞</div>
+                        <div class="icon-label">Phone</div>
+                    </div>
+                    <div class="icon-item" data-category="communication" data-name="message" data-action="icon-select" data-subtask="icon-interaction" onclick="selectIcon(this)">
+                        <div class="icon-symbol">💬</div>
+                        <div class="icon-label">Message</div>
+                    </div>
+                    <div class="icon-item" data-category="communication" data-name="video-call" data-action="icon-select" data-subtask="icon-interaction" onclick="selectIcon(this)">
+                        <div class="icon-symbol">📹</div>
+                        <div class="icon-label">Video Call</div>
+                    </div>
+                    <div class="icon-item" data-category="communication" data-name="announcement" data-action="icon-select" data-subtask="icon-interaction" onclick="selectIcon(this)">
+                        <div class="icon-symbol">📢</div>
+                        <div class="icon-label">Announcement</div>
+                    </div>
+
+                    <!-- Technology Icons -->
+                    <div class="icon-item" data-category="technology" data-name="computer" data-action="icon-select" data-subtask="icon-interaction" onclick="selectIcon(this)">
+                        <div class="icon-symbol">💻</div>
+                        <div class="icon-label">Computer</div>
+                    </div>
+                    <div class="icon-item" data-category="technology" data-name="mobile" data-action="icon-select" data-subtask="icon-interaction" onclick="selectIcon(this)">
+                        <div class="icon-symbol">📱</div>
+                        <div class="icon-label">Mobile</div>
+                    </div>
+                    <div class="icon-item" data-category="technology" data-name="cloud" data-action="icon-select" data-subtask="icon-interaction" onclick="selectIcon(this)">
+                        <div class="icon-symbol">☁️</div>
+                        <div class="icon-label">Cloud</div>
+                    </div>
+                    <div class="icon-item" data-category="technology" data-name="database" data-action="icon-select" data-subtask="icon-interaction" onclick="selectIcon(this)">
+                        <div class="icon-symbol">🗄️</div>
+                        <div class="icon-label">Database</div>
+                    </div>
+                    <div class="icon-item" data-category="technology" data-name="security" data-action="icon-select" data-subtask="icon-interaction" onclick="selectIcon(this)">
+                        <div class="icon-symbol">🔒</div>
+                        <div class="icon-label">Security</div>
+                    </div>
+
+                    <!-- Finance Icons -->
+                    <div class="icon-item" data-category="finance" data-name="money" data-action="icon-select" data-subtask="icon-interaction" onclick="selectIcon(this)">
+                        <div class="icon-symbol">💰</div>
+                        <div class="icon-label">Money</div>
+                    </div>
+                    <div class="icon-item" data-category="finance" data-name="credit-card" data-action="icon-select" data-subtask="icon-interaction" onclick="selectIcon(this)">
+                        <div class="icon-symbol">💳</div>
+                        <div class="icon-label">Credit Card</div>
+                    </div>
+                    <div class="icon-item" data-category="finance" data-name="bank" data-action="icon-select" data-subtask="icon-interaction" onclick="selectIcon(this)">
+                        <div class="icon-symbol">🏦</div>
+                        <div class="icon-label">Bank</div>
+                    </div>
+                    <div class="icon-item" data-category="finance" data-name="invoice" data-action="icon-select" data-subtask="icon-interaction" onclick="selectIcon(this)">
+                        <div class="icon-symbol">🧾</div>
+                        <div class="icon-label">Invoice</div>
+                    </div>
+                    <div class="icon-item" data-category="finance" data-name="calculator" data-action="icon-select" data-subtask="icon-interaction" onclick="selectIcon(this)">
+                        <div class="icon-symbol">🧮</div>
+                        <div class="icon-label">Calculator</div>
+                    </div>
+
+                    <!-- Productivity Icons -->
+                    <div class="icon-item" data-category="productivity" data-name="calendar" data-action="icon-select" data-subtask="icon-interaction" onclick="selectIcon(this)">
+                        <div class="icon-symbol">📅</div>
+                        <div class="icon-label">Calendar</div>
+                    </div>
+                    <div class="icon-item" data-category="productivity" data-name="clock" data-action="icon-select" data-subtask="icon-interaction" onclick="selectIcon(this)">
+                        <div class="icon-symbol">⏰</div>
+                        <div class="icon-label">Clock</div>
+                    </div>
+                    <div class="icon-item" data-category="productivity" data-name="checklist" data-action="icon-select" data-subtask="icon-interaction" onclick="selectIcon(this)">
+                        <div class="icon-symbol">✅</div>
+                        <div class="icon-label">Checklist</div>
+                    </div>
+                    <div class="icon-item" data-category="productivity" data-name="document" data-action="icon-select" data-subtask="icon-interaction" onclick="selectIcon(this)">
+                        <div class="icon-symbol">📄</div>
+                        <div class="icon-label">Document</div>
+                    </div>
+                    <div class="icon-item" data-category="productivity" data-name="folder" data-action="icon-select" data-subtask="icon-interaction" onclick="selectIcon(this)">
+                        <div class="icon-symbol">📁</div>
+                        <div class="icon-label">Folder</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px;">
+                    <h4>Selected Icons:</h4>
+                    <div id="selectedIcons" style="margin-top: 10px; font-weight: 600; color: #3498db;">
+                        None selected
+                    </div>
+                    <button class="btn btn-success" style="margin-top: 15px;" data-action="save-selection" data-subtask="icon-management" onclick="saveIconSelection()">Save Selection</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employee Management Tab -->
+        <div id="employee" class="tab-content">
+            <div class="form-section">
+                <h3>👥 Employee Information Management</h3>
+                <form id="employeeForm" data-action="form-submit" data-subtask="employee-management">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="empFirstName">First Name *</label>
+                            <input type="text" id="empFirstName" name="firstName" class="form-control" required data-action="input" data-subtask="text-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="empLastName">Last Name *</label>
+                            <input type="text" id="empLastName" name="lastName" class="form-control" required data-action="input" data-subtask="text-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="empEmail">Email Address *</label>
+                            <input type="email" id="empEmail" name="email" class="form-control" required data-action="input" data-subtask="email-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="empPhone">Phone Number</label>
+                            <input type="tel" id="empPhone" name="phone" class="form-control" data-action="input" data-subtask="phone-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="empDepartment">Department *</label>
+                            <select id="empDepartment" name="department" class="form-control" required data-action="select" data-subtask="dropdown-selection">
+                                <option value="">Select Department</option>
+                                <option value="hr">Human Resources</option>
+                                <option value="it">Information Technology</option>
+                                <option value="finance">Finance</option>
+                                <option value="marketing">Marketing</option>
+                                <option value="sales">Sales</option>
+                                <option value="operations">Operations</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="empPosition">Position *</label>
+                            <input type="text" id="empPosition" name="position" class="form-control" required data-action="input" data-subtask="text-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="empStartDate">Start Date *</label>
+                            <input type="date" id="empStartDate" name="startDate" class="form-control" required data-action="date-select" data-subtask="date-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="empSalary">Annual Salary</label>
+                            <input type="number" id="empSalary" name="salary" class="form-control" min="0" step="1000" data-action="input" data-subtask="number-input">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Employment Type *</label>
+                        <div class="radio-group">
+                            <div class="radio-item">
+                                <input type="radio" id="fullTime" name="employmentType" value="full-time" required data-action="radio-select" data-subtask="radio-selection">
+                                <label for="fullTime">Full-time</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="partTime" name="employmentType" value="part-time" data-action="radio-select" data-subtask="radio-selection">
+                                <label for="partTime">Part-time</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="contract" name="employmentType" value="contract" data-action="radio-select" data-subtask="radio-selection">
+                                <label for="contract">Contract</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="intern" name="employmentType" value="intern" data-action="radio-select" data-subtask="radio-selection">
+                                <label for="intern">Intern</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Skills & Certifications</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="skillJS" name="skills" value="javascript" data-action="checkbox-select" data-subtask="checkbox-selection">
+                                <label for="skillJS">JavaScript</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="skillPython" name="skills" value="python" data-action="checkbox-select" data-subtask="checkbox-selection">
+                                <label for="skillPython">Python</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="skillPM" name="skills" value="project-management" data-action="checkbox-select" data-subtask="checkbox-selection">
+                                <label for="skillPM">Project Management</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="skillDesign" name="skills" value="design" data-action="checkbox-select" data-subtask="checkbox-selection">
+                                <label for="skillDesign">UI/UX Design</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="skillData" name="skills" value="data-analysis" data-action="checkbox-select" data-subtask="checkbox-selection">
+                                <label for="skillData">Data Analysis</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="empNotes">Additional Notes</label>
+                        <textarea id="empNotes" name="notes" class="form-control" rows="4" placeholder="Enter any additional information about the employee..." data-action="textarea-input" data-subtask="text-area"></textarea>
+                    </div>
+
+                    <div style="display: flex; gap: 15px; margin-top: 30px;">
+                        <button type="submit" class="btn btn-primary" data-action="form-submit" data-subtask="form-submission">Add Employee</button>
+                        <button type="button" class="btn btn-secondary" onclick="resetForm('employeeForm')" data-action="form-reset" data-subtask="form-management">Reset Form</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Expense Reports Tab -->
+        <div id="expenses" class="tab-content">
+            <div class="form-section">
+                <h3>💰 Expense Report Management</h3>
+                <form id="expenseForm" data-action="form-submit" data-subtask="expense-management">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="expEmployee">Employee Name *</label>
+                            <select id="expEmployee" name="employee" class="form-control" required data-action="select" data-subtask="employee-selection">
+                                <option value="">Select Employee</option>
+                                <option value="john-doe">John Doe</option>
+                                <option value="jane-smith">Jane Smith</option>
+                                <option value="mike-johnson">Mike Johnson</option>
+                                <option value="sarah-wilson">Sarah Wilson</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="expDate">Expense Date *</label>
+                            <input type="date" id="expDate" name="expenseDate" class="form-control" required data-action="date-select" data-subtask="date-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="expCategory">Category *</label>
+                            <select id="expCategory" name="category" class="form-control" required data-action="select" data-subtask="category-selection">
+                                <option value="">Select Category</option>
+                                <option value="travel">Travel</option>
+                                <option value="meals">Meals & Entertainment</option>
+                                <option value="office">Office Supplies</option>
+                                <option value="software">Software & Subscriptions</option>
+                                <option value="training">Training & Development</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="expAmount">Amount ($) *</label>
+                            <input type="number" id="expAmount" name="amount" class="form-control" min="0" step="0.01" required data-action="input" data-subtask="amount-input">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="expDescription">Description *</label>
+                        <textarea id="expDescription" name="description" class="form-control" rows="3" placeholder="Provide details about the expense..." required data-action="textarea-input" data-subtask="description-input"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Receipt Upload</label>
+                        <div class="file-upload-area" id="receiptUpload" data-action="file-upload" data-subtask="file-management">
+                            <div style="font-size: 2em; margin-bottom: 10px;">📎</div>
+                            <div>Drag and drop receipt files here or click to browse</div>
+                            <div style="font-size: 0.9em; color: #666; margin-top: 5px;">Supported formats: PDF, JPG, PNG (Max 5MB)</div>
+                            <input type="file" id="receiptFile" name="receipt" accept=".pdf,.jpg,.jpeg,.png" style="display: none;" data-action="file-select" data-subtask="file-input">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="expReimbursable" name="reimbursable" value="yes" data-action="checkbox-select" data-subtask="reimbursement-option">
+                            <label for="expReimbursable">This expense is reimbursable</label>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 15px; margin-top: 30px;">
+                        <button type="submit" class="btn btn-primary" data-action="form-submit" data-subtask="expense-submission">Submit Expense</button>
+                        <button type="button" class="btn btn-secondary" onclick="resetForm('expenseForm')" data-action="form-reset" data-subtask="form-management">Clear Form</button>
+                    </div>
+                </form>
+
+                <div style="margin-top: 40px;">
+                    <h4>Recent Expense Reports</h4>
+                    <div class="search-filter-bar">
+                        <input type="text" id="expenseSearch" class="form-control search-box" placeholder="Search expenses..." data-action="search" data-subtask="expense-search">
+                        <select id="expenseFilter" class="form-control filter-dropdown" data-action="filter" data-subtask="expense-filter">
+                            <option value="all">All Categories</option>
+                            <option value="travel">Travel</option>
+                            <option value="meals">Meals</option>
+                            <option value="office">Office</option>
+                        </select>
+                    </div>
+                    <table class="data-table" id="expenseTable">
+                        <thead>
+                            <tr>
+                                <th data-action="sort" data-subtask="table-sort" onclick="sortTable('expenseTable', 0)">Date</th>
+                                <th data-action="sort" data-subtask="table-sort" onclick="sortTable('expenseTable', 1)">Employee</th>
+                                <th data-action="sort" data-subtask="table-sort" onclick="sortTable('expenseTable', 2)">Category</th>
+                                <th data-action="sort" data-subtask="table-sort" onclick="sortTable('expenseTable', 3)">Amount</th>
+                                <th data-action="sort" data-subtask="table-sort" onclick="sortTable('expenseTable', 4)">Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2024-01-15</td>
+                                <td>John Doe</td>
+                                <td>Travel</td>
+                                <td>$245.50</td>
+                                <td><span class="status-badge status-pending">Pending</span></td>
+                                <td>
+                                    <button class="btn btn-primary" style="padding: 5px 10px; font-size: 0.8em;" data-action="view-expense" data-subtask="expense-management">View</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2024-01-14</td>
+                                <td>Jane Smith</td>
+                                <td>Meals</td>
+                                <td>$67.80</td>
+                                <td><span class="status-badge status-active">Approved</span></td>
+                                <td>
+                                    <button class="btn btn-primary" style="padding: 5px 10px; font-size: 0.8em;" data-action="view-expense" data-subtask="expense-management">View</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2024-01-13</td>
+                                <td>Mike Johnson</td>
+                                <td>Office</td>
+                                <td>$123.45</td>
+                                <td><span class="status-badge status-inactive">Rejected</span></td>
+                                <td>
+                                    <button class="btn btn-primary" style="padding: 5px 10px; font-size: 0.8em;" data-action="view-expense" data-subtask="expense-management">View</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Project Management Tab -->
+        <div id="projects" class="tab-content">
+            <div class="form-section">
+                <h3>📊 Project Management Dashboard</h3>
+                <form id="projectForm" data-action="form-submit" data-subtask="project-management">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="projName">Project Name *</label>
+                            <input type="text" id="projName" name="projectName" class="form-control" required data-action="input" data-subtask="project-name-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="projManager">Project Manager *</label>
+                            <select id="projManager" name="manager" class="form-control" required data-action="select" data-subtask="manager-selection">
+                                <option value="">Select Manager</option>
+                                <option value="alice-brown">Alice Brown</option>
+                                <option value="bob-davis">Bob Davis</option>
+                                <option value="carol-white">Carol White</option>
+                                <option value="david-lee">David Lee</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="projStartDate">Start Date *</label>
+                            <input type="date" id="projStartDate" name="startDate" class="form-control" required data-action="date-select" data-subtask="start-date-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="projEndDate">End Date *</label>
+                            <input type="date" id="projEndDate" name="endDate" class="form-control" required data-action="date-select" data-subtask="end-date-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="projBudget">Budget ($)</label>
+                            <input type="number" id="projBudget" name="budget" class="form-control" min="0" step="1000" data-action="input" data-subtask="budget-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="projPriority">Priority Level *</label>
+                            <select id="projPriority" name="priority" class="form-control" required data-action="select" data-subtask="priority-selection">
+                                <option value="">Select Priority</option>
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                                <option value="critical">Critical</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="projDescription">Project Description *</label>
+                        <textarea id="projDescription" name="description" class="form-control" rows="4" placeholder="Describe the project objectives and scope..." required data-action="textarea-input" data-subtask="project-description"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Team Members</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="teamJohn" name="team" value="john-doe" data-action="checkbox-select" data-subtask="team-selection">
+                                <label for="teamJohn">John Doe (Developer)</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="teamJane" name="team" value="jane-smith" data-action="checkbox-select" data-subtask="team-selection">
+                                <label for="teamJane">Jane Smith (Designer)</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="teamMike" name="team" value="mike-johnson" data-action="checkbox-select" data-subtask="team-selection">
+                                <label for="teamMike">Mike Johnson (Analyst)</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="teamSarah" name="team" value="sarah-wilson" data-action="checkbox-select" data-subtask="team-selection">
+                                <label for="teamSarah">Sarah Wilson (QA)</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 15px; margin-top: 30px;">
+                        <button type="submit" class="btn btn-primary" data-action="form-submit" data-subtask="project-creation">Create Project</button>
+                        <button type="button" class="btn btn-secondary" onclick="resetForm('projectForm')" data-action="form-reset" data-subtask="form-management">Reset Form</button>
+                    </div>
+                </form>
+
+                <div style="margin-top: 40px;">
+                    <h4>Active Projects</h4>
+                    <div class="search-filter-bar">
+                        <input type="text" id="projectSearch" class="form-control search-box" placeholder="Search projects..." data-action="search" data-subtask="project-search">
+                        <select id="projectStatusFilter" class="form-control filter-dropdown" data-action="filter" data-subtask="project-status-filter">
+                            <option value="all">All Status</option>
+                            <option value="planning">Planning</option>
+                            <option value="active">Active</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                        <button class="btn btn-primary" data-action="export" data-subtask="data-export" onclick="exportProjects()">Export Data</button>
+                    </div>
+
+                    <table class="data-table" id="projectTable">
+                        <thead>
+                            <tr>
+                                <th data-action="sort" data-subtask="table-sort" onclick="sortTable('projectTable', 0)">Project Name</th>
+                                <th data-action="sort" data-subtask="table-sort" onclick="sortTable('projectTable', 1)">Manager</th>
+                                <th data-action="sort" data-subtask="table-sort" onclick="sortTable('projectTable', 2)">Start Date</th>
+                                <th data-action="sort" data-subtask="table-sort" onclick="sortTable('projectTable', 3)">End Date</th>
+                                <th data-action="sort" data-subtask="table-sort" onclick="sortTable('projectTable', 4)">Status</th>
+                                <th>Progress</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Website Redesign</td>
+                                <td>Alice Brown</td>
+                                <td>2024-01-01</td>
+                                <td>2024-03-31</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>
+                                    <div class="progress-container">
+                                        <div class="progress-bar" style="width: 65%;"></div>
+                                    </div>
+                                    65%
+                                </td>
+                                <td>
+                                    <button class="btn btn-primary" style="padding: 5px 10px; font-size: 0.8em;" data-action="view-project" data-subtask="project-management">View</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Mobile App Development</td>
+                                <td>Bob Davis</td>
+                                <td>2024-02-01</td>
+                                <td>2024-06-30</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>
+                                    <div class="progress-container">
+                                        <div class="progress-bar" style="width: 30%;"></div>
+                                    </div>
+                                    30%
+                                </td>
+                                <td>
+                                    <button class="btn btn-primary" style="padding: 5px 10px; font-size: 0.8em;" data-action="view-project" data-subtask="project-management">View</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Data Migration</td>
+                                <td>Carol White</td>
+                                <td>2023-11-01</td>
+                                <td>2024-01-31</td>
+                                <td><span class="status-badge status-pending">Planning</span></td>
+                                <td>
+                                    <div class="progress-container">
+                                        <div class="progress-bar" style="width: 90%;"></div>
+                                    </div>
+                                    90%
+                                </td>
+                                <td>
+                                    <button class="btn btn-primary" style="padding: 5px 10px; font-size: 0.8em;" data-action="view-project" data-subtask="project-management">View</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Analytics Tab -->
+        <div id="data" class="tab-content">
+            <div class="form-section">
+                <h3>📈 Data Analytics & Reporting</h3>
+                
+                <div class="search-filter-bar">
+                    <select id="reportType" class="form-control filter-dropdown" data-action="select" data-subtask="report-type-selection">
+                        <option value="employee">Employee Reports</option>
+                        <option value="expense">Expense Reports</option>
+                        <option value="project">Project Reports</option>
+                        <option value="financial">Financial Reports</option>
+                    </select>
+                    <input type="date" id="reportStartDate" class="form-control" data-action="date-select" data-subtask="report-date-range">
+                    <input type="date" id="reportEndDate" class="form-control" data-action="date-select" data-subtask="report-date-range">
+                    <button class="btn btn-primary" data-action="generate-report" data-subtask="report-generation" onclick="generateReport()">Generate Report</button>
+                </div>
+
+                <div style="margin-top: 30px;">
+                    <h4>Data Export Options</h4>
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 15px;">
+                        <button class="btn btn-success" data-action="export" data-subtask="csv-export" onclick="exportData('csv')">Export to CSV</button>
+                        <button class="btn btn-success" data-action="export" data-subtask="excel-export" onclick="exportData('excel')">Export to Excel</button>
+                        <button class="btn btn-success" data-action="export" data-subtask="pdf-export" onclick="exportData('pdf')">Export to PDF</button>
+                        <button class="btn btn-primary" data-action="print" data-subtask="print-report" onclick="printReport()">Print Report</button>
+                    </div>
+                </div>
+
+                <div style="margin-top: 40px;">
+                    <h4>Analytics Dashboard</h4>
+                    <div class="form-grid" style="margin-top: 20px;">
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; text-align: center;">
+                            <h3 style="color: #3498db; margin-bottom: 10px;">156</h3>
+                            <p>Total Employees</p>
+                        </div>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; text-align: center;">
+                            <h3 style="color: #27ae60; margin-bottom: 10px;">$45,230</h3>
+                            <p>Monthly Expenses</p>
+                        </div>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; text-align: center;">
+                            <h3 style="color: #e74c3c; margin-bottom: 10px;">23</h3>
+                            <p>Active Projects</p>
+                        </div>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; text-align: center;">
+                            <h3 style="color: #f39c12; margin-bottom: 10px;">89%</h3>
+                            <p>Completion Rate</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 40px;">
+                    <h4>Recent Activity Log</h4>
+                    <table class="data-table" id="activityTable">
+                        <thead>
+                            <tr>
+                                <th data-action="sort" data-subtask="table-sort" onclick="sortTable('activityTable', 0)">Timestamp</th>
+                                <th data-action="sort" data-subtask="table-sort" onclick="sortTable('activityTable', 1)">User</th>
+                                <th data-action="sort" data-subtask="table-sort" onclick="sortTable('activityTable', 2)">Action</th>
+                                <th data-action="sort" data-subtask="table-sort" onclick="sortTable('activityTable', 3)">Module</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2024-01-15 14:30</td>
+                                <td>John Doe</td>
+                                <td>Created</td>
+                                <td>Employee</td>
+                                <td>Added new employee record</td>
+                            </tr>
+                            <tr>
+                                <td>2024-01-15 13:45</td>
+                                <td>Jane Smith</td>
+                                <td>Updated</td>
+                                <td>Project</td>
+                                <td>Modified project timeline</td>
+                            </tr>
+                            <tr>
+                                <td>2024-01-15 12:20</td>
+                                <td>Mike Johnson</td>
+                                <td>Submitted</td>
+                                <td>Expense</td>
+                                <td>Travel expense report</td>
+                            </tr>
+                            <tr>
+                                <td>2024-01-15 11:15</td>
+                                <td>Sarah Wilson</td>
+                                <td>Exported</td>
+                                <td>Data</td>
+                                <td>Generated monthly report</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+    <div class="loading-spinner" id="loadingSpinner"></div>
+
+    <script>
+        // Tab switching functionality
+        function switchTab(tabName) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Remove active class from all tab buttons
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            tabButtons.forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+
+        // Icon functionality
+        let selectedIcons = [];
+
+        function selectIcon(iconElement) {
+            const iconName = iconElement.dataset.name;
+            
+            if (iconElement.classList.contains('selected')) {
+                iconElement.classList.remove('selected');
+                selectedIcons = selectedIcons.filter(name => name !== iconName);
+            } else {
+                iconElement.classList.add('selected');
+                selectedIcons.push(iconName);
+            }
+            
+            updateSelectedIconsDisplay();
+        }
+
+        function updateSelectedIconsDisplay() {
+            const display = document.getElementById('selectedIcons');
+            if (selectedIcons.length === 0) {
+                display.textContent = 'None selected';
+            } else {
+                display.textContent = selectedIcons.join(', ');
+            }
+        }
+
+        function clearIconSelection() {
+            selectedIcons = [];
+            document.querySelectorAll('.icon-item.selected').forEach(item => {
+                item.classList.remove('selected');
+            });
+            updateSelectedIconsDisplay();
+            showNotification('Icon selection cleared', 'success');
+        }
+
+        function saveIconSelection() {
+            if (selectedIcons.length === 0) {
+                showNotification('Please select at least one icon', 'error');
+                return;
+            }
+            showNotification(`Saved ${selectedIcons.length} icons successfully`, 'success');
+        }
+
+        function searchIcons() {
+            const searchTerm = document.getElementById('iconSearch').value.toLowerCase();
+            const icons = document.querySelectorAll('.icon-item');
+            
+            icons.forEach(icon => {
+                const iconName = icon.dataset.name.toLowerCase();
+                const iconLabel = icon.querySelector('.icon-label').textContent.toLowerCase();
+                
+                if (iconName.includes(searchTerm) || iconLabel.includes(searchTerm)) {
+                    icon.style.display = 'flex';
+                } else {
+                    icon.style.display = 'none';
+                }
+            });
+        }
+
+        function filterIcons() {
+            const category = document.getElementById('iconCategory').value;
+            const icons = document.querySelectorAll('.icon-item');
+            
+            icons.forEach(icon => {
+                if (category === 'all' || icon.dataset.category === category) {
+                    icon.style.display = 'flex';
+                } else {
+                    icon.style.display = 'none';
+                }
+            });
+        }
+
+        // Form handling
+        function resetForm(formId) {
+            document.getElementById(formId).reset();
+            showNotification('Form reset successfully', 'success');
+        }
+
+        // File upload handling
+        document.getElementById('receiptUpload').addEventListener('click', function() {
+            document.getElementById('receiptFile').click();
+        });
+
+        document.getElementById('receiptUpload').addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('dragover');
+        });
+
+        document.getElementById('receiptUpload').addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+        });
+
+        document.getElementById('receiptUpload').addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileUpload(files[0]);
+            }
+        });
+
+        document.getElementById('receiptFile').addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                handleFileUpload(e.target.files[0]);
+            }
+        });
+
+        function handleFileUpload(file) {
+            if (file.size > 5 * 1024 * 1024) {
+                showNotification('File size must be less than 5MB', 'error');
+                return;
+            }
+            showNotification(`File "${file.name}" uploaded successfully`, 'success');
+        }
+
+        // Table sorting
+        function sortTable(tableId, columnIndex) {
+            const table = document.getElementById(tableId);
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            rows.sort((a, b) => {
+                const aText = a.cells[columnIndex].textContent.trim();
+                const bText = b.cells[columnIndex].textContent.trim();
+                return aText.localeCompare(bText);
+            });
+            
+            rows.forEach(row => tbody.appendChild(row));
+            showNotification('Table sorted successfully', 'success');
+        }
+
+        // Data export functions
+        function exportProjects() {
+            showLoadingSpinner();
+            setTimeout(() => {
+                hideLoadingSpinner();
+                showNotification('Project data exported successfully', 'success');
+            }, 2000);
+        }
+
+        function generateReport() {
+            const reportType = document.getElementById('reportType').value;
+            showLoadingSpinner();
+            setTimeout(() => {
+                hideLoadingSpinner();
+                showNotification(`${reportType} report generated successfully`, 'success');
+            }, 3000);
+        }
+
+        function exportData(format) {
+            showLoadingSpinner();
+            setTimeout(() => {
+                hideLoadingSpinner();
+                showNotification(`Data exported to ${format.toUpperCase()} successfully`, 'success');
+            }, 2000);
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        // Notification system
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Loading spinner
+        function showLoadingSpinner() {
+            document.getElementById('loadingSpinner').style.display = 'block';
+        }
+
+        function hideLoadingSpinner() {
+            document.getElementById('loadingSpinner').style.display = 'none';
+        }
+
+        // Form submissions
+        document.getElementById('employeeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            showLoadingSpinner();
+            setTimeout(() => {
+                hideLoadingSpinner();
+                showNotification('Employee added successfully', 'success');
+                resetForm('employeeForm');
+            }, 2000);
+        });
+
+        document.getElementById('expenseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            showLoadingSpinner();
+            setTimeout(() => {
+                hideLoadingSpinner();
+                showNotification('Expense report submitted successfully', 'success');
+                resetForm('expenseForm');
+            }, 2000);
+        });
+
+        document.getElementById('projectForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            showLoadingSpinner();
+            setTimeout(() => {
+                hideLoadingSpinner();
+                showNotification('Project created successfully', 'success');
+                resetForm('projectForm');
+            }, 2000);
+        });
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default dates
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('expDate').value = today;
+            document.getElementById('reportStartDate').value = today;
+            document.getElementById('reportEndDate').value = today;
+            
+            showNotification('Enterprise Business Hub loaded successfully', 'success');
+        });
+    </script>
+</body>
+</html>
