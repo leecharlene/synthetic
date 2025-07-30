@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise Resource Management System</title>
+    <title>Enterprise Date Management System</title>
     <style>
         * {
             margin: 0;
@@ -14,24 +14,25 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f7fa;
-            color: #333;
-            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
 
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #2c3e50, #3498db);
             color: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 30px;
+            text-align: center;
         }
 
         .header h1 {
@@ -40,31 +41,30 @@
         }
 
         .header p {
-            font-size: 1.1em;
+            font-size: 1.2em;
             opacity: 0.9;
         }
 
-        .form-section {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .form-section h2 {
-            color: #4a5568;
-            margin-bottom: 20px;
-            font-size: 1.8em;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 10px;
-        }
-
-        .form-grid {
+        .main-content {
+            padding: 40px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        .section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 30px;
+            border: 1px solid #e9ecef;
+        }
+
+        .section h2 {
+            color: #2c3e50;
             margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
         }
 
         .form-group {
@@ -75,43 +75,47 @@
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
-            color: #4a5568;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 6px;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .date-picker-container {
-            position: relative;
-            display: inline-block;
-            width: 100%;
+            color: #2c3e50;
         }
 
         .date-input {
             width: 100%;
             padding: 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 6px;
-            font-size: 14px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .date-input:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .custom-datepicker {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .datepicker-input {
+            width: 100%;
+            padding: 12px 40px 12px 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
             cursor: pointer;
             background: white;
         }
 
-        .date-input:focus {
-            outline: none;
-            border-color: #667eea;
+        .datepicker-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+            pointer-events: none;
         }
 
         .calendar-dropdown {
@@ -120,9 +124,9 @@
             left: 0;
             right: 0;
             background: white;
-            border: 2px solid #e2e8f0;
-            border-radius: 6px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             z-index: 1000;
             display: none;
         }
@@ -132,169 +136,99 @@
             justify-content: space-between;
             align-items: center;
             padding: 15px;
-            background: #f8fafc;
-            border-bottom: 1px solid #e2e8f0;
+            background: #3498db;
+            color: white;
         }
 
-        .calendar-nav {
+        .nav-button {
             background: none;
             border: none;
+            color: white;
             font-size: 18px;
             cursor: pointer;
             padding: 5px 10px;
             border-radius: 4px;
-            transition: background 0.2s;
+            transition: background 0.3s ease;
         }
 
-        .calendar-nav:hover {
-            background: #e2e8f0;
+        .nav-button:hover {
+            background: rgba(255,255,255,0.2);
         }
 
-        .calendar-title {
-            font-weight: 600;
-            color: #4a5568;
+        .month-year-selector {
+            display: flex;
+            gap: 10px;
+        }
+
+        .month-select, .year-select {
+            background: white;
+            color: #2c3e50;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
         }
 
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
             gap: 1px;
-            background: #e2e8f0;
-            margin: 10px;
+            background: #ddd;
+            margin: 1px;
         }
 
-        .calendar-day-header {
-            background: #f8fafc;
+        .day-header {
+            background: #ecf0f1;
             padding: 10px;
             text-align: center;
             font-weight: 600;
-            font-size: 12px;
-            color: #718096;
+            color: #2c3e50;
         }
 
-        .calendar-day {
+        .day-cell {
             background: white;
-            padding: 10px;
+            padding: 12px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
             min-height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        .calendar-day:hover {
-            background: #edf2f7;
+        .day-cell:hover {
+            background: #e3f2fd;
         }
 
-        .calendar-day.selected {
-            background: #667eea;
+        .day-cell.selected {
+            background: #3498db;
             color: white;
         }
 
-        .calendar-day.other-month {
-            color: #cbd5e0;
+        .day-cell.other-month {
+            color: #bdc3c7;
         }
 
-        .dropdown-select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 6px;
-            font-size: 14px;
-            background: white;
-            cursor: pointer;
-        }
-
-        .dropdown-select:focus {
-            outline: none;
-            border-color: #667eea;
+        .day-cell.today {
+            background: #e74c3c;
+            color: white;
+            font-weight: bold;
         }
 
         .time-picker {
             display: flex;
             gap: 10px;
             align-items: center;
+            margin-top: 15px;
         }
 
         .time-input {
-            width: 80px;
             padding: 8px;
-            border: 2px solid #e2e8f0;
+            border: 1px solid #ddd;
             border-radius: 4px;
+            width: 80px;
             text-align: center;
-        }
-
-        .time-spinner {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .time-spinner button {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 2px 8px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .time-spinner button:hover {
-            background: #5a67d8;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-right: 10px;
-            margin-bottom: 10px;
-        }
-
-        .btn-primary {
-            background: #667eea;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #5a67d8;
-            transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            background: #718096;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #4a5568;
-        }
-
-        .quick-date-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .quick-date-btn {
-            padding: 8px 16px;
-            background: #edf2f7;
-            border: 1px solid #e2e8f0;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.2s;
-        }
-
-        .quick-date-btn:hover {
-            background: #667eea;
-            color: white;
         }
 
         .date-range-picker {
@@ -303,118 +237,179 @@
             align-items: center;
         }
 
-        .date-range-picker .date-picker-container {
+        .date-range-input {
             flex: 1;
         }
 
-        .scrollable-list {
-            max-height: 200px;
-            overflow-y: auto;
-            border: 2px solid #e2e8f0;
-            border-radius: 6px;
-            background: white;
-        }
-
-        .scrollable-item {
-            padding: 12px;
-            border-bottom: 1px solid #f1f5f9;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .scrollable-item:hover {
-            background: #f8fafc;
-        }
-
-        .scrollable-item.selected {
-            background: #667eea;
-            color: white;
-        }
-
-        .year-month-selector {
-            display: flex;
+        .quick-dates {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
             gap: 10px;
-            margin-bottom: 15px;
+            margin-top: 15px;
         }
 
-        .year-month-selector select {
-            padding: 8px;
-            border: 1px solid #e2e8f0;
-            border-radius: 4px;
-            background: white;
+        .quick-date-btn {
+            padding: 10px;
+            background: #ecf0f1;
+            border: 1px solid #bdc3c7;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .quick-date-btn:hover {
+            background: #3498db;
+            color: white;
         }
 
         .inline-calendar {
-            border: 2px solid #e2e8f0;
-            border-radius: 6px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
             background: white;
-            width: 100%;
+            margin-top: 15px;
         }
 
-        .week-picker {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 2px;
-            margin-top: 10px;
+        .calendar-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #ddd;
         }
 
-        .week-day {
-            padding: 8px;
-            text-align: center;
-            border: 1px solid #e2e8f0;
-            cursor: pointer;
-            transition: all 0.2s;
+        .scroll-picker {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 15px;
         }
 
-        .week-day:hover {
-            background: #edf2f7;
+        .scroll-column {
+            width: 80px;
+            height: 150px;
+            overflow-y: scroll;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: white;
         }
 
-        .week-day.selected {
-            background: #667eea;
-            color: white;
-        }
-
-        .multi-date-display {
-            min-height: 60px;
+        .scroll-item {
             padding: 10px;
-            border: 2px solid #e2e8f0;
-            border-radius: 6px;
-            background: #f8fafc;
+            text-align: center;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+            transition: background 0.2s ease;
+        }
+
+        .scroll-item:hover {
+            background: #e3f2fd;
+        }
+
+        .scroll-item.selected {
+            background: #3498db;
+            color: white;
+        }
+
+        .multi-date-selector {
+            margin-top: 15px;
+        }
+
+        .selected-dates {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
             margin-top: 10px;
         }
 
-        .selected-date-tag {
-            display: inline-block;
-            background: #667eea;
+        .date-tag {
+            background: #3498db;
             color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            margin: 2px;
+            padding: 5px 10px;
+            border-radius: 15px;
             font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
-        .selected-date-tag .remove {
-            margin-left: 5px;
+        .remove-date {
             cursor: pointer;
             font-weight: bold;
         }
 
-        .form-actions {
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .timezone-selector {
+            margin-top: 15px;
+        }
+
+        .timezone-select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .recurring-options {
+            margin-top: 15px;
+        }
+
+        .recurring-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .recurring-option {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
             text-align: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .recurring-option.selected {
+            border-color: #3498db;
+            background: #e3f2fd;
         }
 
         @media (max-width: 768px) {
-            .form-grid {
+            .main-content {
                 grid-template-columns: 1fr;
-            }
-            
-            .date-range-picker {
-                flex-direction: column;
-                align-items: stretch;
+                gap: 20px;
+                padding: 20px;
             }
         }
     </style>
@@ -422,596 +417,718 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Enterprise Resource Management System</h1>
-            <p>Comprehensive business application for employee management, project tracking, and resource allocation</p>
+            <h1>Enterprise Date Management System</h1>
+            <p>Comprehensive date and time selection interface for business applications</p>
         </div>
 
-        <!-- Employee Information Form -->
-        <div class="form-section">
-            <h2>Employee Information Management</h2>
-            <div class="form-grid">
+        <div class="main-content">
+            <!-- Basic Date Inputs Section -->
+            <div class="section">
+                <h2>Basic Date Inputs</h2>
+                
                 <div class="form-group">
-                    <label for="emp-start-date">Employee Start Date</label>
-                    <div class="date-picker-container">
-                        <input type="text" id="emp-start-date" class="date-input" placeholder="Select start date" readonly data-action="click" data-subtask="date-picker">
-                        <div class="calendar-dropdown" id="emp-start-calendar"></div>
+                    <label for="basic-date">Standard Date Input:</label>
+                    <input type="date" id="basic-date" class="date-input" data-action="select-date" data-subtask="basic-date-input">
+                </div>
+
+                <div class="form-group">
+                    <label for="datetime-local">Date and Time:</label>
+                    <input type="datetime-local" id="datetime-local" class="date-input" data-action="select-datetime" data-subtask="datetime-input">
+                </div>
+
+                <div class="form-group">
+                    <label for="time-input">Time Only:</label>
+                    <input type="time" id="time-input" class="date-input" data-action="select-time" data-subtask="time-input">
+                </div>
+
+                <div class="form-group">
+                    <label for="month-input">Month and Year:</label>
+                    <input type="month" id="month-input" class="date-input" data-action="select-month" data-subtask="month-input">
+                </div>
+
+                <div class="form-group">
+                    <label for="week-input">Week Selection:</label>
+                    <input type="week" id="week-input" class="date-input" data-action="select-week" data-subtask="week-input">
+                </div>
+            </div>
+
+            <!-- Custom Dropdown Calendar -->
+            <div class="section">
+                <h2>Custom Dropdown Calendar</h2>
+                
+                <div class="form-group">
+                    <label>Event Date:</label>
+                    <div class="custom-datepicker">
+                        <input type="text" class="datepicker-input" id="custom-date-1" placeholder="Select date..." readonly data-action="open-calendar" data-subtask="custom-datepicker">
+                        <span class="datepicker-icon">📅</span>
+                        <div class="calendar-dropdown" id="calendar-1">
+                            <div class="calendar-header">
+                                <button class="nav-button" id="prev-month-1" data-action="navigate-month" data-subtask="previous-month">‹</button>
+                                <div class="month-year-selector">
+                                    <select class="month-select" id="month-select-1" data-action="select-month-dropdown" data-subtask="month-dropdown">
+                                        <option value="0">January</option>
+                                        <option value="1">February</option>
+                                        <option value="2">March</option>
+                                        <option value="3">April</option>
+                                        <option value="4">May</option>
+                                        <option value="5">June</option>
+                                        <option value="6">July</option>
+                                        <option value="7">August</option>
+                                        <option value="8">September</option>
+                                        <option value="9">October</option>
+                                        <option value="10">November</option>
+                                        <option value="11">December</option>
+                                    </select>
+                                    <select class="year-select" id="year-select-1" data-action="select-year-dropdown" data-subtask="year-dropdown">
+                                        <!-- Years will be populated by JavaScript -->
+                                    </select>
+                                </div>
+                                <button class="nav-button" id="next-month-1" data-action="navigate-month" data-subtask="next-month">›</button>
+                            </div>
+                            <div class="calendar-grid" id="calendar-grid-1">
+                                <!-- Calendar will be populated by JavaScript -->
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="emp-birth-date">Date of Birth</label>
-                    <div class="date-picker-container">
-                        <input type="text" id="emp-birth-date" class="date-input" placeholder="Select birth date" readonly data-action="click" data-subtask="date-picker">
-                        <div class="calendar-dropdown" id="emp-birth-calendar"></div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="contract-end">Contract End Date</label>
-                    <div class="quick-date-buttons">
-                        <button class="quick-date-btn" data-action="click" data-subtask="quick-date" data-months="6">6 Months</button>
-                        <button class="quick-date-btn" data-action="click" data-subtask="quick-date" data-months="12">1 Year</button>
-                        <button class="quick-date-btn" data-action="click" data-subtask="quick-date" data-months="24">2 Years</button>
-                        <button class="quick-date-btn" data-action="click" data-subtask="quick-date" data-months="36">3 Years</button>
-                    </div>
-                    <div class="date-picker-container">
-                        <input type="text" id="contract-end" class="date-input" placeholder="Select contract end date" readonly data-action="click" data-subtask="date-picker">
-                        <div class="calendar-dropdown" id="contract-end-calendar"></div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="review-date">Next Performance Review</label>
-                    <div class="date-picker-container">
-                        <input type="text" id="review-date" class="date-input" placeholder="Select review date" readonly data-action="click" data-subtask="date-picker">
-                        <div class="calendar-dropdown" id="review-date-calendar"></div>
+                    <label>Meeting Date with Time:</label>
+                    <div class="custom-datepicker">
+                        <input type="text" class="datepicker-input" id="custom-date-2" placeholder="Select date and time..." readonly data-action="open-calendar-time" data-subtask="datetime-picker">
+                        <span class="datepicker-icon">🕒</span>
+                        <div class="calendar-dropdown" id="calendar-2">
+                            <div class="calendar-header">
+                                <button class="nav-button" id="prev-month-2" data-action="navigate-month" data-subtask="previous-month-2">‹</button>
+                                <div class="month-year-selector">
+                                    <select class="month-select" id="month-select-2" data-action="select-month-dropdown" data-subtask="month-dropdown-2">
+                                        <option value="0">January</option>
+                                        <option value="1">February</option>
+                                        <option value="2">March</option>
+                                        <option value="3">April</option>
+                                        <option value="4">May</option>
+                                        <option value="5">June</option>
+                                        <option value="6">July</option>
+                                        <option value="7">August</option>
+                                        <option value="8">September</option>
+                                        <option value="9">October</option>
+                                        <option value="10">November</option>
+                                        <option value="11">December</option>
+                                    </select>
+                                    <select class="year-select" id="year-select-2" data-action="select-year-dropdown" data-subtask="year-dropdown-2">
+                                        <!-- Years will be populated by JavaScript -->
+                                    </select>
+                                </div>
+                                <button class="nav-button" id="next-month-2" data-action="navigate-month" data-subtask="next-month-2">›</button>
+                            </div>
+                            <div class="calendar-grid" id="calendar-grid-2">
+                                <!-- Calendar will be populated by JavaScript -->
+                            </div>
+                            <div class="time-picker">
+                                <label>Time:</label>
+                                <input type="number" class="time-input" id="hour-input" min="0" max="23" placeholder="HH" data-action="select-hour" data-subtask="hour-input">
+                                <span>:</span>
+                                <input type="number" class="time-input" id="minute-input" min="0" max="59" placeholder="MM" data-action="select-minute" data-subtask="minute-input">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Project Management Form -->
-        <div class="form-section">
-            <h2>Project Timeline Management</h2>
-            <div class="form-grid">
+            <!-- Date Range Picker -->
+            <div class="section">
+                <h2>Date Range Selection</h2>
+                
                 <div class="form-group">
-                    <label>Project Duration (Start - End Date)</label>
+                    <label>Project Duration:</label>
                     <div class="date-range-picker">
-                        <div class="date-picker-container">
-                            <input type="text" id="project-start" class="date-input" placeholder="Start date" readonly data-action="click" data-subtask="date-range-start">
-                            <div class="calendar-dropdown" id="project-start-calendar"></div>
+                        <div class="date-range-input">
+                            <input type="date" id="start-date" class="date-input" data-action="select-start-date" data-subtask="range-start">
+                            <small>Start Date</small>
                         </div>
                         <span>to</span>
-                        <div class="date-picker-container">
-                            <input type="text" id="project-end" class="date-input" placeholder="End date" readonly data-action="click" data-subtask="date-range-end">
-                            <div class="calendar-dropdown" id="project-end-calendar"></div>
+                        <div class="date-range-input">
+                            <input type="date" id="end-date" class="date-input" data-action="select-end-date" data-subtask="range-end">
+                            <small>End Date</small>
                         </div>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="milestone-dates">Project Milestones (Multiple Dates)</label>
-                    <div class="date-picker-container">
-                        <input type="text" id="milestone-dates" class="date-input" placeholder="Click to add milestone dates" readonly data-action="click" data-subtask="multi-date-picker">
-                        <div class="calendar-dropdown" id="milestone-calendar"></div>
-                    </div>
-                    <div class="multi-date-display" id="milestone-display"></div>
-                </div>
-
-                <div class="form-group">
-                    <label for="deadline-month">Project Deadline Month</label>
-                    <select id="deadline-month" class="dropdown-select" data-action="change" data-subtask="month-dropdown">
-                        <option value="">Select Month</option>
-                        <option value="1">January</option>
-                        <option value="2">February</option>
-                        <option value="3">March</option>
-                        <option value="4">April</option>
-                        <option value="5">May</option>
-                        <option value="6">June</option>
-                        <option value="7">July</option>
-                        <option value="8">August</option>
-                        <option value="9">September</option>
-                        <option value="10">October</option>
-                        <option value="11">November</option>
-                        <option value="12">December</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="deadline-year">Project Deadline Year</label>
-                    <select id="deadline-year" class="dropdown-select" data-action="change" data-subtask="year-dropdown">
-                        <option value="">Select Year</option>
-                        <option value="2024">2024</option>
-                        <option value="2025">2025</option>
-                        <option value="2026">2026</option>
-                        <option value="2027">2027</option>
-                        <option value="2028">2028</option>
-                    </select>
+                <div class="quick-dates">
+                    <button class="quick-date-btn" data-action="quick-select" data-subtask="today" onclick="setQuickDate('today')">Today</button>
+                    <button class="quick-date-btn" data-action="quick-select" data-subtask="tomorrow" onclick="setQuickDate('tomorrow')">Tomorrow</button>
+                    <button class="quick-date-btn" data-action="quick-select" data-subtask="this-week" onclick="setQuickDate('thisWeek')">This Week</button>
+                    <button class="quick-date-btn" data-action="quick-select" data-subtask="next-week" onclick="setQuickDate('nextWeek')">Next Week</button>
+                    <button class="quick-date-btn" data-action="quick-select" data-subtask="this-month" onclick="setQuickDate('thisMonth')">This Month</button>
+                    <button class="quick-date-btn" data-action="quick-select" data-subtask="next-month" onclick="setQuickDate('nextMonth')">Next Month</button>
                 </div>
             </div>
-        </div>
 
-        <!-- Expense Report Form -->
-        <div class="form-section">
-            <h2>Expense Report & Financial Planning</h2>
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="expense-date">Expense Date with Time</label>
-                    <div class="date-picker-container">
-                        <input type="text" id="expense-date" class="date-input" placeholder="Select expense date" readonly data-action="click" data-subtask="datetime-picker">
-                        <div class="calendar-dropdown" id="expense-calendar"></div>
+            <!-- Inline Calendar -->
+            <div class="section">
+                <h2>Inline Calendar View</h2>
+                
+                <div class="inline-calendar">
+                    <div class="calendar-controls">
+                        <button class="nav-button" id="inline-prev" data-action="navigate-inline" data-subtask="inline-previous">‹ Previous</button>
+                        <div class="month-year-selector">
+                            <select class="month-select" id="inline-month" data-action="select-inline-month" data-subtask="inline-month-select">
+                                <option value="0">January</option>
+                                <option value="1">February</option>
+                                <option value="2">March</option>
+                                <option value="3">April</option>
+                                <option value="4">May</option>
+                                <option value="5">June</option>
+                                <option value="6">July</option>
+                                <option value="7">August</option>
+                                <option value="8">September</option>
+                                <option value="9">October</option>
+                                <option value="10">November</option>
+                                <option value="11">December</option>
+                            </select>
+                            <select class="year-select" id="inline-year" data-action="select-inline-year" data-subtask="inline-year-select">
+                                <!-- Years will be populated by JavaScript -->
+                            </select>
+                        </div>
+                        <button class="nav-button" id="inline-next" data-action="navigate-inline" data-subtask="inline-next">Next ›</button>
                     </div>
-                    <div class="time-picker" style="margin-top: 10px;">
-                        <input type="text" id="expense-hour" class="time-input" value="12" readonly data-action="focus" data-subtask="time-input">
-                        <div class="time-spinner">
-                            <button type="button" data-action="click" data-subtask="time-up" data-target="expense-hour">▲</button>
-                            <button type="button" data-action="click" data-subtask="time-down" data-target="expense-hour">▼</button>
+                    <div class="calendar-grid" id="inline-calendar-grid">
+                        <!-- Calendar will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scroll Date Picker -->
+            <div class="section">
+                <h2>Scroll Date Picker</h2>
+                
+                <div class="form-group">
+                    <label>Appointment Date:</label>
+                    <div class="scroll-picker">
+                        <div class="scroll-column" id="month-scroll" data-action="scroll-select" data-subtask="scroll-month">
+                            <div class="scroll-item" data-value="0">January</div>
+                            <div class="scroll-item" data-value="1">February</div>
+                            <div class="scroll-item" data-value="2">March</div>
+                            <div class="scroll-item" data-value="3">April</div>
+                            <div class="scroll-item" data-value="4">May</div>
+                            <div class="scroll-item" data-value="5">June</div>
+                            <div class="scroll-item" data-value="6">July</div>
+                            <div class="scroll-item" data-value="7">August</div>
+                            <div class="scroll-item" data-value="8">September</div>
+                            <div class="scroll-item" data-value="9">October</div>
+                            <div class="scroll-item" data-value="10">November</div>
+                            <div class="scroll-item" data-value="11">December</div>
                         </div>
-                        <span>:</span>
-                        <input type="text" id="expense-minute" class="time-input" value="00" readonly data-action="focus" data-subtask="time-input">
-                        <div class="time-spinner">
-                            <button type="button" data-action="click" data-subtask="time-up" data-target="expense-minute">▲</button>
-                            <button type="button" data-action="click" data-subtask="time-down" data-target="expense-minute">▼</button>
+                        <div class="scroll-column" id="day-scroll" data-action="scroll-select" data-subtask="scroll-day">
+                            <!-- Days will be populated by JavaScript -->
                         </div>
-                        <select id="expense-ampm" class="dropdown-select" style="width: auto;" data-action="change" data-subtask="ampm-dropdown">
-                            <option value="AM">AM</option>
-                            <option value="PM">PM</option>
+                        <div class="scroll-column" id="year-scroll" data-action="scroll-select" data-subtask="scroll-year">
+                            <!-- Years will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Multi-Date Selector -->
+            <div class="section full-width">
+                <h2>Multiple Date Selection</h2>
+                
+                <div class="form-group">
+                    <label>Training Session Dates:</label>
+                    <div class="custom-datepicker">
+                        <input type="text" class="datepicker-input" id="multi-date-input" placeholder="Click to add multiple dates..." readonly data-action="open-multi-calendar" data-subtask="multi-date-picker">
+                        <span class="datepicker-icon">📅</span>
+                        <div class="calendar-dropdown" id="multi-calendar">
+                            <div class="calendar-header">
+                                <button class="nav-button" id="multi-prev" data-action="navigate-multi" data-subtask="multi-previous">‹</button>
+                                <div class="month-year-selector">
+                                    <select class="month-select" id="multi-month" data-action="select-multi-month" data-subtask="multi-month-dropdown">
+                                        <option value="0">January</option>
+                                        <option value="1">February</option>
+                                        <option value="2">March</option>
+                                        <option value="3">April</option>
+                                        <option value="4">May</option>
+                                        <option value="5">June</option>
+                                        <option value="6">July</option>
+                                        <option value="7">August</option>
+                                        <option value="8">September</option>
+                                        <option value="9">October</option>
+                                        <option value="10">November</option>
+                                        <option value="11">December</option>
+                                    </select>
+                                    <select class="year-select" id="multi-year" data-action="select-multi-year" data-subtask="multi-year-dropdown">
+                                        <!-- Years will be populated by JavaScript -->
+                                    </select>
+                                </div>
+                                <button class="nav-button" id="multi-next" data-action="navigate-multi" data-subtask="multi-next">›</button>
+                            </div>
+                            <div class="calendar-grid" id="multi-calendar-grid">
+                                <!-- Calendar will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="selected-dates" id="selected-dates">
+                        <!-- Selected dates will appear here -->
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Timezone:</label>
+                    <div class="timezone-selector">
+                        <select class="timezone-select" id="timezone" data-action="select-timezone" data-subtask="timezone-selection">
+                            <option value="UTC">UTC (Coordinated Universal Time)</option>
+                            <option value="EST">EST (Eastern Standard Time)</option>
+                            <option value="CST">CST (Central Standard Time)</option>
+                            <option value="MST">MST (Mountain Standard Time)</option>
+                            <option value="PST">PST (Pacific Standard Time)</option>
+                            <option value="GMT">GMT (Greenwich Mean Time)</option>
+                            <option value="CET">CET (Central European Time)</option>
+                            <option value="JST">JST (Japan Standard Time)</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="budget-period">Budget Period</label>
-                    <div class="year-month-selector">
-                        <select id="budget-month" class="dropdown-select" data-action="change" data-subtask="budget-month">
-                            <option value="">Month</option>
-                            <option value="1">January</option>
-                            <option value="2">February</option>
-                            <option value="3">March</option>
-                            <option value="4">April</option>
-                            <option value="5">May</option>
-                            <option value="6">June</option>
-                            <option value="7">July</option>
-                            <option value="8">August</option>
-                            <option value="9">September</option>
-                            <option value="10">October</option>
-                            <option value="11">November</option>
-                            <option value="12">December</option>
-                        </select>
-                        <select id="budget-year" class="dropdown-select" data-action="change" data-subtask="budget-year">
-                            <option value="">Year</option>
-                            <option value="2024">2024</option>
-                            <option value="2025">2025</option>
-                            <option value="2026">2026</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="fiscal-quarter">Fiscal Quarter</label>
-                    <select id="fiscal-quarter" class="dropdown-select" data-action="change" data-subtask="quarter-dropdown">
-                        <option value="">Select Quarter</option>
-                        <option value="Q1">Q1 (Jan-Mar)</option>
-                        <option value="Q2">Q2 (Apr-Jun)</option>
-                        <option value="Q3">Q3 (Jul-Sep)</option>
-                        <option value="Q4">Q4 (Oct-Dec)</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="payment-due">Payment Due Date</label>
-                    <div class="date-picker-container">
-                        <input type="text" id="payment-due" class="date-input" placeholder="Select due date" readonly data-action="click" data-subtask="due-date-picker">
-                        <div class="calendar-dropdown" id="payment-due-calendar"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Advanced Date Selection -->
-        <div class="form-section">
-            <h2>Advanced Scheduling & Calendar Management</h2>
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="meeting-dates">Recurring Meeting Dates</label>
-                    <div class="scrollable-list" data-action="scroll" data-subtask="date-scroll">
-                        <div class="scrollable-item" data-action="click" data-subtask="scroll-date-select" data-date="2024-01-15">January 15, 2024 - Weekly Team Meeting</div>
-                        <div class="scrollable-item" data-action="click" data-subtask="scroll-date-select" data-date="2024-01-22">January 22, 2024 - Weekly Team Meeting</div>
-                        <div class="scrollable-item" data-action="click" data-subtask="scroll-date-select" data-date="2024-01-29">January 29, 2024 - Weekly Team Meeting</div>
-                        <div class="scrollable-item" data-action="click" data-subtask="scroll-date-select" data-date="2024-02-05">February 5, 2024 - Weekly Team Meeting</div>
-                        <div class="scrollable-item" data-action="click" data-subtask="scroll-date-select" data-date="2024-02-12">February 12, 2024 - Weekly Team Meeting</div>
-                        <div class="scrollable-item" data-action="click" data-subtask="scroll-date-select" data-date="2024-02-19">February 19, 2024 - Weekly Team Meeting</div>
-                        <div class="scrollable-item" data-action="click" data-subtask="scroll-date-select" data-date="2024-02-26">February 26, 2024 - Weekly Team Meeting</div>
-                        <div class="scrollable-item" data-action="click" data-subtask="scroll-date-select" data-date="2024-03-05">March 5, 2024 - Weekly Team Meeting</div>
-                        <div class="scrollable-item" data-action="click" data-subtask="scroll-date-select" data-date="2024-03-12">March 12, 2024 - Weekly Team Meeting</div>
-                        <div class="scrollable-item" data-action="click" data-subtask="scroll-date-select" data-date="2024-03-19">March 19, 2024 - Weekly Team Meeting</div>
-                        <div class="scrollable-item" data-action="click" data-subtask="scroll-date-select" data-date="2024-03-26">March 26, 2024 - Weekly Team Meeting</div>
-                        <div class="scrollable-item" data-action="click" data-subtask="scroll-date-select" data-date="2024-04-02">April 2, 2024 - Weekly Team Meeting</div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Inline Calendar View</label>
-                    <div class="inline-calendar" id="inline-calendar" data-action="interact" data-subtask="inline-calendar"></div>
-                </div>
-
-                <div class="form-group">
-                    <label for="week-selection">Week Selection</label>
-                    <div class="week-picker" id="week-picker" data-action="click" data-subtask="week-picker">
-                        <div class="week-day" data-action="click" data-subtask="week-day" data-day="monday">Mon</div>
-                        <div class="week-day" data-action="click" data-subtask="week-day" data-day="tuesday">Tue</div>
-                        <div class="week-day" data-action="click" data-subtask="week-day" data-day="wednesday">Wed</div>
-                        <div class="week-day" data-action="click" data-subtask="week-day" data-day="thursday">Thu</div>
-                        <div class="week-day" data-action="click" data-subtask="week-day" data-day="friday">Fri</div>
-                        <div class="week-day" data-action="click" data-subtask="week-day" data-day="saturday">Sat</div>
-                        <div class="week-day" data-action="click" data-subtask="week-day" data-day="sunday">Sun</div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="holiday-dates">Company Holiday Dates</label>
-                    <div class="date-picker-container">
-                        <input type="text" id="holiday-dates" class="date-input" placeholder="Select holiday dates" readonly data-action="click" data-subtask="holiday-picker">
-                        <div class="calendar-dropdown" id="holiday-calendar"></div>
-                    </div>
-                    <div class="multi-date-display" id="holiday-display"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Resource Allocation -->
-        <div class="form-section">
-            <h2>Resource Allocation & Booking</h2>
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="resource-booking">Resource Booking Period</label>
-                    <div class="date-range-picker">
-                        <div class="date-picker-container">
-                            <input type="text" id="resource-start" class="date-input" placeholder="Booking start" readonly data-action="click" data-subtask="resource-start">
-                            <div class="calendar-dropdown" id="resource-start-calendar"></div>
-                        </div>
-                        <span>to</span>
-                        <div class="date-picker-container">
-                            <input type="text" id="resource-end" class="date-input" placeholder="Booking end" readonly data-action="click" data-subtask="resource-end">
-                            <div class="calendar-dropdown" id="resource-end-calendar"></div>
+                    <label>Recurring Pattern:</label>
+                    <div class="recurring-options">
+                        <div class="recurring-grid">
+                            <div class="recurring-option" data-action="select-recurring" data-subtask="recurring-none" onclick="selectRecurring('none')">None</div>
+                            <div class="recurring-option" data-action="select-recurring" data-subtask="recurring-daily" onclick="selectRecurring('daily')">Daily</div>
+                            <div class="recurring-option" data-action="select-recurring" data-subtask="recurring-weekly" onclick="selectRecurring('weekly')">Weekly</div>
+                            <div class="recurring-option" data-action="select-recurring" data-subtask="recurring-monthly" onclick="selectRecurring('monthly')">Monthly</div>
+                            <div class="recurring-option" data-action="select-recurring" data-subtask="recurring-yearly" onclick="selectRecurring('yearly')">Yearly</div>
+                            <div class="recurring-option" data-action="select-recurring" data-subtask="recurring-custom" onclick="selectRecurring('custom')">Custom</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="maintenance-schedule">Maintenance Schedule</label>
-                    <div class="quick-date-buttons">
-                        <button class="quick-date-btn" data-action="click" data-subtask="maintenance-quick" data-type="weekly">Weekly</button>
-                        <button class="quick-date-btn" data-action="click" data-subtask="maintenance-quick" data-type="monthly">Monthly</button>
-                        <button class="quick-date-btn" data-action="click" data-subtask="maintenance-quick" data-type="quarterly">Quarterly</button>
-                    </div>
-                    <div class="date-picker-container">
-                        <input type="text" id="maintenance-date" class="date-input" placeholder="Next maintenance date" readonly data-action="click" data-subtask="maintenance-picker">
-                        <div class="calendar-dropdown" id="maintenance-calendar"></div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="training-sessions">Training Session Dates</label>
-                    <div class="date-picker-container">
-                        <input type="text" id="training-sessions" class="date-input" placeholder="Add training dates" readonly data-action="click" data-subtask="training-multi-picker">
-                        <div class="calendar-dropdown" id="training-calendar"></div>
-                    </div>
-                    <div class="multi-date-display" id="training-display"></div>
-                </div>
-
-                <div class="form-group">
-                    <label for="availability-check">Check Availability</label>
-                    <div class="date-picker-container">
-                        <input type="text" id="availability-date" class="date-input" placeholder="Check date availability" readonly data-action="click" data-subtask="availability-picker">
-                        <div class="calendar-dropdown" id="availability-calendar"></div>
-                    </div>
+                    <button class="btn" data-action="save-dates" data-subtask="save-button" onclick="saveDates()">Save All Dates</button>
+                    <button class="btn btn-secondary" data-action="clear-dates" data-subtask="clear-button" onclick="clearAllDates()">Clear All</button>
+                    <button class="btn btn-secondary" data-action="export-dates" data-subtask="export-button" onclick="exportDates()">Export Dates</button>
                 </div>
             </div>
-        </div>
-
-        <div class="form-actions">
-            <button type="button" class="btn btn-primary" data-action="click" data-subtask="form-submit">Save All Information</button>
-            <button type="button" class="btn btn-secondary" data-action="click" data-subtask="form-reset">Reset Form</button>
-            <button type="button" class="btn btn-secondary" data-action="click" data-subtask="form-preview">Preview Data</button>
         </div>
     </div>
 
     <script>
         // Global variables
+        let selectedDates = [];
         let currentCalendar = null;
-        let selectedDates = {};
-        let multiDateFields = ['milestone-dates', 'holiday-dates', 'training-sessions'];
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
 
-        // Initialize all date pickers
+        // Initialize the application
         document.addEventListener('DOMContentLoaded', function() {
             initializeDatePickers();
-            initializeInlineCalendar();
-            initializeTimeSpinners();
-            initializeScrollableList();
+            populateYearSelects();
+            populateScrollPickers();
+            setupEventListeners();
         });
 
         function initializeDatePickers() {
-            const dateInputs = document.querySelectorAll('.date-input');
-            dateInputs.forEach(input => {
+            // Initialize all calendar grids
+            updateCalendar('calendar-grid-1', 'month-select-1', 'year-select-1');
+            updateCalendar('calendar-grid-2', 'month-select-2', 'year-select-2');
+            updateCalendar('inline-calendar-grid', 'inline-month', 'inline-year');
+            updateCalendar('multi-calendar-grid', 'multi-month', 'multi-year');
+        }
+
+        function populateYearSelects() {
+            const currentYear = new Date().getFullYear();
+            const yearSelects = document.querySelectorAll('.year-select');
+            
+            yearSelects.forEach(select => {
+                select.innerHTML = '';
+                for (let year = currentYear - 10; year <= currentYear + 10; year++) {
+                    const option = document.createElement('option');
+                    option.value = year;
+                    option.textContent = year;
+                    if (year === currentYear) option.selected = true;
+                    select.appendChild(option);
+                }
+            });
+        }
+
+        function populateScrollPickers() {
+            // Populate day scroll
+            const dayScroll = document.getElementById('day-scroll');
+            for (let day = 1; day <= 31; day++) {
+                const div = document.createElement('div');
+                div.className = 'scroll-item';
+                div.dataset.value = day;
+                div.textContent = day;
+                dayScroll.appendChild(div);
+            }
+
+            // Populate year scroll
+            const yearScroll = document.getElementById('year-scroll');
+            const currentYear = new Date().getFullYear();
+            for (let year = currentYear - 10; year <= currentYear + 10; year++) {
+                const div = document.createElement('div');
+                div.className = 'scroll-item';
+                div.dataset.value = year;
+                div.textContent = year;
+                yearScroll.appendChild(div);
+            }
+        }
+
+        function setupEventListeners() {
+            // Custom datepicker inputs
+            document.querySelectorAll('.datepicker-input').forEach(input => {
                 input.addEventListener('click', function() {
-                    const calendarId = this.id + '-calendar';
+                    const calendarId = this.id.replace('custom-date-', 'calendar-');
                     const calendar = document.getElementById(calendarId);
-                    if (calendar) {
-                        showCalendar(calendar, this);
-                    }
+                    
+                    // Close other calendars
+                    document.querySelectorAll('.calendar-dropdown').forEach(cal => {
+                        if (cal.id !== calendarId) cal.style.display = 'none';
+                    });
+                    
+                    calendar.style.display = calendar.style.display === 'block' ? 'none' : 'block';
                 });
             });
 
-            // Close calendar when clicking outside
-            document.addEventListener('click', function(e) {
-                if (!e.target.closest('.date-picker-container')) {
-                    hideAllCalendars();
-                }
+            // Multi-date input
+            document.getElementById('multi-date-input').addEventListener('click', function() {
+                const calendar = document.getElementById('multi-calendar');
+                calendar.style.display = calendar.style.display === 'block' ? 'none' : 'block';
             });
-        }
 
-        function showCalendar(calendar, input) {
-            hideAllCalendars();
-            currentCalendar = { element: calendar, input: input };
-            
-            const today = new Date();
-            renderCalendar(calendar, today.getFullYear(), today.getMonth());
-            calendar.style.display = 'block';
-        }
-
-        function hideAllCalendars() {
-            const calendars = document.querySelectorAll('.calendar-dropdown');
-            calendars.forEach(cal => cal.style.display = 'none');
-        }
-
-        function renderCalendar(calendar, year, month) {
-            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                              'July', 'August', 'September', 'October', 'November', 'December'];
-            
-            calendar.innerHTML = `
-                <div class="calendar-header">
-                    <button class="calendar-nav" onclick="changeMonth(-1)">‹</button>
-                    <div class="calendar-title">${monthNames[month]} ${year}</div>
-                    <button class="calendar-nav" onclick="changeMonth(1)">›</button>
-                </div>
-                <div class="calendar-grid">
-                    <div class="calendar-day-header">Sun</div>
-                    <div class="calendar-day-header">Mon</div>
-                    <div class="calendar-day-header">Tue</div>
-                    <div class="calendar-day-header">Wed</div>
-                    <div class="calendar-day-header">Thu</div>
-                    <div class="calendar-day-header">Fri</div>
-                    <div class="calendar-day-header">Sat</div>
-                </div>
-            `;
-
-            const grid = calendar.querySelector('.calendar-grid');
-            const firstDay = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const daysInPrevMonth = new Date(year, month, 0).getDate();
-
-            // Previous month days
-            for (let i = firstDay - 1; i >= 0; i--) {
-                const day = daysInPrevMonth - i;
-                const dayElement = createDayElement(day, true, year, month - 1);
-                grid.appendChild(dayElement);
-            }
-
-            // Current month days
-            for (let day = 1; day <= daysInMonth; day++) {
-                const dayElement = createDayElement(day, false, year, month);
-                grid.appendChild(dayElement);
-            }
-
-            // Next month days
-            const totalCells = grid.children.length - 7; // Subtract header row
-            const remainingCells = 42 - totalCells; // 6 rows * 7 days
-            for (let day = 1; day <= remainingCells; day++) {
-                const dayElement = createDayElement(day, true, year, month + 1);
-                grid.appendChild(dayElement);
-            }
-
-            calendar.currentYear = year;
-            calendar.currentMonth = month;
-        }
-
-        function createDayElement(day, isOtherMonth, year, month) {
-            const dayElement = document.createElement('div');
-            dayElement.className = 'calendar-day' + (isOtherMonth ? ' other-month' : '');
-            dayElement.textContent = day;
-            dayElement.addEventListener('click', function() {
-                selectDate(year, month, day);
+            // Month/Year selectors
+            document.querySelectorAll('.month-select, .year-select').forEach(select => {
+                select.addEventListener('change', function() {
+                    const calendarId = this.id.includes('inline') ? 'inline-calendar-grid' : 
+                                     this.id.includes('multi') ? 'multi-calendar-grid' :
+                                     this.id.includes('1') ? 'calendar-grid-1' : 'calendar-grid-2';
+                    const monthSelectId = this.id.includes('inline') ? 'inline-month' :
+                                        this.id.includes('multi') ? 'multi-month' :
+                                        this.id.includes('1') ? 'month-select-1' : 'month-select-2';
+                    const yearSelectId = this.id.includes('inline') ? 'inline-year' :
+                                       this.id.includes('multi') ? 'multi-year' :
+                                       this.id.includes('1') ? 'year-select-1' : 'year-select-2';
+                    updateCalendar(calendarId, monthSelectId, yearSelectId);
+                });
             });
-            return dayElement;
-        }
 
-        function changeMonth(direction) {
-            if (!currentCalendar) return;
-            
-            const calendar = currentCalendar.element;
-            let newMonth = calendar.currentMonth + direction;
-            let newYear = calendar.currentYear;
-
-            if (newMonth < 0) {
-                newMonth = 11;
-                newYear--;
-            } else if (newMonth > 11) {
-                newMonth = 0;
-                newYear++;
-            }
-
-            renderCalendar(calendar, newYear, newMonth);
-        }
-
-        function selectDate(year, month, day) {
-            if (!currentCalendar) return;
-
-            const date = new Date(year, month, day);
-            const dateString = formatDate(date);
-            const input = currentCalendar.input;
-
-            if (multiDateFields.includes(input.id)) {
-                addMultiDate(input.id, dateString);
-            } else {
-                input.value = dateString;
-                hideAllCalendars();
-            }
-        }
-
-        function addMultiDate(fieldId, dateString) {
-            if (!selectedDates[fieldId]) {
-                selectedDates[fieldId] = [];
-            }
-
-            if (!selectedDates[fieldId].includes(dateString)) {
-                selectedDates[fieldId].push(dateString);
-                updateMultiDateDisplay(fieldId);
-            }
-        }
-
-        function updateMultiDateDisplay(fieldId) {
-            const displayId = fieldId.replace('-dates', '-display').replace('-sessions', '-display');
-            const display = document.getElementById(displayId);
-            if (!display || !selectedDates[fieldId]) return;
-
-            display.innerHTML = selectedDates[fieldId].map(date => 
-                `<span class="selected-date-tag">${date}<span class="remove" onclick="removeMultiDate('${fieldId}', '${date}')">×</span></span>`
-            ).join('');
-        }
-
-        function removeMultiDate(fieldId, dateString) {
-            if (selectedDates[fieldId]) {
-                selectedDates[fieldId] = selectedDates[fieldId].filter(date => date !== dateString);
-                updateMultiDateDisplay(fieldId);
-            }
-        }
-
-        function formatDate(date) {
-            const options = { year: 'numeric', month: 'long', day: 'numeric' };
-            return date.toLocaleDateString('en-US', options);
-        }
-
-        // Quick date button handlers
-        document.querySelectorAll('.quick-date-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const months = this.dataset.months;
-                const type = this.dataset.type;
-                
-                if (months) {
-                    const futureDate = new Date();
-                    futureDate.setMonth(futureDate.getMonth() + parseInt(months));
-                    const targetInput = this.parentElement.nextElementSibling.querySelector('.date-input');
-                    if (targetInput) {
-                        targetInput.value = formatDate(futureDate);
-                    }
-                }
-
-                if (type) {
-                    handleMaintenanceQuickSelect(type);
-                }
-            });
-        });
-
-        function handleMaintenanceQuickSelect(type) {
-            const maintenanceInput = document.getElementById('maintenance-date');
-            const today = new Date();
-            let nextDate = new Date(today);
-
-            switch(type) {
-                case 'weekly':
-                    nextDate.setDate(today.getDate() + 7);
-                    break;
-                case 'monthly':
-                    nextDate.setMonth(today.getMonth() + 1);
-                    break;
-                case 'quarterly':
-                    nextDate.setMonth(today.getMonth() + 3);
-                    break;
-            }
-
-            maintenanceInput.value = formatDate(nextDate);
-        }
-
-        // Time spinner functionality
-        function initializeTimeSpinners() {
-            document.querySelectorAll('[data-subtask="time-up"], [data-subtask="time-down"]').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const target = document.getElementById(this.dataset.target);
-                    const isUp = this.dataset.subtask === 'time-up';
-                    const isHour = this.dataset.target.includes('hour');
+            // Navigation buttons
+            document.querySelectorAll('.nav-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const isNext = this.textContent.includes('›') || this.textContent.includes('Next');
+                    const isPrev = this.textContent.includes('‹') || this.textContent.includes('Previous');
                     
-                    let currentValue = parseInt(target.value);
+                    let monthSelectId, yearSelectId, calendarId;
                     
-                    if (isHour) {
-                        if (isUp) {
-                            currentValue = currentValue >= 12 ? 1 : currentValue + 1;
-                        } else {
-                            currentValue = currentValue <= 1 ? 12 : currentValue - 1;
-                        }
+                    if (this.id.includes('inline')) {
+                        monthSelectId = 'inline-month';
+                        yearSelectId = 'inline-year';
+                        calendarId = 'inline-calendar-grid';
+                    } else if (this.id.includes('multi')) {
+                        monthSelectId = 'multi-month';
+                        yearSelectId = 'multi-year';
+                        calendarId = 'multi-calendar-grid';
+                    } else if (this.id.includes('1')) {
+                        monthSelectId = 'month-select-1';
+                        yearSelectId = 'year-select-1';
+                        calendarId = 'calendar-grid-1';
                     } else {
-                        if (isUp) {
-                            currentValue = currentValue >= 59 ? 0 : currentValue + 1;
-                        } else {
-                            currentValue = currentValue <= 0 ? 59 : currentValue - 1;
+                        monthSelectId = 'month-select-2';
+                        yearSelectId = 'year-select-2';
+                        calendarId = 'calendar-grid-2';
+                    }
+                    
+                    const monthSelect = document.getElementById(monthSelectId);
+                    const yearSelect = document.getElementById(yearSelectId);
+                    
+                    let month = parseInt(monthSelect.value);
+                    let year = parseInt(yearSelect.value);
+                    
+                    if (isNext) {
+                        month++;
+                        if (month > 11) {
+                            month = 0;
+                            year++;
+                        }
+                    } else if (isPrev) {
+                        month--;
+                        if (month < 0) {
+                            month = 11;
+                            year--;
                         }
                     }
                     
-                    target.value = currentValue.toString().padStart(2, '0');
+                    monthSelect.value = month;
+                    yearSelect.value = year;
+                    updateCalendar(calendarId, monthSelectId, yearSelectId);
                 });
             });
-        }
 
-        // Inline calendar
-        function initializeInlineCalendar() {
-            const inlineCalendar = document.getElementById('inline-calendar');
-            const today = new Date();
-            renderCalendar(inlineCalendar, today.getFullYear(), today.getMonth());
-            inlineCalendar.style.display = 'block';
-        }
-
-        // Scrollable list functionality
-        function initializeScrollableList() {
-            document.querySelectorAll('.scrollable-item').forEach(item => {
+            // Scroll picker items
+            document.querySelectorAll('.scroll-item').forEach(item => {
                 item.addEventListener('click', function() {
-                    document.querySelectorAll('.scrollable-item').forEach(i => i.classList.remove('selected'));
+                    // Remove selected class from siblings
+                    this.parentElement.querySelectorAll('.scroll-item').forEach(sibling => {
+                        sibling.classList.remove('selected');
+                    });
+                    // Add selected class to clicked item
                     this.classList.add('selected');
                 });
             });
-        }
 
-        // Week picker functionality
-        document.querySelectorAll('.week-day').forEach(day => {
-            day.addEventListener('click', function() {
-                this.classList.toggle('selected');
-            });
-        });
-
-        // Form actions
-        document.querySelector('[data-subtask="form-submit"]').addEventListener('click', function() {
-            alert('Form data saved successfully!');
-        });
-
-        document.querySelector('[data-subtask="form-reset"]').addEventListener('click', function() {
-            if (confirm('Are you sure you want to reset all form data?')) {
-                document.querySelectorAll('.date-input').forEach(input => input.value = '');
-                document.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
-                selectedDates = {};
-                document.querySelectorAll('.multi-date-display').forEach(display => display.innerHTML = '');
-                document.querySelectorAll('.selected').forEach(item => item.classList.remove('selected'));
-            }
-        });
-
-        document.querySelector('[data-subtask="form-preview"]').addEventListener('click', function() {
-            const formData = {};
-            document.querySelectorAll('.date-input, select').forEach(input => {
-                if (input.value) {
-                    formData[input.id] = input.value;
+            // Close calendars when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.custom-datepicker')) {
+                    document.querySelectorAll('.calendar-dropdown').forEach(calendar => {
+                        calendar.style.display = 'none';
+                    });
                 }
             });
-            console.log('Form Data:', formData);
-            alert('Form data logged to console. Check developer tools.');
-        });
+        }
+
+        function updateCalendar(calendarId, monthSelectId, yearSelectId) {
+            const calendar = document.getElementById(calendarId);
+            const monthSelect = document.getElementById(monthSelectId);
+            const yearSelect = document.getElementById(yearSelectId);
+            
+            const month = parseInt(monthSelect.value);
+            const year = parseInt(yearSelect.value);
+            
+            calendar.innerHTML = '';
+            
+            // Add day headers
+            const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            dayHeaders.forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'day-header';
+                dayHeader.textContent = day;
+                calendar.appendChild(dayHeader);
+            });
+            
+            // Get first day of month and number of days
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const daysInPrevMonth = new Date(year, month, 0).getDate();
+            
+            // Add empty cells for previous month
+            for (let i = firstDay - 1; i >= 0; i--) {
+                const dayCell = document.createElement('div');
+                dayCell.className = 'day-cell other-month';
+                dayCell.textContent = daysInPrevMonth - i;
+                calendar.appendChild(dayCell);
+            }
+            
+            // Add days of current month
+            const today = new Date();
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayCell = document.createElement('div');
+                dayCell.className = 'day-cell';
+                dayCell.textContent = day;
+                
+                // Check if today
+                if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
+                    dayCell.classList.add('today');
+                }
+                
+                // Add click event
+                dayCell.addEventListener('click', function() {
+                    if (calendarId === 'multi-calendar-grid') {
+                        handleMultiDateSelection(year, month, day, this);
+                    } else {
+                        handleSingleDateSelection(year, month, day, this, calendarId);
+                    }
+                });
+                
+                calendar.appendChild(dayCell);
+            }
+            
+            // Add remaining cells for next month
+            const totalCells = calendar.children.length;
+            const remainingCells = 42 - totalCells; // 6 rows × 7 days
+            for (let day = 1; day <= remainingCells; day++) {
+                const dayCell = document.createElement('div');
+                dayCell.className = 'day-cell other-month';
+                dayCell.textContent = day;
+                calendar.appendChild(dayCell);
+            }
+        }
+
+        function handleSingleDateSelection(year, month, day, cell, calendarId) {
+            // Remove previous selection
+            cell.parentElement.querySelectorAll('.day-cell').forEach(c => c.classList.remove('selected'));
+            cell.classList.add('selected');
+            
+            const date = new Date(year, month, day);
+            const formattedDate = date.toISOString().split('T')[0];
+            
+            // Update corresponding input
+            if (calendarId.includes('1')) {
+                document.getElementById('custom-date-1').value = formattedDate;
+                document.getElementById('calendar-1').style.display = 'none';
+            } else if (calendarId.includes('2')) {
+                const hour = document.getElementById('hour-input').value || '09';
+                const minute = document.getElementById('minute-input').value || '00';
+                document.getElementById('custom-date-2').value = `${formattedDate} ${hour}:${minute}`;
+                document.getElementById('calendar-2').style.display = 'none';
+            } else if (calendarId.includes('inline')) {
+                // For inline calendar, just show selection
+                console.log('Selected date:', formattedDate);
+            }
+        }
+
+        function handleMultiDateSelection(year, month, day, cell) {
+            const date = new Date(year, month, day);
+            const formattedDate = date.toISOString().split('T')[0];
+            
+            if (cell.classList.contains('selected')) {
+                // Remove date
+                cell.classList.remove('selected');
+                selectedDates = selectedDates.filter(d => d !== formattedDate);
+            } else {
+                // Add date
+                cell.classList.add('selected');
+                selectedDates.push(formattedDate);
+            }
+            
+            updateSelectedDatesDisplay();
+        }
+
+        function updateSelectedDatesDisplay() {
+            const container = document.getElementById('selected-dates');
+            container.innerHTML = '';
+            
+            selectedDates.forEach(date => {
+                const tag = document.createElement('div');
+                tag.className = 'date-tag';
+                tag.innerHTML = `${date} <span class="remove-date" onclick="removeDate('${date}')">×</span>`;
+                container.appendChild(tag);
+            });
+            
+            document.getElementById('multi-date-input').value = `${selectedDates.length} dates selected`;
+        }
+
+        function removeDate(date) {
+            selectedDates = selectedDates.filter(d => d !== date);
+            updateSelectedDatesDisplay();
+            
+            // Remove visual selection from calendar
+            document.querySelectorAll('.day-cell.selected').forEach(cell => {
+                const cellDate = new Date(
+                    parseInt(document.getElementById('multi-year').value),
+                    parseInt(document.getElementById('multi-month').value),
+                    parseInt(cell.textContent)
+                ).toISOString().split('T')[0];
+                
+                if (cellDate === date) {
+                    cell.classList.remove('selected');
+                }
+            });
+        }
+
+        function setQuickDate(period) {
+            const today = new Date();
+            let startDate, endDate;
+            
+            switch(period) {
+                case 'today':
+                    startDate = endDate = today;
+                    break;
+                case 'tomorrow':
+                    startDate = endDate = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+                    break;
+                case 'thisWeek':
+                    startDate = new Date(today.setDate(today.getDate() - today.getDay()));
+                    endDate = new Date(today.setDate(today.getDate() - today.getDay() + 6));
+                    break;
+                case 'nextWeek':
+                    startDate = new Date(today.setDate(today.getDate() - today.getDay() + 7));
+                    endDate = new Date(today.setDate(today.getDate() - today.getDay() + 13));
+                    break;
+                case 'thisMonth':
+                    startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                    endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                    break;
+                case 'nextMonth':
+                    startDate = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+                    endDate = new Date(today.getFullYear(), today.getMonth() + 2, 0);
+                    break;
+            }
+            
+            document.getElementById('start-date').value = startDate.toISOString().split('T')[0];
+            document.getElementById('end-date').value = endDate.toISOString().split('T')[0];
+        }
+
+        function selectRecurring(pattern) {
+            document.querySelectorAll('.recurring-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            event.target.classList.add('selected');
+        }
+
+        function saveDates() {
+            const allDates = {
+                basicDate: document.getElementById('basic-date').value,
+                datetime: document.getElementById('datetime-local').value,
+                time: document.getElementById('time-input').value,
+                month: document.getElementById('month-input').value,
+                week: document.getElementById('week-input').value,
+                customDate1: document.getElementById('custom-date-1').value,
+                customDate2: document.getElementById('custom-date-2').value,
+                startDate: document.getElementById('start-date').value,
+                endDate: document.getElementById('end-date').value,
+                selectedDates: selectedDates,
+                timezone: document.getElementById('timezone').value,
+                recurring: document.querySelector('.recurring-option.selected')?.textContent || 'None'
+            };
+            
+            alert('Dates saved successfully!\n\n' + JSON.stringify(allDates, null, 2));
+        }
+
+        function clearAllDates() {
+            // Clear all inputs
+            document.querySelectorAll('input[type="date"], input[type="datetime-local"], input[type="time"], input[type="month"], input[type="week"]').forEach(input => {
+                input.value = '';
+            });
+            
+            document.querySelectorAll('.datepicker-input').forEach(input => {
+                input.value = '';
+            });
+            
+            // Clear selected dates
+            selectedDates = [];
+            updateSelectedDatesDisplay();
+            
+            // Clear selections
+            document.querySelectorAll('.day-cell.selected, .scroll-item.selected, .recurring-option.selected').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            alert('All dates cleared!');
+        }
+
+        function exportDates() {
+            const allDates = {
+                basicDate: document.getElementById('basic-date').value,
+                datetime: document.getElementById('datetime-local').value,
+                time: document.getElementById('time-input').value,
+                month: document.getElementById('month-input').value,
+                week: document.getElementById('week-input').value,
+                customDate1: document.getElementById('custom-date-1').value,
+                customDate2: document.getElementById('custom-date-2').value,
+                startDate: document.getElementById('start-date').value,
+                endDate: document.getElementById('end-date').value,
+                selectedDates: selectedDates,
+                timezone: document.getElementById('timezone').value,
+                recurring: document.querySelector('.recurring-option.selected')?.textContent || 'None'
+            };
+            
+            const dataStr = JSON.stringify(allDates, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'exported_dates.json';
+            link.click();
+        }
     </script>
 </body>
 </html>
