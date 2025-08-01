@@ -1,0 +1,746 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Business Management Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        .section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 30px;
+            border: 1px solid #e9ecef;
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+
+        .checkbox-group, .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item, .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-item input, .radio-item input {
+            width: auto;
+            margin: 0;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .data-table th {
+            background: #34495e;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .data-table th:hover {
+            background: #2c3e50;
+        }
+
+        .data-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .search-filter {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .file-upload {
+            border: 2px dashed #bdc3c7;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #ecf0f1;
+        }
+
+        .file-upload:hover, .file-upload.dragover {
+            border-color: #3498db;
+            background: #ebf3fd;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db 0%, #2980b9 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #d5f4e6;
+            color: #27ae60;
+        }
+
+        .status-pending {
+            background: #fef9e7;
+            color: #f39c12;
+        }
+
+        .status-completed {
+            background: #eaf2ff;
+            color: #3498db;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .alert-success {
+            background: #d5f4e6;
+            color: #27ae60;
+            border: 1px solid #27ae60;
+        }
+
+        .alert-error {
+            background: #fadbd8;
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Enterprise Business Management Portal</h1>
+            <p>Comprehensive business operations and data management system</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Employee Management Section -->
+            <div class="section" data-section="employee">
+                <h2>Employee Management</h2>
+                <form id="employeeForm" data-action="employee-form">
+                    <div class="form-group">
+                        <label for="empName">Full Name *</label>
+                        <input type="text" id="empName" class="form-control" data-field="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="empEmail">Email Address *</label>
+                        <input type="email" id="empEmail" class="form-control" data-field="email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="empDepartment">Department</label>
+                        <select id="empDepartment" class="form-control" data-field="department">
+                            <option value="">Select Department</option>
+                            <option value="hr">Human Resources</option>
+                            <option value="finance">Finance</option>
+                            <option value="it">Information Technology</option>
+                            <option value="marketing">Marketing</option>
+                            <option value="operations">Operations</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="empPosition">Position</label>
+                        <input type="text" id="empPosition" class="form-control" data-field="position" placeholder="e.g., Senior Developer">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="empStartDate">Start Date</label>
+                        <input type="date" id="empStartDate" class="form-control" data-field="startDate">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="empSalary">Annual Salary</label>
+                        <input type="number" id="empSalary" class="form-control" data-field="salary" placeholder="75000">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Employment Type</label>
+                        <div class="radio-group">
+                            <div class="radio-item">
+                                <input type="radio" id="fullTime" name="empType" value="full-time" data-field="employment-type">
+                                <label for="fullTime">Full Time</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="partTime" name="empType" value="part-time" data-field="employment-type">
+                                <label for="partTime">Part Time</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="contract" name="empType" value="contract" data-field="employment-type">
+                                <label for="contract">Contract</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Benefits</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="healthInsurance" data-benefit="health">
+                                <label for="healthInsurance">Health Insurance</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="dentalInsurance" data-benefit="dental">
+                                <label for="dentalInsurance">Dental Insurance</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="retirement401k" data-benefit="401k">
+                                <label for="retirement401k">401(k) Plan</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn" data-action="submit-employee">Add Employee</button>
+                    <button type="button" class="btn btn-warning" data-action="clear-employee" onclick="clearEmployeeForm()">Clear Form</button>
+                </form>
+                
+                <div id="employeeAlert" class="alert"></div>
+            </div>
+
+            <!-- Expense Management Section -->
+            <div class="section" data-section="expense">
+                <h2>Expense Management</h2>
+                <form id="expenseForm" data-action="expense-form">
+                    <div class="form-group">
+                        <label for="expenseDate">Expense Date *</label>
+                        <input type="date" id="expenseDate" class="form-control" data-field="expense-date" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="expenseCategory">Category</label>
+                        <select id="expenseCategory" class="form-control" data-field="expense-category">
+                            <option value="">Select Category</option>
+                            <option value="travel">Travel</option>
+                            <option value="meals">Meals & Entertainment</option>
+                            <option value="office">Office Supplies</option>
+                            <option value="software">Software & Subscriptions</option>
+                            <option value="training">Training & Education</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="amount">Amount ($) *</label>
+                        <input type="number" id="amount" class="form-control" data-field="amount" step="0.01" placeholder="0.00" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="expenseDescription">Description</label>
+                        <textarea id="expenseDescription" name="expenseDescription" class="form-control" data-field="description" rows="3" placeholder="Detailed description of the expense"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="receiptUpload">Receipt Upload</label>
+                        <div id="receiptUpload" class="file-upload" data-action="file-upload">
+                            <p>📄 Drag and drop receipt here or click to browse</p>
+                            <input type="file" id="receiptFile" style="display: none;" accept=".pdf,.jpg,.jpeg,.png">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Reimbursement Status</label>
+                        <div class="radio-group">
+                            <div class="radio-item">
+                                <input type="radio" id="pending" name="reimbursementStatus" value="pending" data-field="reimbursement-status">
+                                <label for="pending">Pending</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="approved" name="reimbursementStatus" value="approved" data-field="reimbursement-status">
+                                <label for="approved">Approved</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="rejected" name="reimbursementStatus" value="rejected" data-field="reimbursement-status">
+                                <label for="rejected">Rejected</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn" data-action="submit-expense">Submit Expense</button>
+                    <button type="button" class="btn btn-danger" data-action="clear-expense" onclick="clearExpenseForm()">Clear Form</button>
+                </form>
+                
+                <div id="expenseAlert" class="alert"></div>
+            </div>
+
+            <!-- Project Management Section -->
+            <div class="section full-width" data-section="project">
+                <h2>Project Management Dashboard</h2>
+                
+                <div class="search-filter">
+                    <input type="text" id="projectSearch" class="form-control" placeholder="Search projects..." data-action="search-projects" style="max-width: 300px;">
+                    <select id="statusFilter" class="form-control" data-action="filter-status" style="max-width: 200px;">
+                        <option value="">All Statuses</option>
+                        <option value="active">Active</option>
+                        <option value="pending">Pending</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                    <button class="btn" data-action="add-project" onclick="addNewProject()">Add New Project</button>
+                    <button class="btn btn-success" data-action="export-data" onclick="exportData()">Export Data</button>
+                </div>
+                
+                <table class="data-table" id="projectTable">
+                    <thead>
+                        <tr>
+                            <th data-sort="name" data-action="sort-name">Project Name ↕</th>
+                            <th data-sort="manager" data-action="sort-manager">Manager ↕</th>
+                            <th data-sort="status" data-action="sort-status">Status ↕</th>
+                            <th data-sort="budget" data-action="sort-budget">Budget ↕</th>
+                            <th data-sort="deadline" data-action="sort-deadline">Deadline ↕</th>
+                            <th data-action="actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="projectTableBody">
+                        <tr data-project="1">
+                            <td>Website Redesign</td>
+                            <td>Sarah Johnson</td>
+                            <td><span class="status-badge status-active">Active</span></td>
+                            <td>$45,000</td>
+                            <td>2024-03-15</td>
+                            <td>
+                                <button class="btn" data-action="edit-project" onclick="editProject(1)">Edit</button>
+                                <button class="btn btn-danger" data-action="delete-project" onclick="deleteProject(1)">Delete</button>
+                            </td>
+                        </tr>
+                        <tr data-project="2">
+                            <td>Mobile App Development</td>
+                            <td>Mike Chen</td>
+                            <td><span class="status-badge status-pending">Pending</span></td>
+                            <td>$120,000</td>
+                            <td>2024-06-30</td>
+                            <td>
+                                <button class="btn" data-action="edit-project" onclick="editProject(2)">Edit</button>
+                                <button class="btn btn-danger" data-action="delete-project" onclick="deleteProject(2)">Delete</button>
+                            </td>
+                        </tr>
+                        <tr data-project="3">
+                            <td>Database Migration</td>
+                            <td>Emily Rodriguez</td>
+                            <td><span class="status-badge status-completed">Completed</span></td>
+                            <td>$25,000</td>
+                            <td>2024-01-20</td>
+                            <td>
+                                <button class="btn" data-action="edit-project" onclick="editProject(3)">Edit</button>
+                                <button class="btn btn-danger" data-action="delete-project" onclick="deleteProject(3)">Delete</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 65%;"></div>
+                </div>
+                <p style="text-align: center; margin-top: 10px;">Overall Project Completion: 65%</p>
+            </div>
+
+            <!-- Data Analytics Section -->
+            <div class="section full-width" data-section="analytics">
+                <h2>Data Analytics & Reporting</h2>
+                
+                <div class="search-filter">
+                    <input type="text" id="dataSearch" class="form-control" placeholder="Search data entries..." data-action="search-data" style="max-width: 300px;">
+                    <select id="departmentFilter" class="form-control" data-action="filter-department" style="max-width: 200px;">
+                        <option value="">All Departments</option>
+                        <option value="hr">Human Resources</option>
+                        <option value="finance">Finance</option>
+                        <option value="it">Information Technology</option>
+                        <option value="marketing">Marketing</option>
+                    </select>
+                    <button class="btn" data-action="generate-report" onclick="generateReport()">Generate Report</button>
+                    <button class="btn btn-warning" data-action="refresh-data" onclick="refreshData()">Refresh Data</button>
+                </div>
+                
+                <table class="data-table" id="analyticsTable">
+                    <thead>
+                        <tr>
+                            <th data-sort="employee" data-action="sort-employee">Employee ↕</th>
+                            <th data-sort="department" data-action="sort-dept">Department ↕</th>
+                            <th data-sort="performance" data-action="sort-performance">Performance ↕</th>
+                            <th data-sort="projects" data-action="sort-projects">Projects ↕</th>
+                            <th data-sort="rating" data-action="sort-rating">Rating ↕</th>
+                        </tr>
+                    </thead>
+                    <tbody id="analyticsTableBody">
+                        <tr data-employee="1">
+                            <td>John Smith</td>
+                            <td>Information Technology</td>
+                            <td>92%</td>
+                            <td>8</td>
+                            <td>⭐⭐⭐⭐⭐</td>
+                        </tr>
+                        <tr data-employee="2">
+                            <td>Lisa Wang</td>
+                            <td>Marketing</td>
+                            <td>88%</td>
+                            <td>12</td>
+                            <td>⭐⭐⭐⭐</td>
+                        </tr>
+                        <tr data-employee="3">
+                            <td>David Brown</td>
+                            <td>Finance</td>
+                            <td>95%</td>
+                            <td>6</td>
+                            <td>⭐⭐⭐⭐⭐</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div id="analyticsAlert" class="alert"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Form validation and submission
+        document.getElementById('employeeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('empName').value;
+            const email = document.getElementById('empEmail').value;
+            
+            if (name && email) {
+                showAlert('employeeAlert', 'Employee added successfully!', 'success');
+            } else {
+                showAlert('employeeAlert', 'Please fill in all required fields.', 'error');
+            }
+        });
+
+        document.getElementById('expenseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const date = document.getElementById('expenseDate').value;
+            const amount = document.getElementById('amount').value;
+            
+            if (date && amount) {
+                showAlert('expenseAlert', 'Expense submitted successfully!', 'success');
+            } else {
+                showAlert('expenseAlert', 'Please fill in all required fields.', 'error');
+            }
+        });
+
+        // File upload functionality
+        const fileUpload = document.getElementById('receiptUpload');
+        const fileInput = document.getElementById('receiptFile');
+
+        fileUpload.addEventListener('click', () => fileInput.click());
+        fileUpload.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileUpload.classList.add('dragover');
+        });
+        fileUpload.addEventListener('dragleave', () => {
+            fileUpload.classList.remove('dragover');
+        });
+        fileUpload.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileUpload.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileUpload.innerHTML = `<p>✅ File uploaded: ${files[0].name}</p>`;
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                fileUpload.innerHTML = `<p>✅ File selected: ${e.target.files[0].name}</p>`;
+            }
+        });
+
+        // Search functionality
+        document.getElementById('projectSearch').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#projectTableBody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+
+        document.getElementById('dataSearch').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#analyticsTableBody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+
+        // Filter functionality
+        document.getElementById('statusFilter').addEventListener('change', function(e) {
+            const filterValue = e.target.value;
+            const rows = document.querySelectorAll('#projectTableBody tr');
+            
+            rows.forEach(row => {
+                if (!filterValue) {
+                    row.style.display = '';
+                } else {
+                    const statusBadge = row.querySelector('.status-badge');
+                    const hasStatus = statusBadge && statusBadge.classList.contains(`status-${filterValue}`);
+                    row.style.display = hasStatus ? '' : 'none';
+                }
+            });
+        });
+
+        document.getElementById('departmentFilter').addEventListener('change', function(e) {
+            const filterValue = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#analyticsTableBody tr');
+            
+            rows.forEach(row => {
+                if (!filterValue) {
+                    row.style.display = '';
+                } else {
+                    const deptCell = row.cells[1].textContent.toLowerCase();
+                    row.style.display = deptCell.includes(filterValue) ? '' : 'none';
+                }
+            });
+        });
+
+        // Table sorting
+        document.querySelectorAll('[data-sort]').forEach(header => {
+            header.addEventListener('click', function() {
+                const sortBy = this.getAttribute('data-sort');
+                const table = this.closest('table');
+                const tbody = table.querySelector('tbody');
+                const rows = Array.from(tbody.querySelectorAll('tr'));
+                
+                rows.sort((a, b) => {
+                    const aText = a.cells[Array.from(this.parentNode.children).indexOf(this)].textContent;
+                    const bText = b.cells[Array.from(this.parentNode.children).indexOf(this)].textContent;
+                    return aText.localeCompare(bText);
+                });
+                
+                rows.forEach(row => tbody.appendChild(row));
+            });
+        });
+
+        // Utility functions
+        function showAlert(alertId, message, type) {
+            const alert = document.getElementById(alertId);
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            alert.style.display = 'block';
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 3000);
+        }
+
+        function clearEmployeeForm() {
+            document.getElementById('employeeForm').reset();
+            showAlert('employeeAlert', 'Form cleared successfully!', 'success');
+        }
+
+        function clearExpenseForm() {
+            document.getElementById('expenseForm').reset();
+            document.getElementById('receiptUpload').innerHTML = '<p>📄 Drag and drop receipt here or click to browse</p>';
+            showAlert('expenseAlert', 'Form cleared successfully!', 'success');
+        }
+
+        function addNewProject() {
+            const tbody = document.getElementById('projectTableBody');
+            const newRow = tbody.insertRow();
+            newRow.innerHTML = `
+                <td>New Project</td>
+                <td>Unassigned</td>
+                <td><span class="status-badge status-pending">Pending</span></td>
+                <td>$0</td>
+                <td>TBD</td>
+                <td>
+                    <button class="btn" data-action="edit-project">Edit</button>
+                    <button class="btn btn-danger" data-action="delete-project">Delete</button>
+                </td>
+            `;
+        }
+
+        function editProject(id) {
+            alert(`Editing project ${id}`);
+        }
+
+        function deleteProject(id) {
+            if (confirm(`Are you sure you want to delete project ${id}?`)) {
+                const row = document.querySelector(`[data-project="${id}"]`);
+                if (row) row.remove();
+            }
+        }
+
+        function generateReport() {
+            showAlert('analyticsAlert', 'Report generated successfully!', 'success');
+        }
+
+        function refreshData() {
+            showAlert('analyticsAlert', 'Data refreshed successfully!', 'success');
+        }
+
+        function exportData() {
+            alert('Data exported successfully!');
+        }
+
+        // Initialize progress bar animation
+        window.addEventListener('load', function() {
+            const progressFill = document.getElementById('progressFill');
+            setTimeout(() => {
+                progressFill.style.width = '65%';
+            }, 500);
+        });
+    </script>
+</body>
+</html>
